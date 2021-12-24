@@ -1,11 +1,11 @@
-# ----------------------------------------------------------------------
-# General information --------------------------------------------------
+---
+# General information 
 
 Author:  Einara Zahn
 contact: einaraz@princeton.edu, einara.zahn@gmail.com
 
-# ----------------------------------------------------------------------
-# Description of files -------------------------------------------------
+---
+# Description of files 
 
 Partitioning.py - contains the class Partitioning - implements functions to
                   partition ET and CO2 fluxes into stomatal and non-stomatal components
@@ -13,8 +13,8 @@ auxfunctions.py - contains auxiliary functions to compute the water-use efficien
 main.py - shows an example of how to implement the partitioning methods. Three text files 
           with half-houly time series are available: '2018-04-09-1700.csv', '2018-04-09-1730.csv', '2018-04-09-1800.csv'
 
-# ----------------------------------------------------------------------
-# Format of input data -------------------------------------------------
+---
+# Format of input data 
 
 This code assumes that quality control (e.g., removal of outliers) and post-processing (coordinate
 rotation, density correction, extraction of fluctuations, etc) were previously implemented.
@@ -51,7 +51,7 @@ water-use efficiency (W). Alternativaly, W can be given to the code.
    Tv_p - fluctuations of virtual temperature (Celsius)
 
 
-# Available Partitioning methods ---------------------------------------
+# Available Partitioning methods 
 
 --> Conditional Eddy Covariance (CEC):
      Zahn et al., 2021, Agr. For. Met., "Direct Partitioning of Eddy-Covariance Water and Carbon Dioxide
@@ -61,7 +61,7 @@ water-use efficiency (W). Alternativaly, W can be given to the code.
      Thomas et al., 2008 (Agr For Met)
         "Estimating daytime subcanopy respiration from conditional sampling methods 
         applied to multi-scalar high frequency turbulence time series"
-        https://www.sciencedirect.com/science/article/pii/S0168192308000737
+        [title](https://www.sciencedirect.com/science/article/pii/S0168192308000737)
         
 --> Flux-Variance Similarity (FVS)
       Scanlon et al., 2019, Agr. For. Met.
