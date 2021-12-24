@@ -33,11 +33,11 @@ for n,filei in enumerate(listfiles):
     """
     
     # CEC method
-    part.partCEC(H=0.25)
+    part.partCEC(H=0)
     print(part.fluxesCEC)
     
     # MREA method
-    part.partREA(H=0.25)
+    part.partREA(H=0.0)
     print(part.fluxesREA)
     
     # Compute water-use efficiency

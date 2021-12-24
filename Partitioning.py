@@ -258,61 +258,63 @@ class Partitioning(object):
         
         # Creates a dataframe with variables of interest and no constraints
         auxET = self.data[["c_p", "q_p", "w_p"]]
-        N=auxET["w_p"].size                                                # Total number of points
-        total_Fc = sum(auxET["c_p"]*auxET["w_p"])/N                        # flux [all quadrants] given in mg/(s m2)
-        total_ET = (10**-3)*Constants.Lv*sum(auxET["q_p"]*auxET["w_p"])/N  # flux [all quadrants] given in  W/m2
+        N=auxET["w_p"].size                                                    # Total number of points
+        total_Fc = sum(auxET["c_p"]*auxET["w_p"])/N                            # flux [all quadrants] given in mg/(s m2)
+        total_ET = (10**-3)*Constants.Lv*sum(auxET["q_p"]*auxET["w_p"])/N      # flux [all quadrants] given in  W/m2
 
         # Creates a dataframe with variables of interest and conditioned on updrafts and on the first quadrant
         auxE  = self.data[ (self.data["w_p"] > 0)&(self.data["c_p"] > 0)&(self.data["q_p"] > 0)&(abs(self.data["c_p"]/self.data["c_p"].std())>abs(H*self.data["q_p"].std()/self.data["q_p"])) ][["c_p", "q_p", "w_p"]]
-        R_condition_Fc = sum(auxE["c_p"]*auxE["w_p"])/N                   # conditional flux [1st quadrant and w'>0] given in mg/(s m2)
-        E_condition_ET = (10**-3)*Constants.Lv*sum(auxE["q_p"]*auxE["w_p"])/N  # conditional flux [1st quadrant and w'>0] flux given in  W/m2
+        R_condition_Fc = sum(auxE["c_p"]*auxE["w_p"])/N                         # conditional flux [1st quadrant and w'>0] given in mg/(s m2)
+        E_condition_ET = (10**-3)*Constants.Lv*sum(auxE["q_p"]*auxE["w_p"])/N   # conditional flux [1st quadrant and w'>0] flux given in  W/m2
+        sumQ1 = (auxE['w_p'].index.size/N)*100                                  # Number of points on the first quadrant
 
         # Creates a dataframe with variables of interest and conditioned on updrafts and on the second quadrant
         auxT  = self.data[ (self.data["w_p"] > 0)&(self.data["c_p"] < 0)&(self.data["q_p"] > 0)&(abs(self.data["c_p"]/self.data["c_p"].std())>abs(H*self.data["q_p"].std()/self.data["q_p"])) ][["c_p", "q_p", "w_p"]]
-        P_condition_Fc = sum(auxT["c_p"]*auxT["w_p"])/N                   # conditional flux [2nd quadrant and w'>0] given in mg/(s m2)
-        T_condition_ET = (10**-3)*Constants.Lv*sum(auxT["q_p"]*auxT["w_p"])/N  # conditional flux [2nd quadrant and w'>0] flux given in  W/m2
-        
-        
+        P_condition_Fc = sum(auxT["c_p"]*auxT["w_p"])/N                         # conditional flux [2nd quadrant and w'>0] given in mg/(s m2)
+        T_condition_ET = (10**-3)*Constants.Lv*sum(auxT["q_p"]*auxT["w_p"])/N   # conditional flux [2nd quadrant and w'>0] flux given in  W/m2
+        sumQ2 = (auxT['w_p'].index.size/N)*100                                  # Number of points on the second quadrant
+
         # Computing flux ratios and flux components of ET and Fc
+        E, T, P, R, ratioET, ratioRP = np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
         
-        # 1 - when all components are non-zero 
-        if abs(T_condition_ET) > 0.0 and abs(E_condition_ET) > 0.0:
+        # First condition: do we have enough points in Q1 and Q2?
+        if (sumQ1 + sumQ2) < 20:
+            self.fluxesCEC = { 'ET': total_ET,  'E': E,        'T': T,     'Fc': total_Fc,    'P': P,     'R': R, 'rRP': ratioRP, 'rET': ratioET, 'sumQ1': sumQ1, 'sumQ2': sumQ2, 'status': 'Q1+Q2<20'  }
+        elif (sumQ1>=5) and (sumQ2>=5):
+            # ET components
             ratioET=E_condition_ET/T_condition_ET
-            T = total_ET/(1.0 + ratioET);  
-            E = total_ET/(1.0 + 1.0/ratioET);
-        
-        if abs(R_condition_Fc) > 0.0 and abs(P_condition_Fc) > 0.0:
+            T = total_ET/(1.0 + ratioET)
+            E = total_ET/(1.0 + 1.0/ratioET)
+            # Fc components
             ratioRP = R_condition_Fc/P_condition_Fc
-            P = total_Fc/(1.0 + ratioRP);  
+            P = total_Fc/(1.0 + ratioRP)  
             R = total_Fc/(1.0 + 1.0/ratioRP)
-        
-        # 2 - if conditional flux of E or R happens to be zero (no points)
-        if abs(T_condition_ET) > 0.0 and E_condition_ET == 0.0:
+        elif (sumQ1<5) and (sumQ2>5):
             # In this case, all water fluxes are transpiration
             ratioET=0.0
             T=total_ET
             E=0.0
-        
-        if abs(P_condition_Fc) > 0.0 and R_condition_Fc == 0.0:
             # In this case, all co2 flux is photosynthesis
             ratioRP=0.0
             P=total_Fc
             R=0.0
-            
-        # 3 - if conditional flux of T or P happens to be zero (no points)
-        if T_condition_ET == 0.0 and abs(E_condition_ET) > 0.0:
+        elif (sumQ1>5) and (sumQ2<5):
+            # All flux is from ground
             ratioET=np.inf
             T=0.0
             E=total_ET
-        
-        if P_condition_Fc == 0.0 and abs(R_condition_Fc) > 0.0:
+            # All Fc flux is considered to be respiration
             ratioRP=np.inf
             P=0.0  
             R=total_Fc
-        
+        else: input("Problem: Q1=%s and Q2=%s"%(sumQ1,sumQ2))
+
+        if -1.2 < ratioRP < -0.8: finalstat = 'Small ratioRP'
+        else: finalstat = 'OK'
+
         # Additional constraints may be added based on the strength of the fluxes and other combinations
-        
-        self.fluxesCEC = { 'ET': total_ET,  'E': E,        'T': T,     'Fc': total_Fc,    'P': P,     'R': R     }
+        self.fluxesCEC = { 'ET': total_ET,  'E': E,        'T': T,     'Fc': total_Fc,    'P': P,     'R': R, 'rRP': ratioRP, 'rET': ratioET, 'sumQ1': sumQ1, 'sumQ2': sumQ2, 'status': finalstat  }
+
 
     def partREA(self, H=0.25):
         """
@@ -354,26 +356,34 @@ class Partitioning(object):
         # For water vapor fluxes: numerator and denominator of equation 11 in Thomas et al., 2008
         qnum = qseries[(qseries>0)&(cseries>0)&(wseries>0)&((qseries/sigmaq)>(H*sigmac/cseries))&((cseries/sigmac)>(H*sigmaq/qseries))]
         qdiv = qseries[(abs(qseries/sigmaq)>abs(H*sigmac/cseries))&(abs(cseries/sigmac)>abs(H*sigmaq/qseries))&(wseries>0)]
-       
-        # If no points were in the first quadrant following the conditions of the method, attribute all fluxes
-        #             to stomatal components
-        if len(cdiv) == 0 or len(qdiv) == 0:
-            self.fluxesREA = {   'ET': ET,   'Fc': Fc, 'E': 0, 'T': ET, 'P': Fc, 'R': 0 }
-        else:
-            R = betaH*sigmaw*( sum(cnum)/len(cdiv) )   # Respiration [mg / (s m2)]
-            E = betaH*sigmaw*( sum(qnum)/len(qdiv) )   # Evaporation [g / (s m2)]
+
+        # Count number of points on the second quadrant (no H is used here)
+        Q1sum = ( len( cseries[(qseries>0)&(cseries>0)&(wseries>0)] )/NN )*100
+        Q2sum = ( len( cseries[(qseries>0)&(cseries<0)&(wseries>0)] )/NN )*100
+
+        # Check availability of points in each quadrant
+        if (Q1sum + Q2sum) < 20:
+            self.fluxesREA = { 'ET': ET,  'Fc': Fc, 'E': np.nan, 'T': np.nan, 'P': np.nan, 'R': np.nan, 'sumQ1': Q1sum, 'sumQ2': Q2sum, 'status': 'Q1+Q2<20'  }
+        elif (Q1sum>=5) and (Q2sum>=5):
+            R = beta*sigmaw*( sum(cnum)/len(cdiv) )    # Respiration [mg / (s m2)]
+            E = beta*sigmaw*( sum(qnum)/len(qdiv) )    # Evaporation [g / (s m2)]
             E = E*(10**-3)*Constants.Lv                # Latent heat flux [W/m2]
             P = Fc - R                                 # Photosynthesis  [mg/(s m2)]
             T = ET - E                                 # Transpiration   [W/m2]
-            
+            finalstatus = 'OK'
+
             # To test realistic fluxes
             if E > 1.01*ET: 
+                finalstatus = 'E>ET'
                 E = np.nan; T = np.nan    
                 R = np.nan; P = np.nan    
-                
-            # ------------------------------------------------------------------
-            self.fluxesREA = { 'ET': ET,  'Fc': Fc, 'E': E, 'T': T, 'P': P, 'R': R  }
-
+            self.fluxesREA = { 'ET': ET,  'Fc': Fc, 'E': E, 'T': T, 'P': P, 'R': R, 'sumQ1': Q1sum, 'sumQ2': Q2sum, 'status': finalstatus  }
+        elif (Q1sum<5)  and (Q2sum>5):
+            self.fluxesREA = {   'ET': ET,   'Fc': Fc, 'E': 0, 'T': ET, 'P': Fc, 'R': 0, 'sumQ1': Q1sum, 'sumQ2': Q2sum, 'status': 'OK' }
+        elif (Q1sum>5) and (Q2sum<5):
+            self.fluxesREA = {   'ET': ET,   'Fc': Fc, 'E': ET, 'T': 0, 'P': 0, 'R': Fc, 'sumQ1': Q1sum, 'sumQ2': Q2sum, 'status': 'OK' }
+        else: input("Problem: Q1=%s and Q2=%s"%(Q1sum,Q2sum))
+ 
     def partFVS(self, W):
         """
         Partitioning based on Flux Variance Similarity Theory (FVS)
