@@ -13,7 +13,7 @@ from pprint import pprint
 """
 
 # List of names of all files containing half-hour data (or any length of interest)
-listfiles = ['2018-04-09-1700.csv', '2018-04-09-1730.csv', '2018-04-09-1800.csv' ]
+listfiles = glob("Data/*.csv")
 
 for n,filei in enumerate(listfiles):
     print("%d/%d"%(n,len(listfiles)), filei)
