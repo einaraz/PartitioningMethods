@@ -55,8 +55,8 @@ class Partitioning(object):
              h2o  - water vapor density (g/m3)
              T    - air temperature (Celsius)
              Tv   - virtual temperature (Celsius)
-             c_p  - fluctuations of carbon dioxide density (mg/m3) - WPL corrected and linear detrended
-             q_p  - fluctuations of water vapor density (g/m3) - WPL corrected and linear detrended
+             c_p  - fluctuations of carbon dioxide density (mg/m3) - corrected by external densities and linear detrended
+             q_p  - fluctuations of water vapor density (g/m3)     - corrected by external densities and linear detrended
              T_p  - fluctuations of air temperature (Celsius)
              Tv_p - fluctuations of virtual temperature (Celsius)
              
@@ -66,7 +66,7 @@ class Partitioning(object):
         - Flux Variance Similarity (FVS)
     * Note that CEC and MREA only need time series of w_p, c_p, q_p
       The remaining quantities (e.g., P, T, Tv, etc) are only needed if the
-      water use efficiency is computed. Alternatively, an external WUE can be
+      water use efficiency is computed for the FVS method. Alternatively, an external WUE can be
       used; in this case, FVS will only need time series of w_p, c_p, q_p
     
     """
@@ -92,7 +92,6 @@ class Partitioning(object):
         Optimization model for W from Scanlon et al., 2019, Agr. For. Met.
                        "Correlation-basedflux partitioning of water vapor and carbon dioxidefluxes: 
                        Method simplification and estimation of canopy water use efficiency"
-        
         
         Input:
             ppath - C3 or C4 - type of photosynthesis
@@ -187,7 +186,7 @@ class Partitioning(object):
         
         # 1 - Finding near canopy concentrations --------------------------------------------------
         # Calculating Monin Obukhov nondimensional function 
-        # Following fluxpart - Skaggs et al., 2018
+        # Following Fluxpart - Skaggs et al., 2018
         if zeta < -0.04: psi_v = 2.0 * np.log((1 + (1 - 16.0 * zeta) ** 0.5) / 2)
         elif zeta <= 0.04: psi_v = 0.0
         else: psi_v = -5.0 * zeta
@@ -235,12 +234,14 @@ class Partitioning(object):
             self.wue['opt'] = np.nan  # Model is not suitable for C4 and CAM plants
         del aux
 
-    def partCEC(self, H=0.25):
+    def partCEC(self, H=0.0):
         """
         Implements the Conditional Eddy Covariance method proposed by Zahn et al. 2021
                 Direct Partitioning of Eddy-Covariance Water and Carbon Dioxide Fluxes into Ground and Plant Components
-        
-        Needed variables: 
+        Input:
+            H - hyperbolic threshold
+
+        Used variables: 
              - w_p - fluctuation of vertical velocity (m/s)
              - c_p - fluctuations of co2 density (mg/m3)
              - q_p - fluctuations of h2o density (g/m3)
@@ -258,71 +259,81 @@ class Partitioning(object):
         
         # Creates a dataframe with variables of interest and no constraints
         auxET = self.data[["c_p", "q_p", "w_p"]]
-        N=auxET["w_p"].size                                                    # Total number of points
-        total_Fc = sum(auxET["c_p"]*auxET["w_p"])/N                            # flux [all quadrants] given in mg/(s m2)
-        total_ET = (10**-3)*Constants.Lv*sum(auxET["q_p"]*auxET["w_p"])/N      # flux [all quadrants] given in  W/m2
+        N=auxET["w_p"].index.size                                               # Total number of points
+        total_Fc = sum(auxET["c_p"]*auxET["w_p"])/N                             # flux [all quadrants] given in mg/(s m2)
+        total_ET = (10**-3)*Constants.Lv*sum(auxET["q_p"]*auxET["w_p"])/N       # flux [all quadrants] given in  W/m2
 
         # Creates a dataframe with variables of interest and conditioned on updrafts and on the first quadrant
         auxE  = self.data[ (self.data["w_p"] > 0)&(self.data["c_p"] > 0)&(self.data["q_p"] > 0)&(abs(self.data["c_p"]/self.data["c_p"].std())>abs(H*self.data["q_p"].std()/self.data["q_p"])) ][["c_p", "q_p", "w_p"]]
         R_condition_Fc = sum(auxE["c_p"]*auxE["w_p"])/N                         # conditional flux [1st quadrant and w'>0] given in mg/(s m2)
         E_condition_ET = (10**-3)*Constants.Lv*sum(auxE["q_p"]*auxE["w_p"])/N   # conditional flux [1st quadrant and w'>0] flux given in  W/m2
-        sumQ1 = (auxE['w_p'].index.size/N)*100                                  # Number of points on the first quadrant
+        sumQ1 = (auxE['w_p'].index.size/N)*100                                  # Percentage of points in the first quadrant
 
         # Creates a dataframe with variables of interest and conditioned on updrafts and on the second quadrant
         auxT  = self.data[ (self.data["w_p"] > 0)&(self.data["c_p"] < 0)&(self.data["q_p"] > 0)&(abs(self.data["c_p"]/self.data["c_p"].std())>abs(H*self.data["q_p"].std()/self.data["q_p"])) ][["c_p", "q_p", "w_p"]]
         P_condition_Fc = sum(auxT["c_p"]*auxT["w_p"])/N                         # conditional flux [2nd quadrant and w'>0] given in mg/(s m2)
         T_condition_ET = (10**-3)*Constants.Lv*sum(auxT["q_p"]*auxT["w_p"])/N   # conditional flux [2nd quadrant and w'>0] flux given in  W/m2
-        sumQ2 = (auxT['w_p'].index.size/N)*100                                  # Number of points on the second quadrant
+        sumQ2 = (auxT['w_p'].index.size/N)*100                                  # Percentage of points in the second quadrant
 
         # Computing flux ratios and flux components of ET and Fc
         E, T, P, R, ratioET, ratioRP = np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
         
         # First condition: do we have enough points in Q1 and Q2?
         if (sumQ1 + sumQ2) < 20:
-            self.fluxesCEC = { 'ET': total_ET,  'E': E,        'T': T,     'Fc': total_Fc,    'P': P,     'R': R, 'rRP': ratioRP, 'rET': ratioET, 'sumQ1': sumQ1, 'sumQ2': sumQ2, 'status': 'Q1+Q2<20'  }
+            self.fluxesCEC = { 'ET': total_ET,  'E': E,        'T': T,     'Fc': total_Fc,    'P': P,     'R': R, 'rRP': ratioRP, 'rET': ratioET, 'status': 'Q1+Q2<20'  }
         elif (sumQ1>=5) and (sumQ2>=5):
+            # Compute all flux components
+
             # ET components
             ratioET=E_condition_ET/T_condition_ET
             T = total_ET/(1.0 + ratioET)
             E = total_ET/(1.0 + 1.0/ratioET)
+
             # Fc components
             ratioRP = R_condition_Fc/P_condition_Fc
             P = total_Fc/(1.0 + ratioRP)  
             R = total_Fc/(1.0 + 1.0/ratioRP)
         elif (sumQ1<5) and (sumQ2>5):
-            # In this case, all water fluxes are transpiration
-            ratioET=0.0
-            T=total_ET
-            E=0.0
-            # In this case, all co2 flux is photosynthesis
-            ratioRP=0.0
-            P=total_Fc
-            R=0.0
+            # In this case, all water vapor flux is assumed to be transpiration
+            ratioET = 0.0
+            T = total_ET
+            E = 0.0
+            # In this case, all co2 flux is assumed to be photosynthesis
+            ratioRP = 0.0
+            P = total_Fc
+            R = 0.0
         elif (sumQ1>5) and (sumQ2<5):
-            # All flux is from ground
-            ratioET=np.inf
-            T=0.0
-            E=total_ET
+            # All fluxes are assumed to be from the ground
+            ratioET = np.inf
+            T = 0.0
+            E = total_ET
             # All Fc flux is considered to be respiration
-            ratioRP=np.inf
-            P=0.0  
-            R=total_Fc
-        else: input("Problem: Q1=%s and Q2=%s"%(sumQ1,sumQ2))
+            ratioRP = np.inf
+            P = 0.0  
+            R = total_Fc
+        else:
+            pass
 
-        if -1.2 < ratioRP < -0.8: finalstat = 'Small ratioRP'
+        # Check CO2 flux components ratio
+        #   CO2 fluxes might be noisy in this range
+        if -1.2 < ratioRP < -0.8: 
+            finalstat = 'Small ratioRP'
         else: finalstat = 'OK'
 
         # Additional constraints may be added based on the strength of the fluxes and other combinations
-        self.fluxesCEC = { 'ET': total_ET,  'E': E,        'T': T,     'Fc': total_Fc,    'P': P,     'R': R, 'rRP': ratioRP, 'rET': ratioET, 'sumQ1': sumQ1, 'sumQ2': sumQ2, 'status': finalstat  }
+        self.fluxesCEC = { 'ET': total_ET,  'E': E,        'T': T,     'Fc': total_Fc,    'P': P,     'R': R, 'rRP': ratioRP, 'rET': ratioET,  'status': finalstat  }
 
 
-    def partREA(self, H=0.25):
+    def partREA(self, H=0):
         """
         Implements the Modified Relaxed Eddy Accumulation proposed by Thomas et al., 2008 (Agr For Met)
                 Estimating daytime subcanopy respiration from conditional sampling methods applied to multi-scalar high frequency turbulence time series
                 https://www.sciencedirect.com/science/article/pii/S0168192308000737
+                New contraints defined in Zahn et al (2021)   
+        Input:
+            H - hyperbolic threshold
         
-        Needed variables: 
+        Used variables: 
              - w_p - fluctuation of vertical velocity (m/s)
              - c_p - fluctuations of co2 density (mg/m3)
              - q_p - fluctuations of h2o density (g/m3)
@@ -342,12 +353,13 @@ class Partitioning(object):
         wseries = np.array(self.data["w_p"].values)                                             #  m/s
         cseries = np.array(self.data['c_p'].values)                                             # mg/m3
         qseries = np.array(self.data['q_p'].values)                                             #  g/m3
-        sigmaw = np.std(wseries)                                                                # standard deviation of vertical velocity
-        sigmac = np.std(cseries)                                                                # standard deviation of co2 density
+        sigmaw = np.std(wseries)                                                                # standard deviation of vertical velocity (m/s)
+        sigmac = np.std(cseries)                                                                # standard deviation of co2 density 
         sigmaq = np.std(qseries)                                                                # standard deviation of water vapor density        
-        betaH = sigmaw/( np.mean(wseries[wseries>0]) - np.mean(wseries[wseries<0]) )            # similarity constant
+        beta   = sigmaw/( np.mean(wseries[wseries>0]) - np.mean(wseries[wseries<0]) )           # similarity constant
         Fc = np.cov(wseries, cseries)[0][1]                                                     # CO2 flux [mg/m2/s]
         ET = np.cov(wseries, qseries)[0][1]*(10**-3)*Constants.Lv                               # latent heat flux [W/m2]
+        NN = len(wseries)                                                                       # total number of points
 
         # For carbon fluxes: numerator and denominator of equation 11 in Thomas et al., 2008
         cnum = cseries[(qseries>0)&(cseries>0)&(wseries>0)&((qseries/sigmaq)>(H*sigmac/cseries))&((cseries/sigmac)>(H*sigmaq/qseries))]
@@ -357,14 +369,15 @@ class Partitioning(object):
         qnum = qseries[(qseries>0)&(cseries>0)&(wseries>0)&((qseries/sigmaq)>(H*sigmac/cseries))&((cseries/sigmac)>(H*sigmaq/qseries))]
         qdiv = qseries[(abs(qseries/sigmaq)>abs(H*sigmac/cseries))&(abs(cseries/sigmac)>abs(H*sigmaq/qseries))&(wseries>0)]
 
-        # Count number of points on the second quadrant (no H is used here)
+        # Count number of points in the first and second quadrant (no H is used here)
         Q1sum = ( len( cseries[(qseries>0)&(cseries>0)&(wseries>0)] )/NN )*100
         Q2sum = ( len( cseries[(qseries>0)&(cseries<0)&(wseries>0)] )/NN )*100
 
         # Check availability of points in each quadrant
         if (Q1sum + Q2sum) < 20:
-            self.fluxesREA = { 'ET': ET,  'Fc': Fc, 'E': np.nan, 'T': np.nan, 'P': np.nan, 'R': np.nan, 'sumQ1': Q1sum, 'sumQ2': Q2sum, 'status': 'Q1+Q2<20'  }
+            self.fluxesREA = { 'ET': ET,  'Fc': Fc, 'E': np.nan, 'T': np.nan, 'P': np.nan, 'R': np.nan, 'status': 'Q1+Q2<20'  }
         elif (Q1sum>=5) and (Q2sum>=5):
+            # Compute fluxes
             R = beta*sigmaw*( sum(cnum)/len(cdiv) )    # Respiration [mg / (s m2)]
             E = beta*sigmaw*( sum(qnum)/len(qdiv) )    # Evaporation [g / (s m2)]
             E = E*(10**-3)*Constants.Lv                # Latent heat flux [W/m2]
@@ -377,30 +390,33 @@ class Partitioning(object):
                 finalstatus = 'E>ET'
                 E = np.nan; T = np.nan    
                 R = np.nan; P = np.nan    
-            self.fluxesREA = { 'ET': ET,  'Fc': Fc, 'E': E, 'T': T, 'P': P, 'R': R, 'sumQ1': Q1sum, 'sumQ2': Q2sum, 'status': finalstatus  }
+            self.fluxesREA = { 'ET': ET,  'Fc': Fc, 'E': E, 'T': T, 'P': P, 'R': R, 'status': finalstatus  }
         elif (Q1sum<5)  and (Q2sum>5):
-            self.fluxesREA = {   'ET': ET,   'Fc': Fc, 'E': 0, 'T': ET, 'P': Fc, 'R': 0, 'sumQ1': Q1sum, 'sumQ2': Q2sum, 'status': 'OK' }
+            # Assuming that all fluxes are from the canopy
+            self.fluxesREA = {   'ET': ET,   'Fc': Fc, 'E': 0, 'T': ET, 'P': Fc, 'R': 0,  'status': 'OK' }
         elif (Q1sum>5) and (Q2sum<5):
-            self.fluxesREA = {   'ET': ET,   'Fc': Fc, 'E': ET, 'T': 0, 'P': 0, 'R': Fc, 'sumQ1': Q1sum, 'sumQ2': Q2sum, 'status': 'OK' }
+            # Assuming that all fluxes are from the ground
+            self.fluxesREA = {   'ET': ET,   'Fc': Fc, 'E': ET, 'T': 0, 'P': 0, 'R': Fc,  'status': 'OK' }
         else: input("Problem: Q1=%s and Q2=%s"%(Q1sum,Q2sum))
  
     def partFVS(self, W):
         """
         Partitioning based on Flux Variance Similarity Theory (FVS)
         This implementation directly follows the paper by Scanlon et al., 2019, Agr. For. Met.
-                       "Correlation-basedflux partitioning of water vapor and carbon dioxidefluxes: 
+                       "Correlation-based flux partitioning of water vapor and carbon dioxidefluxes: 
                        Method simplification and estimation of canopy water use efficiency"
         Parts of the implementation are adapted from Skaggs et al. 2018, Agr For Met
                        "Fluxpart: Open source software for partitioning carbon dioxide and watervaporfluxes" 
-        
-        Needed variables: 
-             - w_p - fluctuation of vertical velocity (m/s)
-             - c_p - fluctuations of co2 density (mg/m3)
-             - q_p - fluctuations of h2o density (g/m3)
+
         Input:
               W - water use efficiency [kg_co2/kg_h2o]
                   If not available, W can be computed from any of the models
                   in the function WaterUseEfficiency
+
+        Used variables: 
+             - w_p - fluctuation of vertical velocity (m/s)
+             - c_p - fluctuations of co2 density (mg/m3)
+             - q_p - fluctuations of h2o density (g/m3)
 
         Creates a dictionary 'fluxesFVS' containing all flux components
              - ET - total evapotranspiration (W/m2)
@@ -424,8 +440,8 @@ class Partitioning(object):
         varc = var_all['c_p']               # Variance of c [g/m3]^2
         sigmaq = varq**0.5                  # Standard deviation of q [g/m3]
         sigmac = varc**0.5                  # Standard deviation of c [g/m3]
-        Fq = cov_all["q_p"]["w_p"]            # water vapor flux    [g/m2/s]
-        Fc = cov_all["c_p"]["w_p"]            # Carbon dioxide flux [g/m2/s]
+        Fq = cov_all["q_p"]["w_p"]          # water vapor flux    [g/m2/s]
+        Fc = cov_all["c_p"]["w_p"]          # Carbon dioxide flux [g/m2/s]
 
         # Check if conditions are satisfied (equations 13a-b from Scanlon 2019)
         A = (sigmac/sigmaq)/rho
@@ -436,12 +452,12 @@ class Partitioning(object):
         if rho < 0:
             if A <= B < C: pass  # constraints 13a
             else: 
-                self.fluxesFVS = { 'ET': Fq*(10**-3)*Constants.Lv,  'Fc': Fc*10**3, 'E': np.nan, 'T': np.nan, 'P': np.nan, 'R': np.nan  }
+                self.fluxesFVS = { 'ET': Fq*(10**-3)*Constants.Lv,  'Fc': Fc*10**3, 'E': np.nan, 'T': np.nan, 'P': np.nan, 'R': np.nan, 'status': "13a not satisfied"  }
                 return None       # if it does not obey, stop here
         else:
             if B < C: pass       # constraints 13b
             else: 
-                self.fluxesFVS = { 'ET': Fq*(10**-3)*Constants.Lv,  'Fc': Fc*10**3, 'E': np.nan, 'T': np.nan, 'P': np.nan, 'R': np.nan  }
+                self.fluxesFVS = { 'ET': Fq*(10**-3)*Constants.Lv,  'Fc': Fc*10**3, 'E': np.nan, 'T': np.nan, 'P': np.nan, 'R': np.nan, 'status': "13b not satisfied"  }
                 return None       # if it does not obey, stop here
         
         # 1 - Calcula var_cp and rho_cpcr (eq. 7 in Scanlon et al., 2019) 
@@ -461,18 +477,18 @@ class Partitioning(object):
         
         arg1 = 1.0 - (1.0 - W*W*varq/var_cp)/rho_cpcr2
         if arg1 < 0: 
-            self.fluxesFVS = { 'ET': Fq*(10**-3)*Constants.Lv,  'Fc': Fc*10**3, 'E': np.nan, 'T': np.nan, 'P': np.nan, 'R': np.nan  }
+            self.fluxesFVS = { 'ET': Fq*(10**-3)*Constants.Lv,  'Fc': Fc*10**3, 'E': np.nan, 'T': np.nan, 'P': np.nan, 'R': np.nan, 'status': 'arg1 < 0'  }
             return None      # Root is not real; stop partitioning
             
         arg2 = 1.0 - (1.0 - varc/var_cp)/rho_cpcr2
         if arg2 < 0: 
-            self.fluxesFVS = { 'ET': Fq*(10**-3)*Constants.Lv,  'Fc': Fc*10**3, 'E': np.nan, 'T': np.nan, 'P': np.nan, 'R': np.nan  }
+            self.fluxesFVS = { 'ET': Fq*(10**-3)*Constants.Lv,  'Fc': Fc*10**3, 'E': np.nan, 'T': np.nan, 'P': np.nan, 'R': np.nan, 'status': 'arg2 < 0'  }
             return None      # Root is not real; stop partitioning
             
         # Roots are real. Proceed to check sign of fluxes 
         ratio_ET = - rho_cpcr2 + rho_cpcr2*np.sqrt(arg1)
         if ratio_ET < 0.0:
-            self.fluxesFVS = { 'ET': Fq*(10**-3)*Constants.Lv,  'Fc': Fc*10**3, 'E': np.nan, 'T': np.nan, 'P': np.nan, 'R': np.nan  }
+            self.fluxesFVS = { 'ET': Fq*(10**-3)*Constants.Lv,  'Fc': Fc*10**3, 'E': np.nan, 'T': np.nan, 'P': np.nan, 'R': np.nan , 'status': 'rET < 0' }
             return None    # Following imposed constraint that T, E > 0
 
         # Test ratio of carbon fluxes: from Fluxpart - Skaggs et al, 2018
@@ -482,7 +498,7 @@ class Partitioning(object):
             ratio_RP = - rho_cpcr2 - rho_cpcr2*np.sqrt( arg2 )
         
         if ratio_RP > 0.0:
-            self.fluxesFVS = { 'ET': Fq*(10**-3)*Constants.Lv,  'Fc': Fc*10**3, 'E': np.nan, 'T': np.nan, 'P': np.nan, 'R': np.nan  }
+            self.fluxesFVS = { 'ET': Fq*(10**-3)*Constants.Lv,  'Fc': Fc*10**3, 'E': np.nan, 'T': np.nan, 'P': np.nan, 'R': np.nan, 'status': 'rRP > 0'  }
             return None    # Following imposed constraint that P<0 and R>0
         
         # Obtaining flux components -------------------------------------------------
@@ -500,7 +516,16 @@ class Partitioning(object):
         # Convert total fluxes
         Fq = Fq*(10**-3)*Constants.Lv     # in W/m2
         Fc = Fc*10**3                     # mg/m2/s
+
+        # Check CO2 flux components ratio
+        #   CO2 fluxes might be noisy in this range
+        ratioRP = R/P
         
+        if -1.2 < ratioRP < -0.8: 
+            finalstat = 'Small ratioRP'
+        else: finalstat = 'OK'
+
+        finalstat
         # Add final values to dictionary
-        self.fluxesFVS = { 'ET': Fq,  'Fc': Fc, 'E': E, 'T': T, 'P': P, 'R': R  }
+        self.fluxesFVS = { 'ET': Fq,  'Fc': Fc, 'E': E, 'T': T, 'P': P, 'R': R, 'status': finalstat  }
 
