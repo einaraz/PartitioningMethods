@@ -1,14 +1,11 @@
+
+[![DOI](https://zenodo.org/badge/441544177.svg)](https://zenodo.org/badge/latestdoi/441544177)
+
 ---
 # Contact information 
 
 Author: Einara Zahn
 email: einaraz@princeton.edu, einara.zahn@gmail.com
-
-To cite this code
-
-[![DOI](https://zenodo.org/badge/441544177.svg)](https://zenodo.org/badge/latestdoi/441544177)
-
-
 
 ---
 ## Description
