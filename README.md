@@ -10,6 +10,8 @@ email: einaraz@princeton.edu, einara.zahn@gmail.com
 ---
 ## Description
 
+Coming: script to do quality control
+
 The class Partitioning implements three partitioning methods:
 
 1. Conditional Eddy Covariance (CEC):
