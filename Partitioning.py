@@ -2,29 +2,32 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-from auxfunctions import ci_const_ppm, cica_const_ratio, cica_linear, cica_sqrt, sat_vapor_press, vapor_press_deficit, vapor_press_deficit_mass, fes
+import math
+from auxfunctions import ci_const_ppm, cica_const_ratio, cica_linear, cica_sqrt, \
+                         sat_vapor_press, vapor_press_deficit, vapor_press_deficit_mass, fes, LinearDetrend, \
+                         Stats5min, find_spikes
 
 
 """
 Author: Einara Zahn <einaraz@princeton.edu>, <einara.zahn@gmail.com>
-Last update: Dec 24, 2021
+Last update: Dec 24, 2021; Oct 12 2022             
 """
 
 class Constants:
     """
     Define constants
     """
-    Rd = 287                      # gas constant of dry air - J/K/kg
-    Lv = 2.453*10**6              # latent heat - J/kg
-    rho_w = 1000                  # density of water - kg/m3
-    VON_KARMAN=0.4                # von Karman constant
-    MWdryair=0.0289645            # Molecular weight of dry air
-    MWvapor=0.018016              # Molecular weight of vapor
-    MWco2=0.044010                # Molecular weight of carbon dioxide
-    Rco2=8.3144598/MWco2          # Gas constant for CO2
-    Rvapor=8.3144598/MWvapor      # Gas constant for water vapor
-    diff_ratio=1.6                # Ratio of diffusivities water/co2
-    g=9.8160                      # gravity m/s2
+    Rd         = 287                   # gas constant of dry air - J/K/kg
+    Lv         = 2.453*10**6           # latent heat - J/kg
+    rho_w      = 1000                  # density of water - kg/m3
+    VON_KARMAN = 0.4                   # von Karman constant
+    MWdryair   = 0.0289645             # Molecular weight of dry air
+    MWvapor    = 0.018016              # Molecular weight of vapor
+    MWco2      = 0.044010              # Molecular weight of carbon dioxide
+    Rco2       = 8.3144598/MWco2       # Gas constant for CO2
+    Rvapor     = 8.3144598/MWvapor     # Gas constant for water vapor
+    diff_ratio = 1.6                   # Ratio of diffusivities water/co2
+    g          = 9.8160                # gravity m/s2
     # Constants used for water use efficiency (see Partitioning.WaterUseEfficiency for definitions)
     wue_constants = { "C3": {"const_ppm": 280, "const_ratio": 0.70,        "linear": (1.0, 1.6e-4) , "sqrt": (22e-9) },
                       "C4": {"const_ppm": 130, "const_ratio": 0.44,        "linear": (1.0, 2.7e-4) , "sqrt":  np.nan } }
@@ -35,45 +38,274 @@ class Partitioning(object):
         hi - canopy height (m)
         zi - eddy covariance measurement height (m)
         df - dataframe with data (e.g., 30min, but any length works), each variable in a column
-             All variables should be previously processed (despiking, rotation of coordinates, detrending, etc)
+             If raw data is used, pre-processing is first implemented, following the steps:
+                --> Quality control (removing outliers, despiking, flags of instruments, etc)
+                --> Rotation of coordinates (double rotation) for velocity components u, v, w measured by csat
+                --> Density corrections for instantaneous fluctuations of co2 (c_p) and h2o (q_p) measured by open-gas analyser ("instantaneous" WPL correction) based on the paper 
+                            Detto, M. and Katul, G. G., 2007. "Simplified expressions for adjusting higher-order turbulent statistics obtained from open path gas analyzers"
+                            Boundary-Layer Meteorology, 10.1007/s10546-006-9105-1
+                --> Turbulent fluctuations, here denoted as primed quantities ("_p"), are computed 
+                --> Air temperature (T) and virtual temperature (Tv) computed from the sonic temperature (Ts)
              
-             In the accompanying files, the following data processing was previously applied:
-             --> Quality control (removing outliers, despiking, flags of instruments, etc)
-             --> Rotation of coordinates (double rotation) for velocity components u, v, w measured by csat
-             --> Density corrections for instantaneous fluctuations of co2 (c_p) and h2o (q_p) ("instantaneous" WPL correction) based on the paper 
-                         Detto, M. and Katul, G. G., 2007. "Simplified expressions for adjusting higher-order turbulent statistics obtained from open path gas analyzers"
-                         Boundary-Layer Meteorology, 10.1007/s10546-006-9105-1
-             --> Primed quantities ("_p") were computed from extracting the linear trend of the time series
-             --> Air temperature (T) and virtual temperature (Tv) computed from the sonic temperature (Ts)
-             
-             index - datetime
-             w_p  - fluctuations of velocity in the z direction (m/s)
-             u_p  - fluctuations of velocity in the x direction (m/s)
-             v_p  - fluctuations of velocity in the y direction (m/s)
-             P    - pressure (kPa)
-             co2  - carbon dioxide density (mg/m3)
-             h2o  - water vapor density (g/m3)
-             T    - air temperature (Celsius)
-             Tv   - virtual temperature (Celsius)
-             c_p  - fluctuations of carbon dioxide density (mg/m3) - corrected by external densities and linear detrended
-             q_p  - fluctuations of water vapor density (g/m3)     - corrected by external densities and linear detrended
-             T_p  - fluctuations of air temperature (Celsius)
-             Tv_p - fluctuations of virtual temperature (Celsius)
-             
+            Raw data requires the following variables and units:
+                index - datetime
+                w     - velocity in the z direction (m/s)
+                u     - velocity in the x direction (m/s)
+                v     - velocity in the y direction (m/s)
+                Ts    - sonic temperature (Celsius)
+                P     - pressure (kPa)
+                co2   - carbon dioxide density (mg/m3)
+                h2o   - water vapor density (g/m3)
+            After pre-processing, the following additional variables are created (***)
+                w_p  - fluctuations of velocity in the z direction (m/s)
+                u_p  - fluctuations of velocity in the x direction (m/s)
+                v_p  - fluctuations of velocity in the y direction (m/s)
+                T    - thermodynamic air temperature (Celsius)
+                Tv   - virtual temperature (Celsius)
+                c_p  - fluctuations of carbon dioxide density (mg/m3) - (corrected for external densities (WPL) if needed)
+                q_p  - fluctuations of water vapor density (g/m3)     - (corrected for external densities (WPL) if needed)
+                T_p  - fluctuations of air temperature (Celsius)
+                Tv_p - fluctuations of virtual temperature (Celsius)
+
+        PreProcessing - boolean indicating if pre-processing is necessary. If True, all pre-processing steps are implemented to
+                        raw data; if False, pre-processing is ignored and partitioning is imediatelly applied. In this case, 
+                        the input files must contain all variables listed above (***)
+        argsQC - dictionary. Contains options to be used during pre-processing regarding fluctuation extraction and if 
+                        density corrections are necessary.
+                 Keys:
+                 density_correction - boolean. True if density corrections are necessary (open gas analyzer); 
+                                               False (closed or enclosed gas analyzer)
+                 fluctuations - string. Describes the type of operation used to extract fluctuations
+                                  'BA': block average
+                                  'LD': Linear detrending
+                 maxGapsInterpolate - integer. Number of consecutive gaps that will be interpolated 
+                 RemainingData      - integer (0 - 100). Percentage of the time series that should have remained after pre-processing
+                                       if less than this quantity, partitioning is not implemented
     The following partinioning methods are available (references for each method below)
         - Conditional Eddy Covariance (CEC)
         - Modified Relaxed Eddy Accumulation (MREA)
         - Flux Variance Similarity (FVS)
+
     * Note that CEC and MREA only need time series of w_p, c_p, q_p
       The remaining quantities (e.g., P, T, Tv, etc) are only needed if the
       water use efficiency is computed for the FVS method. Alternatively, an external WUE can be
       used; in this case, FVS will only need time series of w_p, c_p, q_p
     
     """
-    def __init__(self, hi, zi, df):
-        self.hi = hi                  # Canopy height (m)
-        self.zi = zi                  # Measurement height (m)
-        self.data = df                # pandas dataframe containing data
+    def __init__(self, hi, zi, freq, length, df, PreProcessing, argsQC):
+        self.hi     = hi                # Canopy height (m)
+        self.zi     = zi                # Measurement height (m)
+        self.data   = df                # pandas dataframe containing data
+        self.freq   = freq
+        self.length = length
+        
+        if PreProcessing:
+            self._checkPhysicalBounds()
+            self._despike()        
+            self._rotation()
+            self._fluctuations(method=argsQC['fluctuations'])
+            if argsQC['density_correction']: 
+                self._densityCorrections(method=argsQC['fluctuations'])
+            self._fillGaps(argsQC['maxGapsInterpolate'])
+            if argsQC['steadyness']: 
+                self._steadynessTest()
+        self._checkMissingdata(argsQC['RemainingData'])
+
+    def _checkMissingdata(self, percData):
+        """
+        Checks how many missing points are present
+        Only accepts periods when valid data points >= percData
+
+        Input
+           percData: integer (0, 100). Percentage of the data that needs to be valid (i.e., excluding gaps) 
+                                       in order to implement partitioning. If less than percData is available,
+                                       the entire half-hour period is discarded
+        Computes the percentage of valid data and stores in self.valid_data
+        """
+        maxNAN, indMAX     = self.data.isnull().sum().max(), self.data.isnull().sum().idxmax()
+        total_size         = self.freq * self.length * 60  # total number of points in period
+        self.valid_data    = ( (total_size - maxNAN) / total_size ) * 100
+        self.data.dropna( inplace=True)
+
+    def _checkPhysicalBounds(self):
+        """
+        Set to NaN those values outside a physical realistic range
+        If additional variables other than the required are passed to the code,
+           their physical bounds need to be added to the dictionary _bounds
+           Units must match those of the input data
+        """
+        _bounds = {  'u': (-20, 20), 'v': (-20, 20), 'w': (-20, 20),  # m/s
+                    'Ts': (-10, 50),  # Celsius
+                   'co2': (0, 1500),  # mg/m3
+                   'h2o': (0,  40),   #  g/m3
+                     'P': (60, 150),  # kPa
+                  }
+
+        for _var in self.data.columns:
+            if _var in _bounds.keys():
+                self.data.loc[ (self.data[_var] < _bounds[_var][0] ) | (self.data[_var] > _bounds[_var][1]), _var ] = np.nan
+
+    def _despike(self):
+        """
+        Replace outliers with NaN values
+        Points are only considered outliers if no more than 8 points in sequence are above a threshold (see find_spikes in auxfunctions.py)
+        Implements the test described in section 3.4 of 
+            E. Zahn, T. L. Chor, N. L. Dias, A Simple Methodology for Quality Control of Micrometeorological Datasets, 
+            American Journal of Environmental Engineering, Vol. 6 No. 4A, 2016, pp. 135-142. doi: 10.5923/s.ajee.201601.20
+        """
+
+        aux      = self.data[["co2", "h2o", "Ts", "w", "u", "v"]].copy()
+        tt       = np.arange(aux["co2"].index.size)
+
+        # 1st: linear detrend time series ------------------
+        for _var in ["co2", "h2o", "Ts", "w", "u", "v"]:
+            aux[_var] = LinearDetrend( tt, aux[_var].values)
+        del tt
+
+        # 2nd: Separate into 2-min windows -----------------
+        TwoMinGroups = aux.groupby(pd.Grouper(freq='5Min'))
+        TwoMinGroups = [ TwoMinGroups.get_group(x) for x in TwoMinGroups.groups if TwoMinGroups.get_group(x).index.size > 10]
+        del aux
+
+        for i in range(len(TwoMinGroups)):
+            aux_group = TwoMinGroups[i].copy()
+            getSpikes = aux_group.apply(find_spikes)
+            
+            for _var in ["co2", "h2o", "Ts", "w", "u", "v"]:
+                for vdate in getSpikes[_var]:
+                    self.data[_var].loc[vdate] = np.nan
+        del TwoMinGroups
+
+    def _rotation(self):
+        """
+        Performs rotation of coordinates using the double rotation method
+        Overwrites the velocity field (u,v,w) with the rotated coordinates
+        References: 
+        """
+        aux   = self.data[["u", "v", "w"]].copy()
+        Umean = aux.mean()        
+        # Calculating the angles between mean velocities
+        hspeed = np.sqrt( Umean["u"]**2. + Umean["v"]**2.)
+        alfax  = math.atan2(Umean["v"], Umean["u"])
+        alfaz  = math.atan2(Umean["w"], hspeed)  
+        # Rotating coordinates 
+        aux["u_new"] =  math.cos(alfax)*math.cos(alfaz)*aux["u"]+math.sin(alfax)*math.cos(alfaz)*aux["v"]+math.sin(alfaz)*aux["w"]
+        aux["v_new"] = -math.sin(alfax)*aux["u"]+math.cos(alfax)*aux["v"]
+        aux["w_new"] = -math.cos(alfax)*math.sin(alfaz)*aux["u"]-math.sin(alfax)*math.sin(alfaz)*aux["v"] +math.cos(alfaz)*aux["w"]
+        # Update rotated velocities in dataframe
+        self.data["w"] = aux["w_new"].copy()
+        self.data["u"] = aux["u_new"].copy()
+        self.data["v"] = aux["v_new"].copy()
+        del aux, hspeed, alfax, alfaz
+
+    def _fluctuations(self, method):
+        """
+        Computes turbulent fluctuations, x' = x - X, where X is the average
+        Only variables required by the partitioning algorithms are included 
+        method to compute X: 
+            BA: Block average
+            LD: linear detrending
+        Add the time series of fluctuations (variable_name + _p ) to the dataframe  
+        """
+        Lvars = [ 'u', 'v', 'w', 'co2', 'h2o', 'Ts']
+        
+        if method == "LD":
+            tt = np.arange(self.data.index.size)
+            for ii,_var in enumerate(Lvars):
+                self.data[_var+"_p"] = LinearDetrend( tt, self.data[_var].values)
+            del tt
+        elif method == "BA":
+            for ii,_var in enumerate(Lvars):
+                self.data[_var+"_p"] = self.data[_var] - self.data[_var].mean()
+        else:
+            raise TypeError("Method to extract fluctuations must be 'LD' or 'BA'. ")
+
+
+    def _densityCorrections(self, method):
+        """
+        Apply density correction to the fluctuations of co2 (co2_p) and h2o (h2o_p)
+        following Detto, M. and Katul, G. G., 2007. "Simplified expressions for adjusting higher-order turbulent statistics obtained from open path gas analyzers"
+                            Boundary-Layer Meteorology, 10.1007/s10546-006-9105-1
+        Note that it is only necessary when co2 and h2o were measured by an open gas analyzer and their output are mass/molar densities (ex, mg/m3)
+        """
+        # Calculate air density------------------------------------------------
+        Rd = Constants.Rd                                                                      # J/kg.K                                              
+        self.data["rho_moist_air"] = 1000*self.data["P"]/(Rd*(273.15 + self.data["Ts"] ))      # mean density of moist air [kg/m3] *** assume Ts is the same as Tv ***
+        self.data["rho_dry_air"]   = self.data["rho_moist_air"] - self.data["h2o"]*10**-3      # density of dry air [kg/m3] 
+        # Obtain termodynamic and virtual temperatures ------------------------
+        q               =  self.data["h2o"]*10**-3/self.data["rho_dry_air"]      # Instantaneous mixing ratio kg/kg
+        self.data["T"]  =  (self.data["Ts"] + 273.15 )/(1.0 + 0.51*q) - 273.15   # termodynamic temperature from sonic temperature [C]
+        self.data["Tv"] =  (self.data["T"]   + 273.15 )*(1.0 + 0.61*q) - 273.15  # virtual temperature from termo temperature [C]
+
+        # We also need the fluctuations of temperature ------------------------
+        if method == "LD": 
+            self.data["T_p"]   = LinearDetrend( np.arange(self.data.index.size), self.data["T"].values)
+            self.data["Tv_p"]  = LinearDetrend( np.arange(self.data.index.size), self.data["Tv"].values)
+        else: 
+            self.data["T_p"]   =  self.data["T"] - self.data["T"].mean()
+            self.data["Tv_p"]  = self.data["Tv"] - self.data["Tv"].mean()
+        meanT = self.data["T"].mean()                                            # mean real temperature [C]
+
+        # Aditional variables --------------------------------------------------
+        mu       = Constants.MWdryair/Constants.MWvapor            # ratio of dry air mass to water vapor mass
+        mean_co2 = self.data["co2"].mean()*10**-6                  # mean co2 [kg/m3]
+        mean_h2o = self.data["h2o"].mean()*10**-3                  # mean h2o [kg/m3]
+        sigmaq   = (mean_h2o/self.data["rho_dry_air"].mean())      # mixing ratio [kg_wv/kg_air]
+        sigmac   = (mean_co2/self.data["rho_dry_air"].mean())      # mixing ratio [kg_co2/kg_air]
+        # Finally, apply the corrections ---------------------------------------
+        self.data["co2_p"] = self.data["co2_p"] + ( mu*sigmac*self.data["h2o_p"]*10**-3 + mean_co2*(1.0+mu*sigmaq)*self.data["T_p"]/(meanT+273.15) )*10**6 # [mg/m3]
+        self.data["h2o_p"] = self.data["h2o_p"] + ( mu*sigmaq*self.data["h2o_p"]*10**-3 + mean_h2o*(1.0+mu*sigmaq)*self.data["T_p"]/(meanT+273.15) )*1000  # [ g/m3]
+        del mu, mean_co2, mean_h2o, sigmaq, sigmac, q
+
+    def _fillGaps(self, maxGaps):
+        """
+        Fill gaps (nan) values in time series using linear interpolation
+        It's recommended that only small gaps be interpolated.
+
+        Input:
+           maxGaps: integer > 0. Number of consecutive missing gaps that can be interpolated.
+        """
+        if maxGaps > 20:
+            raise TypeError("Too many consecutive points to be interpolated. Consider a smaller gaps.")
+
+        self.data.interpolate(method='linear', limit= maxGaps, limit_direction='both', inplace=True)
+
+    def _steadynessTest(self):
+        """
+        Implements a stationarity test described in section 5 of
+            Thomas Foken and B. Wichura, "Tools for quality assessment of surface-based flux measurements"
+                Agricultural and Forest Meteorology, Volume 78, Issues 1–2, 1996, Pages 83-105.
+
+            In computes
+                 stat = | (average_cov_5min - cov_30min) / cov_30min | * 100 %, where cov is the covariance 
+                           between any two variables
+
+        Foken argues ** that steady state conditions can be assume if stat < 30 %;
+        This variable can be used as a criterion for data quality and its compliance with EC requirements (steadyness)
+        ** Micrometeorology (https://doi.org/10.1007/978-3-540-74666-9), p. 175
+
+        Creates a dictionary with the steadyness statistics (in %) for variances and covariances
+        self.FokenStatTest = { 
+                              'wc': statistic for w'c' (total CO2 flux) 
+                              'wq': statistic for w'q' (total H2O flux)
+                              'wT': statistic for w'T' (sonic temperature flux) 
+                              'ww': statistic for w'w' (variance of w)
+                              'cc': statistic for c'c' (variance of co2)
+                              'qq': statistic for q'q' (variance of h2o)
+                              'tt': statistic for t't' (variance of sonic temperature)
+                               }
+        """
+        # Five minute window statistics -------------------------
+        stats5min = self.data.groupby(pd.Grouper(freq='5Min')).apply(Stats5min).dropna()
+        aver_5min = stats5min.mean()
+        # Statistic for entire window (i.e., 30 min) ------------
+        cov_all   = self.data.cov()
+        var_all   = self.data.var()
+        stats_all = pd.Series([ cov_all['w_p']['co2_p'], cov_all['w_p']['h2o_p'], cov_all['w_p']['Ts_p'], 
+                                var_all['w_p'],   var_all['co2_p'],   var_all['h2o_p'],   var_all['Ts_p'] ], index=[ 'wc', 'wq', 'wt', 'ww', 'cc', 'qq', 'tt'])
+        # Compare 30-min to 5-min windows -----------------------
+        stat_fk            = dict(abs( (stats_all - aver_5min)/stats_all )*100)
+        self.FokenStatTest = { 'fkstat_%s'%svar: stat_fk[svar] for svar in ['wc', 'wq', 'wt', 'ww', 'cc', 'qq', 'tt']  }
 
     def WaterUseEfficiency(self, ppath='C3'):
         """
@@ -162,14 +394,14 @@ class Partitioning(object):
         self.wue = {"const_ppm": np.nan , "const_ratio": np.nan, "linear": np.nan, "sqrt": np.nan , "opt": np.nan } 
         
         # Statistics  -------------------- 
-        matrixCov = aux.cov()                                              # Covariance matrix
-        varq = matrixCov["q_p"]["q_p"]*10**-6                              # variance of h2o fluctuations (kg/m3)^2
-        varc = matrixCov["c_p"]["c_p"]*10**-12                             # variance of co2 fluctuations (kg/m3)^2
-        sigmac = varc**0.5                                                 # Standard deviation of co2 [kg/m3]
-        sigmaq = varq**0.5                                                 # Standard deviation of h2o [kg/m3]
-        corr_qc = np.corrcoef(aux["q_p"].values, aux["c_p"].values)[1,0]   # correlation coefficient between q and c
-        cov_wq = matrixCov["w_p"]["q_p"]*10**-3                            # covariance of w and q (kg/m^2/s);
-        cov_wc = matrixCov["w_p"]["c_p"]*10**-6                            # covariance of w and c (kg/m^2/s);
+        matrixCov = aux.cov()                                                  # Covariance matrix
+        varq = matrixCov["h2o_p"]["h2o_p"]*10**-6                              # variance of h2o fluctuations (kg/m3)^2
+        varc = matrixCov["co2_p"]["co2_p"]*10**-12                             # variance of co2 fluctuations (kg/m3)^2
+        sigmac = varc**0.5                                                     # Standard deviation of co2 [kg/m3]
+        sigmaq = varq**0.5                                                     # Standard deviation of h2o [kg/m3]
+        corr_qc = np.corrcoef(aux["h2o_p"].values, aux["co2_p"].values)[1,0]   # correlation coefficient between q and c
+        cov_wq = matrixCov["w_p"]["h2o_p"]*10**-3                              # covariance of w and q (kg/m^2/s);
+        cov_wc = matrixCov["w_p"]["co2_p"]*10**-6                              # covariance of w and c (kg/m^2/s);
 
         # Mean variables and parameterizations ------------
         leaf_T = aux["T"].mean() + 273.15                                                            # set leaf temperature == air temperature (Kelvin)
@@ -256,61 +488,64 @@ class Partitioning(object):
         * this component represents carboxylation minus photorespiration and leaf respiration; therefore,
           it is different from gross primary productivity
         """
-        
+
+        per_points_Q1Q2 = 15  # smallest percentage of points that must be available in the first two quadrants
+        per_poits_each  = 3   # smallest percentage of points in each quadrant
+
         # Creates a dataframe with variables of interest and no constraints
-        auxET = self.data[["c_p", "q_p", "w_p"]]
-        N=auxET["w_p"].index.size                                               # Total number of points
-        total_Fc = sum(auxET["c_p"]*auxET["w_p"])/N                             # flux [all quadrants] given in mg/(s m2)
-        total_ET = (10**-3)*Constants.Lv*sum(auxET["q_p"]*auxET["w_p"])/N       # flux [all quadrants] given in  W/m2
+        auxET    = self.data[["co2_p", "h2o_p", "w_p"]]
+        N        = auxET.index.size                                                               # Total number of points
+        total_Fc = np.mean(auxET["co2_p"].values * auxET["w_p"].values)                           # flux [all quadrants] given in mg/(s m2)
+        total_ET = (10**-3)*Constants.Lv*np.mean(auxET["h2o_p"].values * auxET["w_p"].values )    # flux [all quadrants] given in  W/m2
 
         # Creates a dataframe with variables of interest and conditioned on updrafts and on the first quadrant
-        auxE  = self.data[ (self.data["w_p"] > 0)&(self.data["c_p"] > 0)&(self.data["q_p"] > 0)&(abs(self.data["c_p"]/self.data["c_p"].std())>abs(H*self.data["q_p"].std()/self.data["q_p"])) ][["c_p", "q_p", "w_p"]]
-        R_condition_Fc = sum(auxE["c_p"]*auxE["w_p"])/N                         # conditional flux [1st quadrant and w'>0] given in mg/(s m2)
-        E_condition_ET = (10**-3)*Constants.Lv*sum(auxE["q_p"]*auxE["w_p"])/N   # conditional flux [1st quadrant and w'>0] flux given in  W/m2
-        sumQ1 = (auxE['w_p'].index.size/N)*100                                  # Percentage of points in the first quadrant
+        auxE           = self.data[ (self.data["w_p"] > 0)&(self.data["co2_p"] > 0)&(self.data["h2o_p"] > 0)&(abs(self.data["co2_p"]/self.data["co2_p"].std())>abs(H*self.data["h2o_p"].std()/self.data["h2o_p"])) ][["co2_p", "h2o_p", "w_p"]]
+        R_condition_Fc = np.mean(auxE["co2_p"].values * auxE["w_p"].values )                           # conditional flux [1st quadrant and w'>0] given in mg/(s m2)
+        E_condition_ET = (10**-3)*Constants.Lv * np.mean(auxE["h2o_p"].values * auxE["w_p"].values)    # conditional flux [1st quadrant and w'>0] flux given in  W/m2
+        sumQ1          = (auxE['w_p'].index.size/N)*100                                                # Percentage of points in the first quadrant
 
         # Creates a dataframe with variables of interest and conditioned on updrafts and on the second quadrant
-        auxT  = self.data[ (self.data["w_p"] > 0)&(self.data["c_p"] < 0)&(self.data["q_p"] > 0)&(abs(self.data["c_p"]/self.data["c_p"].std())>abs(H*self.data["q_p"].std()/self.data["q_p"])) ][["c_p", "q_p", "w_p"]]
-        P_condition_Fc = sum(auxT["c_p"]*auxT["w_p"])/N                         # conditional flux [2nd quadrant and w'>0] given in mg/(s m2)
-        T_condition_ET = (10**-3)*Constants.Lv*sum(auxT["q_p"]*auxT["w_p"])/N   # conditional flux [2nd quadrant and w'>0] flux given in  W/m2
-        sumQ2 = (auxT['w_p'].index.size/N)*100                                  # Percentage of points in the second quadrant
+        auxT           = self.data[ (self.data["w_p"] > 0)&(self.data["co2_p"] < 0)&(self.data["h2o_p"] > 0)&(abs(self.data["co2_p"]/self.data["co2_p"].std())>abs(H*self.data["h2o_p"].std()/self.data["h2o_p"])) ][["co2_p", "h2o_p", "w_p"]]
+        P_condition_Fc = np.mean(auxT["co2_p"].values * auxT["w_p"].values)       # conditional flux [2nd quadrant and w'>0] given in mg/(s m2)
+        T_condition_ET = (10**-3)*Constants.Lv*sum(auxT["h2o_p"]*auxT["w_p"])/N   # conditional flux [2nd quadrant and w'>0] flux given in  W/m2
+        sumQ2 = (auxT['w_p'].index.size/N)*100                                    # Percentage of points in the second quadrant
 
         # Computing flux ratios and flux components of ET and Fc
         E, T, P, R, ratioET, ratioRP = np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
         
         # First condition: do we have enough points in Q1 and Q2?
-        if (sumQ1 + sumQ2) < 20:
+        if (sumQ1 + sumQ2) < per_points_Q1Q2:
             self.fluxesCEC = { 'ET': total_ET,  'E': E,        'T': T,     'Fc': total_Fc,    'P': P,     'R': R, 'rRP': ratioRP, 'rET': ratioET, 'status': 'Q1+Q2<20'  }
-        elif (sumQ1>=5) and (sumQ2>=5):
+        elif (sumQ1>=per_poits_each) and (sumQ2>=per_poits_each):
             # Compute all flux components
 
             # ET components
-            ratioET=E_condition_ET/T_condition_ET
-            T = total_ET/(1.0 + ratioET)
-            E = total_ET/(1.0 + 1.0/ratioET)
+            ratioET = E_condition_ET/T_condition_ET
+            T       =  total_ET/(1.0 + ratioET)
+            E       =  total_ET/(1.0 + 1.0/ratioET)
 
             # Fc components
             ratioRP = R_condition_Fc/P_condition_Fc
-            P = total_Fc/(1.0 + ratioRP)  
-            R = total_Fc/(1.0 + 1.0/ratioRP)
-        elif (sumQ1<5) and (sumQ2>5):
+            P       = total_Fc/(1.0 + ratioRP)  
+            R       = total_Fc/(1.0 + 1.0/ratioRP)
+        elif (sumQ1<per_poits_each) and (sumQ2>per_poits_each):
             # In this case, all water vapor flux is assumed to be transpiration
             ratioET = 0.0
-            T = total_ET
-            E = 0.0
+            T       = total_ET
+            E       = 0.0
             # In this case, all co2 flux is assumed to be photosynthesis
             ratioRP = 0.0
-            P = total_Fc
-            R = 0.0
-        elif (sumQ1>5) and (sumQ2<5):
+            P       = total_Fc
+            R       = 0.0
+        elif (sumQ1>per_poits_each) and (sumQ2<per_poits_each):
             # All fluxes are assumed to be from the ground
             ratioET = np.inf
-            T = 0.0
-            E = total_ET
+            T       = 0.0
+            E       = total_ET
             # All Fc flux is considered to be respiration
             ratioRP = np.inf
-            P = 0.0  
-            R = total_Fc
+            P       = 0.0  
+            R       = total_Fc
         else:
             pass
 
@@ -348,18 +583,21 @@ class Partitioning(object):
         * this component represents carboxylation minus photorespiration and leaf respiration; therefore,
           it is different from gross primary productivity
         """
-        
+
+        per_points_Q1Q2 = 15  # smallest percentage of points that must be available in the first two quadrants
+        per_poits_each  = 3   # smallest percentage of points in each quadrant
+
         # REA parameters ---------------------------------------------------
         wseries = np.array(self.data["w_p"].values)                                             #  m/s
-        cseries = np.array(self.data['c_p'].values)                                             # mg/m3
-        qseries = np.array(self.data['q_p'].values)                                             #  g/m3
-        sigmaw = np.std(wseries)                                                                # standard deviation of vertical velocity (m/s)
-        sigmac = np.std(cseries)                                                                # standard deviation of co2 density 
-        sigmaq = np.std(qseries)                                                                # standard deviation of water vapor density        
-        beta   = sigmaw/( np.mean(wseries[wseries>0]) - np.mean(wseries[wseries<0]) )           # similarity constant
-        Fc = np.cov(wseries, cseries)[0][1]                                                     # CO2 flux [mg/m2/s]
-        ET = np.cov(wseries, qseries)[0][1]*(10**-3)*Constants.Lv                               # latent heat flux [W/m2]
-        NN = len(wseries)                                                                       # total number of points
+        cseries = np.array(self.data['co2_p'].values)                                           # mg/m3
+        qseries = np.array(self.data['h2o_p'].values)                                           #  g/m3
+        sigmaw  = np.std(wseries)                                                               # standard deviation of vertical velocity (m/s)
+        sigmac  = np.std(cseries)                                                               # standard deviation of co2 density 
+        sigmaq  = np.std(qseries)                                                               # standard deviation of water vapor density        
+        beta    = sigmaw/( np.mean(wseries[wseries>0]) - np.mean(wseries[wseries<0]) )          # similarity constant
+        Fc      = np.cov(wseries, cseries)[0][1]                                                # CO2 flux [mg/m2/s]
+        ET      = np.cov(wseries, qseries)[0][1]*(10**-3)*Constants.Lv                          # latent heat flux [W/m2]
+        NN      = len(wseries)                                                                  # total number of points
 
         # For carbon fluxes: numerator and denominator of equation 11 in Thomas et al., 2008
         cnum = cseries[(qseries>0)&(cseries>0)&(wseries>0)&((qseries/sigmaq)>(H*sigmac/cseries))&((cseries/sigmac)>(H*sigmaq/qseries))]
@@ -374,9 +612,9 @@ class Partitioning(object):
         Q2sum = ( len( cseries[(qseries>0)&(cseries<0)&(wseries>0)] )/NN )*100
 
         # Check availability of points in each quadrant
-        if (Q1sum + Q2sum) < 20:
+        if (Q1sum + Q2sum) < per_points_Q1Q2:
             self.fluxesREA = { 'ET': ET,  'Fc': Fc, 'E': np.nan, 'T': np.nan, 'P': np.nan, 'R': np.nan, 'status': 'Q1+Q2<20'  }
-        elif (Q1sum>=5) and (Q2sum>=5):
+        elif (Q1sum>=per_poits_each) and (Q2sum>=per_poits_each):
             # Compute fluxes
             R = beta*sigmaw*( sum(cnum)/len(cdiv) )    # Respiration [mg / (s m2)]
             E = beta*sigmaw*( sum(qnum)/len(qdiv) )    # Evaporation [g / (s m2)]
@@ -391,13 +629,14 @@ class Partitioning(object):
                 E = np.nan; T = np.nan    
                 R = np.nan; P = np.nan    
             self.fluxesREA = { 'ET': ET,  'Fc': Fc, 'E': E, 'T': T, 'P': P, 'R': R, 'status': finalstatus  }
-        elif (Q1sum<5)  and (Q2sum>5):
+        elif (Q1sum<per_poits_each)  and (Q2sum>per_poits_each):
             # Assuming that all fluxes are from the canopy
             self.fluxesREA = {   'ET': ET,   'Fc': Fc, 'E': 0, 'T': ET, 'P': Fc, 'R': 0,  'status': 'OK' }
-        elif (Q1sum>5) and (Q2sum<5):
+        elif (Q1sum>per_poits_each) and (Q2sum<per_poits_each):
             # Assuming that all fluxes are from the ground
             self.fluxesREA = {   'ET': ET,   'Fc': Fc, 'E': ET, 'T': 0, 'P': 0, 'R': Fc,  'status': 'OK' }
-        else: input("Problem: Q1=%s and Q2=%s"%(Q1sum,Q2sum))
+        else: 
+            pass
  
     def partFVS(self, W):
         """
@@ -429,19 +668,19 @@ class Partitioning(object):
           it is different from gross primary productivity
         """
         
-        aux = self.data[["c_p", "q_p", "w_p"]].copy()     # Create dataframe with q, c, and w only
-        aux["c_p"] = aux["c_p"]*10**-3                    # convert c from mg/m3 to g/m3
+        aux = self.data[["co2_p", "h2o_p", "w_p"]].copy()     # Create dataframe with q, c, and w only
+        aux["co2_p"] = aux["co2_p"]*10**-3                    # convert c from mg/m3 to g/m3
         
         # Needed statistics ------------------------------------------------
-        var_all = aux.var()                 # Variance matrix
-        cov_all = aux.cov()                 # Covariance matrix
-        rho = aux.corr()["c_p"]["q_p"]      # Correlation coefficient between c and q
-        varq = var_all['q_p']               # Variance of q [g/m3]^2
-        varc = var_all['c_p']               # Variance of c [g/m3]^2
-        sigmaq = varq**0.5                  # Standard deviation of q [g/m3]
-        sigmac = varc**0.5                  # Standard deviation of c [g/m3]
-        Fq = cov_all["q_p"]["w_p"]          # water vapor flux    [g/m2/s]
-        Fc = cov_all["c_p"]["w_p"]          # Carbon dioxide flux [g/m2/s]
+        var_all = aux.var()                   # Variance matrix
+        cov_all = aux.cov()                   # Covariance matrix
+        rho = aux.corr()["co2_p"]["h2o_p"]    # Correlation coefficient between c and q
+        varq = var_all['h2o_p']               # Variance of q [g/m3]^2
+        varc = var_all['co2_p']               # Variance of c [g/m3]^2
+        sigmaq = varq**0.5                    # Standard deviation of q [g/m3]
+        sigmac = varc**0.5                    # Standard deviation of c [g/m3]
+        Fq = cov_all["h2o_p"]["w_p"]          # water vapor flux    [g/m2/s]
+        Fc = cov_all["co2_p"]["w_p"]          # Carbon dioxide flux [g/m2/s]
 
         # Check if conditions are satisfied (equations 13a-b from Scanlon 2019)
         A = (sigmac/sigmaq)/rho
