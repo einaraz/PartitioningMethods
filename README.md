@@ -14,7 +14,7 @@ A description of the methods included in this script can be found in [Zahn et al
 ---
 ## Description
 
-1. Performs quality control and pre-processing of high frequency eddy-covariance data
+1. Performs quality control and pre-processing of high-frequency eddy-covariance data
    - Check for physically realistic values
    - Detection of outliers
    - Rotation of coordinates
@@ -54,9 +54,9 @@ This script works with text files separated by commas.
 
 The following variables are required by the code if raw high-frequency data is used as input (see the code for requirements to use pre-processed data as input):
   - index: date and time of acquisition.
-  - w:  velocity in the z direction (m/s).
-  - u: fluctuations of velocity in the x direction (m/s).
-  - v: fluctuations of velocity in the y direction (m/s).
+  - w:  vertical velocity component (m/s).
+  - u:  streamwise velocity component (m/s).
+  - v:  cross-stream velocity component (m/s).
   - Ts:  sonic temperature (Celsius).
   - co2: carbon dioxide density (mg/m3).
   - h2o: water vapor density (g/m3).
