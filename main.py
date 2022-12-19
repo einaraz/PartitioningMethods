@@ -27,7 +27,7 @@ from pprint import pprint
         names: list of strings
                These are the names of the variables following the order in usecols. These do not need to match the header in the files (the original
                header will be ignored)
-               The default list is [  'date',  'u',  'v', 'w', 'Ts',  'co2', 'h2o',  'Tair', 'P' ]. Note that all these variables are required
+               The default list is [  'date',  'u',  'v', 'w', 'Ts',  'co2', 'h2o',  'Tair', 'P' ]. Note that all these variables are required with exception of Tair
                Names and units must be as described below:
                     'date': time of sampling   (-)
                     'u': x-component velocity  (m/s)  
@@ -36,6 +36,7 @@ from pprint import pprint
                     'Ts': sonic temperature    (Celcius)
                     'co2': co2 concentration   (mg/m3)   
                     'h2o': h2o concentration   (g/m3)    
+                    'Tair': air temperatture   (Celcius) -- not required and can be omitted; Ts will be used to compute air temperature by the code
                     'P': pressure              (kPa)
                 If co2 and h2o are in different units, they first need to be converted before any pre-processing is applied.
                 If data is already pre-processed, additional inputs should be given ( ex., 'co2_p', 'h2o_p', 'w_p', .. ) 
@@ -100,7 +101,7 @@ from pprint import pprint
 # ******* INPUTS (NEED MODIFICATION) **************************************************************
 listfiles = glob("RawData30min/*.csv")
 usecols   = [        0,      1,      2,     3,      4,        6,       8,         11,         12     ]
-names     = [   'date',    'u',    'v',   'w',   'Ts',    'co2',   'h2o',     'Tair',        'P'     ]
+names     = [   'date',    'u',    'v',   'w',   'Ts',    'co2',   'h2o',     'Tair',        'P'     ]  # * note that Tair could be omitted
 skiprows  = [ 0 ]                                    
 NAN       = ["NAN",-9999,'-9999', '#NA', 'NULL']     
 
