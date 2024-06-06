@@ -220,7 +220,6 @@ class Partitioning(object):
         else:
             raise TypeError("Method to extract fluctuations must be 'LD' or 'BA'. ")
 
-
     def _densityCorrections(self, method):
         """
         Apply density correction to the fluctuations of co2 (co2_p) and h2o (h2o_p)
@@ -558,7 +557,6 @@ class Partitioning(object):
         # Additional constraints may be added based on the strength of the fluxes and other combinations
         self.fluxesCEC = { 'ET': total_ET,  'E': E,        'T': T,     'Fc': total_Fc,    'P': P,     'R': R, 'rRP': ratioRP, 'rET': ratioET,  'status': finalstat  }
 
-
     def partREA(self, H=0):
         """
         Implements the Modified Relaxed Eddy Accumulation proposed by Thomas et al., 2008 (Agr For Met)
@@ -768,3 +766,143 @@ class Partitioning(object):
         # Add final values to dictionary
         self.fluxesFVS = { 'ET': Fq,  'Fc': Fc, 'E': E, 'T': T, 'P': P, 'R': R, 'status': finalstat  }
 
+    def partCEA(self, H=0.00):
+        """
+        Implements the Conditional Eddy Accumulation
+        """
+        # Creates a dataframe with variables of interest and no constraints
+        unitLE   = Constants.Lv*10**-3
+        df       = self.data.copy()
+        auxET    = df[["c_p", "q_p", 'w_p' ]].copy()
+        auxETcov = auxET.cov()                            # covariance
+        N        = auxET['w_p'].index.size                # Total number of points
+        total_Fc = auxETcov['c_p']['w_p']                 # flux [all quadrants] given in mg/(s m2)
+        total_ET = auxETcov["q_p"]['w_p'] * unitLE        # flux [all quadrants] given in  W/m2
+
+        # Creates a dataframe with variables of interest and conditioned on updrafts and on the first quadrant
+        auxE    = df[ (df['w_p'] > 0)&(df["c_p"] > 0)&(df["q_p"] > 0)&(abs(df["c_p"]/df["c_p"].std())>abs(H*df["q_p"].std()/df["q_p"])) ][["c_p", "q_p", 'w_p']]
+        auxE_n  = df[ (df['w_p'] < 0)&(df["c_p"] < 0)&(df["q_p"] < 0)&(abs(df["c_p"]/df["c_p"].std())>abs(H*df["q_p"].std()/df["q_p"])) ][["c_p", "q_p", 'w_p']]
+        C1      = auxE['c_p'].mean()
+        C2      = auxE_n['c_p'].mean()
+        Q1      = auxE['q_p'].mean()
+        Q2      = auxE_n['q_p'].mean()
+        sum1    = (  auxE['c_p'].index.size / N) * 100    # Number of points on the first quadrant
+        sum2    = (auxE_n['c_p'].index.size / N) * 100    # Number of points on the first quadrant
+
+        # Creates a dataframe with variables of interest and conditioned on updrafts and on the second quadrant
+        auxT    = df[ (df['w_p'] > 0)&(df["c_p"] < 0)&(df["q_p"] > 0)&(abs(df["c_p"]/df["c_p"].std())>abs(H*df["q_p"].std()/df["q_p"])) ][["c_p", "q_p", 'w_p']]
+        auxT_n  = df[ (df['w_p'] < 0)&(df["c_p"] > 0)&(df["q_p"] < 0)&(abs(df["c_p"]/df["c_p"].std())>abs(H*df["q_p"].std()/df["q_p"])) ][["c_p", "q_p", 'w_p']]
+        C3      = auxT['c_p'].mean()
+        C4      = auxT_n['c_p'].mean()
+        Q3      = auxT['q_p'].mean()
+        Q4      = auxT_n['q_p'].mean()
+        sum3    = (  auxT['c_p'].index.size / N) * 100    # Number of points on the first quadrant
+        sum4    = (auxT_n['c_p'].index.size / N) * 100    # Number of points on the first quadrant
+
+        # Computing flux ratios and flux components of ET and Fc
+        if ( sum1 > 5 ) and ( sum2 > 5 ) and ( sum3 > 5 )and ( sum4 > 5 ):
+
+            ratioET = (Q1 - Q2)/(Q3 - Q4)
+            T       = total_ET/(1.0 + ratioET)
+            E       = total_ET/(1.0 + 1.0/ratioET)
+
+            ratioRP = (C1 - C2)/(C3 - C4)
+            P       = total_Fc/(1.0 + ratioRP)
+            R       = total_Fc/(1.0 + 1.0/ratioRP)
+
+            self.fluxesCEA = { 'ET': total_ET,
+                                'E': E,
+                                'T': T,
+                               'Fc': total_Fc,
+                                'P': P,
+                                'R': R,
+                          'ratioET': ratioET,
+                          'ratioRP': ratioRP,
+                            'sumQ1': sum1 + sum2,
+                            'sumQ2': sum3 + sum4,
+                              'wue': P/T * 100  }
+        else:
+            self.fluxesCEA = {  'ET': total_ET,
+                                 'E': np.nan,
+                                 'T': np.nan,
+                                'Fc': total_Fc,
+                                 'P': np.nan,
+                                 'R': np.nan,
+                           'ratioET': np.nan,
+                           'ratioRP': np.nan,
+                             'sumQ1': sum1 + sum2,
+                             'sumQ2': sum3 + sum4,
+                               'wue': np.nan  }
+
+    def partCECw(self, WUE, H=0.00):
+        """
+        Implements a combination of the Conditional Eddy Covariance method proposed by Zahn et al. 2021
+               and the water use efficiency
+        """
+        # Creates a dataframe with variables of interest and no constraints
+        df       = self.data.copy()
+        auxET    = df[["c_p", "q_p", 'w_p']].copy()
+        auxETcov = auxET.cov()                          # covariance
+        N        = auxET['w_p'].index.size              # Total number of points
+        total_Fc = auxETcov['c_p']['w_p']               # flux [all quadrants] given in mg/(s m2)
+        total_ET = auxETcov["q_p"]['w_p']*10**3         # flux [all quadrants] given in mg/(s m2)
+
+        if WUE > (total_Fc/total_ET):
+            self.fluxesCEC_WUE = { 'ET': np.nan,
+                                    'E': np.nan,
+                                    'T': np.nan,
+                                   'Fc': np.nan,
+                                    'P': np.nan,
+                                    'R': np.nan }
+            return 0
+
+        # Creates a dataframe with variables of interest and conditioned on updrafts and on the first quadrant
+        auxE           = df[ (df['w_p'] > 0)&(df["c_p"] > 0)&(df["q_p"] > 0)&(abs(df["c_p"]/df["c_p"].std())>abs(H*df["q_p"].std()/df["q_p"])) ][["c_p", "q_p", 'w_p']]
+        R_condition_Fc =  sum(auxE["c_p"]*auxE['w_p'])/N                      # conditional flux [1st quadrant and w'>0] given in mg/(s m2)
+        E_condition_ET = (sum(auxE["q_p"]*auxE['w_p'])/N)                     # conditional flux [1st quadrant and w'>0] flux given in  W/m2
+
+        # Creates a dataframe with variables of interest and conditioned on updrafts and on the second quadrant
+        auxT           = df[ (df['w_p'] > 0)&(df["c_p"] < 0)&(df["q_p"] > 0)&(abs(df["c_p"]/df["c_p"].std())>abs(H*df["q_p"].std()/df["q_p"])) ][["c_p", "q_p", 'w_p']]
+        P_condition_Fc =  sum(auxT["c_p"]*auxT['w_p'])/N                       # conditional flux [2nd quadrant and w'>0] given in mg/(s m2)
+        T_condition_ET = (sum(auxT["q_p"]*auxT['w_p'])/N)                     # conditional flux [2nd quadrant and w'>0] flux given in  W/m2
+
+        # Compute needed parameters (ratios first) # *unitLE 
+        if T_condition_ET > 0:
+            ratioET = E_condition_ET/T_condition_ET
+            ratioRP = R_condition_Fc/P_condition_Fc
+        else:
+            self.fluxesCEC_WUE = { 'ET': total_ET*(10**-3)*(10**-3)*Constants.Lv,
+                                    'E': total_ET*(10**-3)*(10**-3)*Constants.Lv,
+                                    'T': 0,
+                                   'Fc': total_Fc,
+                                    'P': 0,
+                                    'R': total_Fc }
+            return 0
+
+        # Compute Z -------------------------------
+        if ratioET > 0:
+            Z = WUE * ( ratioRP / ratioET )
+        else:
+            self.fluxesCEC_WUE = { 'ET': total_ET*(10**-3)*(10**-3)*Constants.Lv,
+                                    'E': 0,
+                                    'T': total_ET*(10**-3)*(10**-3)*Constants.Lv,
+                                   'Fc': total_Fc,
+                                    'P': total_Fc,
+                                    'R': 0 }
+            return 0
+
+        # Compute flux components -----------------
+        R = ( total_Fc - WUE*total_ET )/(1 - WUE/Z)       # in (mg/kg)/m2/s
+        P = total_Fc - R                                  # in (mg/kg)/m2/s
+        E = (R/Z)*(10**-3)*(10**-3)*Constants.Lv          # in W/m2
+        T = total_ET*(10**-3)*(10**-3)*Constants.Lv - E   # in W/m2
+        del ratioET, ratioRP
+
+        # ratios for spatial fluxes
+
+        self.fluxesCEC_WUE = { 'ET': total_ET*(10**-3)*(10**-3)*Constants.Lv,
+                                'E': E,
+                                'T': T,
+                               'Fc': total_Fc,
+                                'P': P,
+                                'R': R }
