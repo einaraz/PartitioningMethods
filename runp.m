@@ -1,1 +1,0 @@
-pyrunfile("main.py")

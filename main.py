@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from Partitioning import Partitioning
+from src.partitioning import Partitioning
 from glob import glob
 from pprint import pprint
 
@@ -149,7 +149,6 @@ for n,filei in enumerate(sorted(listfiles)):
         M = df.median()
         for _var, unit in [ ('u', 'm/s'), ('v', 'm/s'), ('w', 'm/s'), ('Ts', 'Celcius'), ('co2', 'mg/m3'), ('h2o', 'g/m3') ]:
             print( "      Median %s: %.3f %s"%(_var, M[_var], unit))
-        input("\n Press any key to continue ....")
     
     # Create object
     part = Partitioning(     hi = siteDetails['hi'], 
@@ -221,7 +220,7 @@ for n,filei in enumerate(sorted(listfiles)):
     #  
 
     plt.scatter( part.data['h2o'], part.data['co2'])
-    plt.show()
+    #plt.show()
     plt.close()
     del df, part
 

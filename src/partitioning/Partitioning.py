@@ -3,10 +3,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import math
-from auxfunctions import ci_const_ppm, cica_const_ratio, cica_linear, cica_sqrt, \
+from .auxfunctions import ci_const_ppm, cica_const_ratio, cica_linear, cica_sqrt, \
                          sat_vapor_press, vapor_press_deficit, vapor_press_deficit_mass, fes, LinearDetrend, \
                          Stats5min, find_spikes
-
 
 """
 Author: Einara Zahn <einaraz@princeton.edu>, <einara.zahn@gmail.com>
