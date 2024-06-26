@@ -95,134 +95,174 @@ from pprint import pprint
 
     part_file: string,
                Name of the text file that will store the final results
-"""      
+"""
 
 # *************************************************************************************************
 # ******* INPUTS (NEED MODIFICATION) **************************************************************
 listfiles = glob("RawData30min/*.csv")
-usecols   = [        0,      1,      2,     3,      4,        6,       8,         11,         12     ]
-names     = [   'date',    'u',    'v',   'w',   'Ts',    'co2',   'h2o',     'Tair',        'P'     ]  # * note that Tair could be omitted
-skiprows  = [ 0 ]                                    
-NAN       = ["NAN",-9999,'-9999', '#NA', 'NULL']     
+usecols = [0, 1, 2, 3, 4, 6, 8, 11, 12]
+names = [
+    "date",
+    "u",
+    "v",
+    "w",
+    "Ts",
+    "co2",
+    "h2o",
+    "Tair",
+    "P",
+]  # * note that Tair could be omitted
+skiprows = [0]
+NAN = ["NAN", -9999, "-9999", "#NA", "NULL"]
 
-siteDetails = {            'hi': 2.5, 
-                           'zi': 4.0,
-                         'freq': 20,
-                       'length': 30,
-                'PreProcessing': True}
+siteDetails = {"hi": 2.5, "zi": 4.0, "freq": 20, "length": 30, "PreProcessing": True}
 
-processing_args = {'density_correction': True, # if True, density corrections are implemented during pre-processing
-                         'fluctuations': 'LD', 
-                   'maxGapsInterpolate': 5   , # Intervals of up to 5 missing values are filled by linear interpolation
-                        'RemainingData': 95  , # Only proceed with partioning if 95% of initial data is available after pre-processing
-                           'steadyness': True,
-                        'saveprocessed': False}
+processing_args = {
+    "density_correction": True,  # if True, density corrections are implemented during pre-processing
+    "fluctuations": "LD",
+    "maxGapsInterpolate": 5,  # Intervals of up to 5 missing values are filled by linear interpolation
+    "RemainingData": 95,  # Only proceed with partioning if 95% of initial data is available after pre-processing
+    "steadyness": True,
+    "saveprocessed": False,
+}
 
-part_file       = "ResultsPart.csv"
+part_file = "ResultsPart.csv"
 
 # ******* No modifications are needed below this line *********************************************
 # *************************************************************************************************
 
-list_dates   = []  
-part_results = { 'ET': [],
-                 'Fc': [],
-                 'Ecec': [], 'Tcec': [], 'Pcec': [],  'Rcec': [], 'status_cec': [],
-                 'Erea': [], 'Trea': [], 'Prea': [],  'Rrea': [], 'status_rea': [],
-                 'Efvs': [], 'Tfvs': [], 'Pfvs': [],  'Rfvs': [], 'status_fvs': [],
-                 'W_const_ppm'  :   [], 
-                 'W_const_ratio': [], 
-                 'W_linear'     : [], 
-                 'W_sqrt'       : [], 
-                 'W_opt'        : []
-               } 
+list_dates = []
+part_results = {
+    "ET": [],
+    "Fc": [],
+    "Ecec": [],
+    "Tcec": [],
+    "Pcec": [],
+    "Rcec": [],
+    "status_cec": [],
+    "Erea": [],
+    "Trea": [],
+    "Prea": [],
+    "Rrea": [],
+    "status_rea": [],
+    "Efvs": [],
+    "Tfvs": [],
+    "Pfvs": [],
+    "Rfvs": [],
+    "status_fvs": [],
+    "W_const_ppm": [],
+    "W_const_ratio": [],
+    "W_linear": [],
+    "W_sqrt": [],
+    "W_opt": [],
+}
 
-for n,filei in enumerate(sorted(listfiles)):
+for n, filei in enumerate(sorted(listfiles)):
     print("\n-------------------------------")
-    print("Reading file %d/%d, file : %s"%(n+1,len(listfiles), filei))
-   
+    print("Reading file %d/%d, file : %s" % (n + 1, len(listfiles), filei))
+
     # Read csv file and store data in a dataframe
-    df       = pd.read_csv( filei, header=None, index_col=0, usecols=usecols, names = names, na_values=NAN, skiprows=skiprows)
+    df = pd.read_csv(
+        filei,
+        header=None,
+        index_col=0,
+        usecols=usecols,
+        names=names,
+        na_values=NAN,
+        skiprows=skiprows,
+    )
     df.index = pd.to_datetime(df.index)
 
     if n == 0:
         print("\nPlease check units for first file (won't be asked again)")
         M = df.median()
-        for _var, unit in [ ('u', 'm/s'), ('v', 'm/s'), ('w', 'm/s'), ('Ts', 'Celcius'), ('co2', 'mg/m3'), ('h2o', 'g/m3') ]:
-            print( "      Median %s: %.3f %s"%(_var, M[_var], unit))
-    
+        for _var, unit in [
+            ("u", "m/s"),
+            ("v", "m/s"),
+            ("w", "m/s"),
+            ("Ts", "Celcius"),
+            ("co2", "mg/m3"),
+            ("h2o", "g/m3"),
+        ]:
+            print("      Median %s: %.3f %s" % (_var, M[_var], unit))
+
     # Create object
-    part = Partitioning(     hi = siteDetails['hi'], 
-                             zi = siteDetails['zi'], 
-                           freq = siteDetails['freq'],
-                         length = siteDetails['length'],
-                             df = df, 
-                         PreProcessing = siteDetails['PreProcessing'], 
-                         argsQC = processing_args )
-    
+    part = Partitioning(
+        hi=siteDetails["hi"],
+        zi=siteDetails["zi"],
+        freq=siteDetails["freq"],
+        length=siteDetails["length"],
+        df=df,
+        PreProcessing=siteDetails["PreProcessing"],
+        argsQC=processing_args,
+    )
+
     # % of valid data after quality control and interpolation
-    print("      Valid data: %.1f %%"%part.valid_data) 
-    if part.valid_data < processing_args['RemainingData']:
+    print("      Valid data: %.1f %%" % part.valid_data)
+    if part.valid_data < processing_args["RemainingData"]:
         print("    Less than %s of the total data is available. Skipping file.")
         del df, part
         continue
 
-    data_begin = df.index[0].strftime("%Y-%m-%d %H:%M" )
+    data_begin = df.index[0].strftime("%Y-%m-%d %H:%M")
 
-    if processing_args['saveprocessed']:
-        part.data.to_csv("ProcessedData/processed-%s.csv"%data_begin.replace(" ", "_"))
+    if processing_args["saveprocessed"]:
+        part.data.to_csv(
+            "ProcessedData/processed-%s.csv" % data_begin.replace(" ", "_")
+        )
 
     """
     Applying partitioning methods ---------------
     """
-    list_dates.append( data_begin )
+    list_dates.append(data_begin)
 
     # CEC method
     part.partCEC(H=0)
-    part_results['Ecec'].append(part.fluxesCEC['E'])
-    part_results['Tcec'].append(part.fluxesCEC['T'])
-    part_results['Pcec'].append(part.fluxesCEC['P'])
-    part_results['Rcec'].append(part.fluxesCEC['R'])
-    part_results['status_cec'].append(part.fluxesCEC['status'])
-    
+    part_results["Ecec"].append(part.fluxesCEC["E"])
+    part_results["Tcec"].append(part.fluxesCEC["T"])
+    part_results["Pcec"].append(part.fluxesCEC["P"])
+    part_results["Rcec"].append(part.fluxesCEC["R"])
+    part_results["status_cec"].append(part.fluxesCEC["status"])
+
     # total fluxes
-    part_results['ET'].append(part.fluxesCEC['ET'])
-    part_results['Fc'].append(part.fluxesCEC['Fc'])
+    part_results["ET"].append(part.fluxesCEC["ET"])
+    part_results["Fc"].append(part.fluxesCEC["Fc"])
 
     # MREA method
     part.partREA(H=0.0)
-    part_results['Erea'].append(part.fluxesREA['E'])
-    part_results['Trea'].append(part.fluxesREA['T'])
-    part_results['Prea'].append(part.fluxesREA['P'])
-    part_results['Rrea'].append(part.fluxesREA['R'])
-    part_results['status_rea'].append(part.fluxesREA['status'])
+    part_results["Erea"].append(part.fluxesREA["E"])
+    part_results["Trea"].append(part.fluxesREA["T"])
+    part_results["Prea"].append(part.fluxesREA["P"])
+    part_results["Rrea"].append(part.fluxesREA["R"])
+    part_results["status_rea"].append(part.fluxesREA["status"])
 
     # Compute water-use efficiency
     # All models are implemented: 'const_ppm', "const_ratio", "linear", "sqrt", "opt"
-    part.WaterUseEfficiency(ppath='C3')
+    part.WaterUseEfficiency(ppath="C3")
 
-    part_results['W_const_ppm'].append(part.wue['const_ppm'])
-    part_results['W_const_ratio'].append(part.wue['const_ratio'])
-    part_results['W_linear'].append(part.wue['linear'])
-    part_results['W_sqrt'].append(part.wue['sqrt'])
-    part_results['W_opt'].append(part.wue['opt'])
+    part_results["W_const_ppm"].append(part.wue["const_ppm"])
+    part_results["W_const_ratio"].append(part.wue["const_ratio"])
+    part_results["W_linear"].append(part.wue["linear"])
+    part_results["W_sqrt"].append(part.wue["sqrt"])
+    part_results["W_opt"].append(part.wue["opt"])
 
     # FVS method - must enter one water-use efficiency in kg_co2/kg_h2o
-    part.partFVS( W = part.wue['const_ppm'])
-    part_results['Efvs'].append(part.fluxesFVS['E'])
-    part_results['Tfvs'].append(part.fluxesFVS['T'])
-    part_results['Pfvs'].append(part.fluxesFVS['P'])
-    part_results['Rfvs'].append(part.fluxesFVS['R'])
-    part_results['status_fvs'].append(part.fluxesFVS['status'])
-    
+    part.partFVS(W=part.wue["const_ppm"])
+    part_results["Efvs"].append(part.fluxesFVS["E"])
+    part_results["Tfvs"].append(part.fluxesFVS["T"])
+    part_results["Pfvs"].append(part.fluxesFVS["P"])
+    part_results["Rfvs"].append(part.fluxesFVS["R"])
+    part_results["status_fvs"].append(part.fluxesFVS["status"])
+
     # alternatively, compute FVS from all options of W
     # for _w in part.wue.keys():
     #     part.partFVS( W = part.wue[_w])
-    #  
+    #
 
-    plt.scatter( part.data['h2o'], part.data['co2'])
-    #plt.show()
+    plt.scatter(part.data["h2o"], part.data["co2"])
+    plt.show()
     plt.close()
     del df, part
 
-part_results = pd.DataFrame(part_results, index = list_dates)
-part_results.to_csv( part_file)
+part_results = pd.DataFrame(part_results, index=list_dates)
+part_results.to_csv(part_file)
