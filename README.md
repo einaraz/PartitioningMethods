@@ -7,7 +7,7 @@
 Author: Einara Zahn\
 email: einaraz@princeton.edu, einara.zahn@gmail.com
 
-A description of the methods included in this script can be found in [Zahn et al., 2021](https://www.sciencedirect.com/science/article/pii/S0168192321004767?via%3Dihub) "Direct Partitioning of Eddy-Covariance Water and Carbon Dioxide Fluxes into Ground and Plant Components"
+A description of the methods included in this script can be found at [Zahn et al., 2021](https://www.sciencedirect.com/science/article/pii/S0168192321004767?via%3Dihub) "Direct Partitioning of Eddy-Covariance Water and Carbon Dioxide Fluxes into Ground and Plant Components" and at [Zahn et al, 2024](https://essopenarchive.org/users/742639/articles/714890-numerical-investigation-of-observational-flux-partitioning-methods-for-water-vapor-and-carbon-dioxide) "Numerical Investigation of Observational Flux Partitioning Methods for Water Vapor and Carbon Dioxide".
 
 
 
@@ -23,7 +23,7 @@ A description of the methods included in this script can be found in [Zahn et al
                 <a href="https://link.springer.com/article/10.1007%2Fs10546-006-9105-1">Detto and Katul, 2007</a> )
    - Stationarity test
    - Gap filling
-2. Implements three partitioning methods:
+2. Implements five partitioning methods:
     1. Conditional Eddy Covariance (CEC)
          [Zahn et al., 2021](https://www.sciencedirect.com/science/article/pii/S0168192321004767?via%3Dihub) "Direct Partitioning of Eddy-Covariance Water and Carbon Dioxide Fluxes into Ground and Plant Components"            
     2.  Modified Relaxed Eddy Accumulation (MREA)
@@ -37,7 +37,10 @@ A description of the methods included in this script can be found in [Zahn et al
           [Scanlon et al., 2019](https://www.sciencedirect.com/science/article/pii/S016819231930348X?via%3Dihub)
             "Correlation-based flux partitioning of water vapor and carbon dioxide fluxes: 
             Method simplification and estimation of canopy water use efficiency"
-        
+    4. Conditional Eddy Accumulation (CEA)
+       "Numerical Investigation of Observational Flux Partitioning Methods for Water Vapor and Carbon Dioxide" [Zahn et al, 2024](https://essopenarchive.org/users/742639/articles/714890-numerical-investigation-of-observational-flux-partitioning-methods-for-water-vapor-and-carbon-dioxide)
+    6. Conditional Eddy Covariance with water-use efficiency (CECw)
+       "Numerical Investigation of Observational Flux Partitioning Methods for Water Vapor and Carbon Dioxide" [Zahn et al, 2024](https://essopenarchive.org/users/742639/articles/714890-numerical-investigation-of-observational-flux-partitioning-methods-for-water-vapor-and-carbon-dioxide)
 ---
 ## Available files 
 
