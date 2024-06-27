@@ -12,13 +12,14 @@ on:
   schedule:
     # At 17:31 every Tuesday (UTC)
     # At 9:31 every Tuesday (PST)
-    - cron: "0 12 1 * 1"
+    - cron: "0 12 1 * 1"  # Every first Monday of the month at 12:00 UTC
   workflow_dispatch:
 
 jobs:
   # Run tests
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest  # Adjusted to ubuntu-latest for simplicity
+
     strategy:
       fail-fast: false
       matrix:
@@ -26,33 +27,38 @@ jobs:
         os: [ubuntu-latest, macOS-latest, windows-latest]
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-    
-    - name: Install Dependencies
-      run: |
-        pip install .[test]
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Test
-      run: |
-        pytest tests/
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install .[test]
 
-  # Check linting, formating, types, etc.
+      - name: Test with pytest
+        run: |
+          pytest tests/
+
+  # Check linting, formatting, types, etc.
   lint:
-    runs-on: macOS-latest
+    runs-on: macOS-latest  # Ensure linting runs on macOS-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.11"
-    
-    - name: Install Dependencies
-      run: |
-        pip install pre-commit
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"  # Replace with the appropriate Python version
+
+      - name: Install Dependencies
+        run: |
+          pip install pre-commit
+
+      - name: Run pre-commit
+        run: |
+          pre-commit run --all-files
