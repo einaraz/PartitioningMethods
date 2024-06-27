@@ -43,7 +43,7 @@ jobs:
 
   # Check linting, formating, types, etc.
   lint:
-    runs-on: ubuntu-latest
+    runs-on: macOS-latest
 
     steps:
     - uses: actions/checkout@v4
