@@ -1,10 +1,6 @@
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 from partitioning import Partitioning
-from glob import glob
-from pprint import pprint
-
+import pytest
 
 def test_partitioning(sample_data_read):
 
