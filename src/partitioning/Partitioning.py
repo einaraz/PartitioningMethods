@@ -17,17 +17,8 @@ from .auxfunctions import (
     find_spikes,
 )
 
-"""
-Author: Einara Zahn <einaraz@princeton.edu>, <einara.zahn@gmail.com>
-Last update: Dec 24, 2021; Oct 12 2022             
-"""
-
 
 class Constants:
-    """
-    Define constants
-    """
-
     Rd = 287  # gas constant of dry air - J/K/kg
     Lv = 2.453 * 10**6  # latent heat - J/kg
     rho_w = 1000  # density of water - kg/m3
@@ -39,7 +30,7 @@ class Constants:
     Rvapor = 8.3144598 / MWvapor  # Gas constant for water vapor
     diff_ratio = 1.6  # Ratio of diffusivities water/co2
     g = 9.8160  # gravity m/s2
-    # Constants used for water use efficiency (see Partitioning.WaterUseEfficiency for definitions)
+
     wue_constants = {
         "C3": {
             "const_ppm": 280,
@@ -58,69 +49,83 @@ class Constants:
 
 class Partitioning(object):
     """
-    Inputs:
-        hi - canopy height (m)
-        zi - eddy covariance measurement height (m)
-        df - dataframe with data (e.g., 30min, but any length works), each variable in a column
-             If raw data is used, pre-processing is first implemented, following the steps:
-                --> Quality control (removing outliers, despiking, flags of instruments, etc)
-                --> Rotation of coordinates (double rotation) for velocity components u, v, w measured by csat
-                --> Density corrections for instantaneous fluctuations of co2 (c_p) and h2o (q_p) measured by open-gas analyser ("instantaneous" WPL correction) based on the paper
-                            Detto, M. and Katul, G. G., 2007. "Simplified expressions for adjusting higher-order turbulent statistics obtained from open path gas analyzers"
-                            Boundary-Layer Meteorology, 10.1007/s10546-006-9105-1
-                --> Turbulent fluctuations, here denoted as primed quantities ("_p"), are computed
-                --> Air temperature (T) and virtual temperature (Tv) computed from the sonic temperature (Ts)
+    Parameters
+    ----------
+    hi : float
+        Canopy height (m).
+    zi : float
+        Eddy covariance measurement height (m).
+    df : pandas.DataFrame
+        DataFrame with data (e.g., 30min intervals, but any length works), each variable in a column.
+        If raw data is used, pre-processing is first implemented following these steps:
+            - Quality control (removing outliers, despiking, flags of instruments, etc)
+            - Rotation of coordinates (double rotation) for velocity components u, v, w measured by csat
+            - Density corrections for instantaneous fluctuations of CO2 (c_p) and H2O (q_p) measured by open-gas analyser
+              ("instantaneous" WPL correction) based on the paper:
+                Detto, M. and Katul, G. G., 2007. "Simplified expressions for adjusting higher-order turbulent statistics
+                obtained from open path gas analyzers". Boundary-Layer Meteorology, 10.1007/s10546-006-9105-1
+            - Turbulent fluctuations, here denoted as primed quantities ("_p"), are computed
+            - Air temperature (T) and virtual temperature (Tv) computed from the sonic temperature (Ts)
 
-            Raw data requires the following variables and units:
-                index - datetime
-                w     - velocity in the z direction (m/s)
-                u     - velocity in the x direction (m/s)
-                v     - velocity in the y direction (m/s)
-                Ts    - sonic temperature (Celsius)
-                P     - pressure (kPa)
-                co2   - carbon dioxide density (mg/m3)
-                h2o   - water vapor density (g/m3)
-            After pre-processing, the following additional variables are created (***)
-                w_p  - fluctuations of velocity in the z direction (m/s)
-                u_p  - fluctuations of velocity in the x direction (m/s)
-                v_p  - fluctuations of velocity in the y direction (m/s)
-                T    - thermodynamic air temperature (Celsius)
-                Tv   - virtual temperature (Celsius)
-                c_p  - fluctuations of carbon dioxide density (mg/m3) - (corrected for external densities (WPL) if needed)
-                q_p  - fluctuations of water vapor density (g/m3)     - (corrected for external densities (WPL) if needed)
-                T_p  - fluctuations of air temperature (Celsius)
-                Tv_p - fluctuations of virtual temperature (Celsius)
+        Raw data requires the following variables and units:
+            - index : datetime
+            - w : velocity in the z direction (m/s)
+            - u : velocity in the x direction (m/s)
+            - v : velocity in the y direction (m/s)
+            - Ts : sonic temperature (Celsius)
+            - P : pressure (kPa)
+            - CO2 : carbon dioxide density (mg/m3)
+            - H2O : water vapor density (g/m3)
 
-        PreProcessing - boolean indicating if pre-processing is necessary. If True, all pre-processing steps are implemented to
-                        raw data; if False, pre-processing is ignored and partitioning is imediatelly applied. In this case,
-                        the input files must contain all variables listed above (***)
-        argsQC - dictionary. Contains options to be used during pre-processing regarding fluctuation extraction and if
-                        density corrections are necessary.
-                 Keys:
-                 density_correction - boolean. True if density corrections are necessary (open gas analyzer);
-                                               False (closed or enclosed gas analyzer)
-                 fluctuations - string. Describes the type of operation used to extract fluctuations
-                                  'BA': block average
-                                  'LD': Linear detrending
-                 maxGapsInterpolate - integer. Number of consecutive gaps that will be interpolated
-                 RemainingData      - integer (0 - 100). Percentage of the time series that should have remained after pre-processing
-                                       if less than this quantity, partitioning is not implemented
-    The following partinioning methods are available (references for each method below)
-        - Conditional Eddy Covariance (CEC)
-        - Modified Relaxed Eddy Accumulation (MREA)
-        - Flux Variance Similarity (FVS)
+        After pre-processing, the following additional variables are created (***):
+            - w_p : fluctuations of velocity in the z direction (m/s)
+            - u_p : fluctuations of velocity in the x direction (m/s)
+            - v_p : fluctuations of velocity in the y direction (m/s)
+            - T : thermodynamic air temperature (Celsius)
+            - Tv : virtual temperature (Celsius)
+            - c_p : fluctuations of carbon dioxide density (mg/m3) - (corrected for external densities (WPL) if needed)
+            - q_p : fluctuations of water vapor density (g/m3) - (corrected for external densities (WPL) if needed)
+            - T_p : fluctuations of air temperature (Celsius)
+            - Tv_p : fluctuations of virtual temperature (Celsius)
 
-    * Note that CEC and MREA only need time series of w_p, c_p, q_p
-      The remaining quantities (e.g., P, T, Tv, etc) are only needed if the
-      water use efficiency is computed for the FVS method. Alternatively, an external WUE can be
-      used; in this case, FVS will only need time series of w_p, c_p, q_p
+    PreProcessing : bool
+        Indicates if pre-processing is necessary. If True, all pre-processing steps are implemented to raw data. If False,
+        pre-processing is ignored and partitioning is immediately applied. In this case, the input files must contain all
+        variables listed above (***).
+    argsQC : dict
+        Contains options to be used during pre-processing regarding fluctuation extraction and if density corrections are
+        necessary.
 
+        Keys:
+            - density_correction : bool
+                True if density corrections are necessary (open gas analyzer); False (closed or enclosed gas analyzer).
+            - fluctuations : str
+                Describes the type of operation used to extract fluctuations.
+                'BA': block average
+                'LD': Linear detrending
+            - maxGapsInterpolate : int
+                Number of consecutive gaps that will be interpolated.
+            - RemainingData : int
+                Percentage (0-100) of the time series that should remain after pre-processing. If less than this quantity,
+                partitioning is not implemented.
+
+    Available Partitioning Methods
+    ------------------------------
+    - Conditional Eddy Covariance (CEC)
+    - Modified Relaxed Eddy Accumulation (MREA)
+    - Flux Variance Similarity (FVS)
+
+    Notes
+    -----
+    CEC and MREA only need time series of w_p, c_p, q_p. The remaining quantities (e.g., P, T, Tv, etc) are only needed if the
+    water use efficiency (WUE) is computed for the FVS method. Alternatively, an external WUE can be used; in this case, FVS
+    will only need time series of w_p, c_p, q_p.
     """
 
     def __init__(self, hi, zi, freq, length, df, PreProcessing, argsQC):
-        self.hi = hi  # Canopy height (m)
-        self.zi = zi  # Measurement height (m)
-        self.data = df  # pandas dataframe containing data
+        self.hi = hi
+        self.zi = zi
+        self.data = df
         self.freq = freq
         self.length = length
 
@@ -138,14 +143,18 @@ class Partitioning(object):
 
     def _checkMissingdata(self, percData):
         """
-        Checks how many missing points are present
-        Only accepts periods when valid data points >= percData
+        Checks how many missing points are present and only accepts periods when valid data points >= percData.
 
-        Input
-           percData: integer (0, 100). Percentage of the data that needs to be valid (i.e., excluding gaps)
-                                       in order to implement partitioning. If less than percData is available,
-                                       the entire half-hour period is discarded
-        Computes the percentage of valid data and stores in self.valid_data
+        Parameters
+        ----------
+        percData : int
+            Percentage of the data that needs to be valid (i.e., excluding gaps) in order to implement partitioning.
+            If less than percData is available, the entire half-hour period is discarded. Must be between 0 and 100.
+
+        Stores
+        ------
+        self.valid_data : float
+            The percentage of valid data points.
         """
         maxNAN, indMAX = (
             self.data.isnull().sum().max(),
@@ -157,10 +166,28 @@ class Partitioning(object):
 
     def _checkPhysicalBounds(self):
         """
-        Set to NaN those values outside a physical realistic range
-        If additional variables other than the required are passed to the code,
-           their physical bounds need to be added to the dictionary _bounds
-           Units must match those of the input data
+        Sets values outside a physically realistic range to NaN.
+
+        If additional variables other than the required ones are passed to the code, their physical bounds need to be
+        added to the dictionary `_bounds`. Units must match those of the input data.
+
+        Attributes
+        ----------
+        self.data : pandas.DataFrame
+            DataFrame containing the input data with each variable in a column.
+
+        Notes
+        -----
+        The `_bounds` dictionary contains the physical bounds for the required variables:
+            - "u" : (-20, 20) m/s
+            - "v" : (-20, 20) m/s
+            - "w" : (-20, 20) m/s
+            - "Ts" : (-10, 50) Celsius
+            - "co2" : (0, 1500) mg/m3
+            - "h2o" : (0, 40) g/m3
+            - "P" : (60, 150) kPa
+
+        For each variable in `self.data`, if the variable is in `_bounds`, values outside the specified bounds are set to NaN.
         """
         _bounds = {
             "u": (-20, 20),
@@ -182,11 +209,26 @@ class Partitioning(object):
 
     def _despike(self):
         """
-        Replace outliers with NaN values
-        Points are only considered outliers if no more than 8 points in sequence are above a threshold (see find_spikes in auxfunctions.py)
-        Implements the test described in section 3.4 of
+        Replaces outliers with NaN values.
+
+        Points are only considered outliers if no more than 8 points in sequence are above a threshold (see `find_spikes`
+        in `auxfunctions.py`). Implements the test described in section 3.4 of:
+
             E. Zahn, T. L. Chor, N. L. Dias, A Simple Methodology for Quality Control of Micrometeorological Datasets,
             American Journal of Environmental Engineering, Vol. 6 No. 4A, 2016, pp. 135-142. doi: 10.5923/s.ajee.201601.20
+
+        Attributes
+        ----------
+        self.data : pandas.DataFrame
+            DataFrame containing the input data with each variable in a column.
+
+        Notes
+        -----
+        The following steps are performed:
+
+        1. Linear detrend of time series for variables: "co2", "h2o", "Ts", "w", "u", "v".
+        2. Separation into 2-minute windows.
+        3. Identification and replacement of spikes with NaN values for the above variables.
         """
 
         aux = self.data[["co2", "h2o", "Ts", "w", "u", "v"]].copy()
@@ -217,9 +259,27 @@ class Partitioning(object):
 
     def _rotation(self):
         """
-        Performs rotation of coordinates using the double rotation method
-        Overwrites the velocity field (u,v,w) with the rotated coordinates
-        References:
+        Performs rotation of coordinates using the double rotation method.
+
+        Overwrites the velocity field (u, v, w) with the rotated coordinates.
+
+        References
+        ----------
+        [Include relevant references here]
+
+        Attributes
+        ----------
+        self.data : pandas.DataFrame
+            DataFrame containing the input data with velocity components u, v, and w.
+
+        Notes
+        -----
+        The double rotation method aligns the coordinate system with the mean flow direction. The steps involved are:
+
+        1. Calculation of mean velocities.
+        2. Calculation of the angles between mean velocities.
+        3. Rotation of coordinates using these angles.
+        4. Updating the DataFrame with the rotated velocities.
         """
         aux = self.data[["u", "v", "w"]].copy()
         Umean = aux.mean()
@@ -247,12 +307,30 @@ class Partitioning(object):
 
     def _fluctuations(self, method):
         """
-        Computes turbulent fluctuations, x' = x - X, where X is the average
-        Only variables required by the partitioning algorithms are included
-        method to compute X:
-            BA: Block average
-            LD: linear detrending
-        Add the time series of fluctuations (variable_name + _p ) to the dataframe
+        Computes turbulent fluctuations, x' = x - X, where X is the average.
+
+        Only variables required by the partitioning algorithms are included.
+
+        Parameters
+        ----------
+        method : str
+            Method to compute X:
+            'BA' : Block average
+            'LD' : Linear detrending
+
+        Raises
+        ------
+        TypeError
+            If the method to extract fluctuations is not 'LD' or 'BA'.
+
+        Attributes
+        ----------
+        self.data : pandas.DataFrame
+            DataFrame containing the input data with variables "u", "v", "w", "co2", "h2o", "Ts".
+
+        Notes
+        -----
+        Adds the time series of fluctuations (variable_name + '_p') to the DataFrame.
         """
         Lvars = ["u", "v", "w", "co2", "h2o", "Ts"]
 
@@ -269,10 +347,36 @@ class Partitioning(object):
 
     def _densityCorrections(self, method):
         """
-        Apply density correction to the fluctuations of co2 (co2_p) and h2o (h2o_p)
-        following Detto, M. and Katul, G. G., 2007. "Simplified expressions for adjusting higher-order turbulent statistics obtained from open path gas analyzers"
-                            Boundary-Layer Meteorology, 10.1007/s10546-006-9105-1
-        Note that it is only necessary when co2 and h2o were measured by an open gas analyzer and their output are mass/molar densities (ex, mg/m3)
+        Applies density correction to the fluctuations of CO2 (co2_p) and H2O (h2o_p).
+
+        Follows the method described in:
+            Detto, M. and Katul, G. G., 2007. "Simplified expressions for adjusting higher-order turbulent statistics obtained from open path gas analyzers",
+            Boundary-Layer Meteorology, 10.1007/s10546-006-9105-1.
+
+        Note that this correction is necessary only when CO2 and H2O were measured by an open gas analyzer and their outputs are mass/molar densities (e.g., mg/m3).
+
+        Parameters
+        ----------
+        method : str
+            Method to compute temperature fluctuations:
+            'LD' : Linear detrending
+            'BA' : Block average
+
+        Attributes
+        ----------
+        self.data : pandas.DataFrame
+            DataFrame containing the input data with variables "P", "Ts", "co2", "h2o", "u", "v", "w".
+
+        Notes
+        -----
+        - Calculates air density, thermodynamic temperature, and virtual temperature.
+        - Computes temperature fluctuations based on the specified method.
+        - Applies corrections to CO2 and H2O fluctuations using the specified method.
+
+        Raises
+        ------
+        TypeError
+            If the method to compute temperature fluctuations is not 'LD' or 'BA'.
         """
         # Calculate air density------------------------------------------------
         Rd = Constants.Rd  # J/kg.K
@@ -339,11 +443,24 @@ class Partitioning(object):
 
     def _fillGaps(self, maxGaps):
         """
-        Fill gaps (nan) values in time series using linear interpolation
-        It's recommended that only small gaps be interpolated.
+        Fills gaps (NaN values) in time series using linear interpolation.
 
-        Input:
-           maxGaps: integer > 0. Number of consecutive missing gaps that can be interpolated.
+        It is recommended that only small gaps be interpolated.
+
+        Parameters
+        ----------
+        maxGaps : int
+            Number of consecutive missing gaps that can be interpolated. Should be 0 < maxGaps < 20.
+
+        Raises
+        ------
+        TypeError
+            If maxGaps is greater than 20, indicating that too many consecutive points are being interpolated.
+
+        Attributes
+        ----------
+        self.data : pandas.DataFrame
+            DataFrame containing the input data with potential gaps.
         """
         if maxGaps > 20:
             raise TypeError(
@@ -356,28 +473,38 @@ class Partitioning(object):
 
     def _steadynessTest(self):
         """
-        Implements a stationarity test described in section 5 of
-            Thomas Foken and B. Wichura, "Tools for quality assessment of surface-based flux measurements"
-                Agricultural and Forest Meteorology, Volume 78, Issues 1–2, 1996, Pages 83-105.
+        Implements a stationarity test described in section 5 of:
+            Thomas Foken and B. Wichura, "Tools for quality assessment of surface-based flux measurements",
+            Agricultural and Forest Meteorology, Volume 78, Issues 1–2, 1996, Pages 83-105.
 
-            In computes
-                 stat = | (average_cov_5min - cov_30min) / cov_30min | * 100 %, where cov is the covariance
-                           between any two variables
+        Computes the stationarity statistic:
+            stat = | (average_cov_5min - cov_30min) / cov_30min | * 100 %
+        where cov is the covariance between any two variables.
 
-        Foken argues ** that steady state conditions can be assume if stat < 30 %;
-        This variable can be used as a criterion for data quality and its compliance with EC requirements (steadyness)
-        ** Micrometeorology (https://doi.org/10.1007/978-3-540-74666-9), p. 175
+        Foken argues that steady state conditions can be assumed if stat < 30 %.
+        This variable can be used as a criterion for data quality and its compliance with EC requirements (steadiness).
 
-        Creates a dictionary with the steadyness statistics (in %) for variances and covariances
-        self.FokenStatTest = {
-                              'wc': statistic for w'c' (total CO2 flux)
-                              'wq': statistic for w'q' (total H2O flux)
-                              'wT': statistic for w'T' (sonic temperature flux)
-                              'ww': statistic for w'w' (variance of w)
-                              'cc': statistic for c'c' (variance of co2)
-                              'qq': statistic for q'q' (variance of h2o)
-                              'tt': statistic for t't' (variance of sonic temperature)
-                               }
+        Reference:
+        Foken, T., Micrometeorology, https://doi.org/10.1007/978-3-540-74666-9, p. 175.
+
+        Creates a dictionary with the steadiness statistics (in %) for variances and covariances.
+
+        Attributes
+        ----------
+        self.FokenStatTest : dict
+            Dictionary containing the steadiness statistics for various fluxes and variances:
+            - 'wc': statistic for w'c' (total CO2 flux)
+            - 'wq': statistic for w'q' (total H2O flux)
+            - 'wT': statistic for w'T' (sonic temperature flux)
+            - 'ww': statistic for w'w' (variance of w)
+            - 'cc': statistic for c'c' (variance of CO2)
+            - 'qq': statistic for q'q' (variance of H2O)
+            - 'tt': statistic for t't' (variance of sonic temperature)
+
+        Notes
+        -----
+        - Computes 5-minute window statistics.
+        - Compares 30-minute statistics to the average of 5-minute windows.
         """
         # Five minute window statistics -------------------------
         stats5min = self.data.groupby(pd.Grouper(freq="5Min")).apply(Stats5min).dropna()
@@ -406,82 +533,75 @@ class Partitioning(object):
 
     def WaterUseEfficiency(self, ppath="C3"):
         """
-        Calculates water use efficiency in kg_co2/kg_h2o
+        Calculates water use efficiency in kg_co2/kg_h2o.
 
         Main references:
+        - Scanlon and Sahu 2008, Water Resources Research
+          "On the correlation structure of water vapor and carbon dioxide in
+          the atmospheric surface layer: A basis for flux partitioning"
+        - Parts of the code were adapted from Skaggs et al. 2018, Agr For Met
+          "Fluxpart: Open source software for partitioning carbon dioxide and water vapor fluxes"
+          https://github.com/usda-ars-ussl/fluxpart
+        - Optimization model for W from Scanlon et al., 2019, Agr. For. Met.
+          "Correlation-based flux partitioning of water vapor and carbon dioxide fluxes:
+          Method simplification and estimation of canopy water use efficiency"
 
-        Scanlon and Sahu 2008, Water Resources Research
-                       "On the correlation structure of water vapor and carbon dioxide in
-                        the atmospheric surface layer: A basis for flux partitioning"
+        Parameters
+        ----------
+        ppath : str
+            Type of photosynthesis ('C3' or 'C4').
 
-        Parts of the code were adapted from Skaggs et al. 2018, Agr For Met
-                       "Fluxpart: Open source software for partitioning carbon dioxide and water vapor fluxes"
-                        https://github.com/usda-ars-ussl/fluxpart
-
-        Optimization model for W from Scanlon et al., 2019, Agr. For. Met.
-                       "Correlation-basedflux partitioning of water vapor and carbon dioxidefluxes:
-                       Method simplification and estimation of canopy water use efficiency"
-
-        Input:
-            ppath - C3 or C4 - type of photosynthesis
-
-
-        ----------------------------------------------------------------
-        Computes the water use efficiency (eq A1 in Scanlon and Sahu, 2008)
+        Notes
+        -----
+        Computes the water use efficiency (eq A1 in Scanlon and Sahu, 2008):
             wue = 0.65 * (c_c - c_s) / (q_c - q_s)
 
-            c_c (kg/m3) and q_c (kg/m3) are near canopy concentrations of co2 and h2o:
-                --> estimated from log profiles (eq A2a in Scanlon and Sahu, 2008)
-            c_s (kg/m3) and q_s (kg/m3) are stomata concentrations of co2 and h2o
-                --> q_s is assumed to be at saturation
-                --> c_s is parameterized from different models (Skaggs et al, 2018; Scanlon et al, 2019)
+        c_c (kg/m3) and q_c (kg/m3) are near canopy concentrations of CO2 and H2O:
+            - Estimated from log profiles (eq A2a in Scanlon and Sahu, 2008).
+        c_s (kg/m3) and q_s (kg/m3) are stomata concentrations of CO2 and H2O:
+            - q_s is assumed to be at saturation.
+            - c_s is parameterized from different models (Skaggs et al., 2018; Scanlon et al., 2019).
 
         The following models for c_s are implemented:
 
         const_ppm:
-            --> Concentrations in kg/m3 are computed from a constant value in ppm
-                Values from Campbell and Norman, 1998, p. 150
-                Campbell, G.  S. and Norman, J. M. (1998).
-                An Introduction to Environmental Biophysics. Springer, New York, NY.
-            c_s = 280 ppm (C3 plants)
-            c_s = 130 ppm (C4 plants)
+            - Concentrations in kg/m3 are computed from a constant value in ppm.
+            - Values from Campbell and Norman, 1998, p. 150.
+              Campbell, G. S. and Norman, J. M. (1998). An Introduction to Environmental Biophysics. Springer, New York, NY.
+            - c_s = 280 ppm (C3 plants).
+            - c_s = 130 ppm (C4 plants).
 
+        const_ratio:
+            - The ratio of near canopy and stomata CO2 concentrations is assumed constant (c_s/c_c = constant).
+            - Constants from Sinclair, T. R., Tanner, C. B., and Bennett, J. M. (1984).
+              Water-use efficiency in crop production. BioScience, 34(1):36–40.
+            - c_s/c_c = 0.70 for C3 plants.
+            - c_s/c_c = 0.44 for C4 plants.
 
-        const_ratio
-            --> The ratio of near canopy and stomata co2 concentrations is assumed constant (c_s/c_c = constant)
-                Constants from Sinclair, T. R., Tanner, C. B., and Bennett, J. M. (1984).
-                Water-use efficiency in crop production. BioScience, 34(1):36–40
+        linear:
+            - The ratio of near canopy and stomata CO2 concentrations is a linear function of VPD.
+            - Based on the results of Morison, J. I. L. and Gifford, R. M. (1983).
+              Stomatal sensitivity to carbon dioxide and humidity. Plant Physiology, 71(4):789–796.
+              Estimated constants from Skaggs et al (2018).
+            - c_s/c_c = a - b * D
+            - a, b = 1, 1.6*10-4 Pa-1 for C3 plants.
+            - a, b = 1, 2.7*10-4 Pa-1 for C4 plants.
+            - D (Pa) is vapor pressure deficit based on leaf-temperature.
 
-            c_s/c_c = 0.70 for C3 plants
-            c_s/c_c = 0.44 for C4 plants
+        sqrt:
+            - The ratio of near canopy and stomata CO2 concentrations is proportional
+              to the 1/2 power of VPD.
+            - Model by Katul, G. G., Palmroth, S., and Oren, R. (2009).
+              Leaf stomatal responses to vapour pressure deficit under current and CO2-enriched atmosphere
+              explained by the economics of gas exchange. Plant, Cell & Environment, 32(8):968–979.
+            - c_s/c_c = 1 - sqrt(1.6 * lambda * D / c_c)
+            - lambda = 22e-9 kg-CO2 / m^3 / Pa for C3 plants (from Skaggs et al., 2018).
+            - Not available for C4 plants.
 
-
-        linear
-            ---> The ratio of near canopy and stomata co2 concentrations is a linear function of vpd
-                 Based on the results of Morison, J. I. L. and Gifford, R. M. (1983).
-                 Stomatal sensitivity to carbon dioxide and humidity. Plant Physiology, 71(4):789–796.
-                 Estimated constants from Skaggs et al (2018)
-
-            c_s/c_c = a - b * D
-                a, b = 1, 1.6*10-4 Pa-1  for C3 plants
-                a, b = 1, 2.7*10-4 Pa-1  for C4 plants
-                D (Pa) is vapor pressure deficit based on leaf-temperature
-        'sqrt'
-            ---> The ratio of near canopy and stomata co2 concentrations is proportional
-                 to the 1/2 power of vpd
-                 Model by Katul, G. G., Palmroth, S., and Oren, R. (2009).
-                 Leaf stomatal responses to vapour pressure deficit under current and co2-enriched atmosphere
-                 explained by the economics of gas exchange. Plant, Cell & Environment, 32(8):968–979.
-
-                c_s/c_c = 1 - sqrt(1.6 * lambda *  D / c_c)
-
-            lambda = 22e-9 kg-CO2 / m^3 / Pa for C3 plants  (from Skaggs et al, 2018)
-            Not available for C4 plants
-
-        'opt'
-            Optimization model proposed by Scanlon et al (2019)
-            Does not need extra parameters
-            Only available for C3 plants
+        opt:
+            - Optimization model proposed by Scanlon et al (2019).
+            - Does not need extra parameters.
+            - Only available for C3 plants.
         """
 
         # Create a copy of the dataframe with variables that will be needed
@@ -636,25 +756,42 @@ class Partitioning(object):
 
     def partCEC(self, H=0.0):
         """
-        Implements the Conditional Eddy Covariance method proposed by Zahn et al. 2021
-                Direct Partitioning of Eddy-Covariance Water and Carbon Dioxide Fluxes into Ground and Plant Components
-        Input:
-            H - hyperbolic threshold
+        Implements the Conditional Eddy Covariance method proposed by Zahn et al. 2021.
 
-        Used variables:
-             - w_p - fluctuation of vertical velocity (m/s)
-             - c_p - fluctuations of co2 density (mg/m3)
-             - q_p - fluctuations of h2o density (g/m3)
+        Direct Partitioning of Eddy-Covariance Water and Carbon Dioxide Fluxes into Ground and Plant Components.
 
-        Create a dictionaty 'fluxesCEC' with all flux components
-             - ET - total evapotranspiration (W/m2)
-             - T - plant transpiration (W/m2)
-             - E - soil/surface evaporation (W/m2)
-             - Fc - carbon dioxide flux (mg/m2/s)
-             - R - soil/surface respiration (mg/m2/s)
-             - P - plant net photosynthesis* (mg/m2/s)
-        * this component represents carboxylation minus photorespiration and leaf respiration; therefore,
-          it is different from gross primary productivity
+        Parameters
+        ----------
+        H : float, optional
+            Hyperbolic threshold, by default 0.0.
+
+        Returns
+        -------
+        dict
+            Dictionary with the following flux components:
+            - ET : float
+                Total evapotranspiration (W/m2).
+            - T : float
+                Plant transpiration (W/m2).
+            - E : float
+                Soil/surface evaporation (W/m2).
+            - Fc : float
+                Carbon dioxide flux (mg/m2/s).
+            - R : float
+                Soil/surface respiration (mg/m2/s).
+            - P : float
+                Plant net photosynthesis* (mg/m2/s).
+            - rRP : float
+                Ratio of respiration to photosynthesis.
+            - rET : float
+                Ratio of evaporation to transpiration.
+            - status : str
+                Status of the calculation.
+
+        Notes
+        -----
+        This component represents carboxylation minus photorespiration and leaf respiration; therefore,
+        it is different from gross primary productivity.
         """
 
         per_points_Q1Q2 = 15  # smallest percentage of points that must be available in the first two quadrants
@@ -662,7 +799,7 @@ class Partitioning(object):
 
         # Creates a dataframe with variables of interest and no constraints
         auxET = self.data[["co2_p", "h2o_p", "w_p"]]
-        N = auxET.index.size  # Total number of points
+        N = auxET.index.size
         total_Fc = np.mean(
             auxET["co2_p"].values * auxET["w_p"].values
         )  # flux [all quadrants] given in mg/(s m2)
@@ -732,8 +869,6 @@ class Partitioning(object):
                 "status": "Q1+Q2<20",
             }
         elif (sumQ1 >= per_poits_each) and (sumQ2 >= per_poits_each):
-            # Compute all flux components
-
             # ET components
             ratioET = E_condition_ET / T_condition_ET
             T = total_ET / (1.0 + ratioET)
@@ -786,27 +921,40 @@ class Partitioning(object):
 
     def partREA(self, H=0):
         """
-        Implements the Modified Relaxed Eddy Accumulation proposed by Thomas et al., 2008 (Agr For Met)
-                Estimating daytime subcanopy respiration from conditional sampling methods applied to multi-scalar high frequency turbulence time series
-                https://www.sciencedirect.com/science/article/pii/S0168192308000737
-                New contraints defined in Zahn et al (2021)
-        Input:
-            H - hyperbolic threshold
+        Implements the Modified Relaxed Eddy Accumulation proposed by Thomas et al., 2008 (Agr For Met).
 
-        Used variables:
-             - w_p - fluctuation of vertical velocity (m/s)
-             - c_p - fluctuations of co2 density (mg/m3)
-             - q_p - fluctuations of h2o density (g/m3)
+        Estimating daytime subcanopy respiration from conditional sampling methods applied to multi-scalar high frequency turbulence time series
+        https://www.sciencedirect.com/science/article/pii/S0168192308000737
+        New contraints defined in Zahn et al (2021).
 
-        Create a dictionaty 'fluxesREA' with all flux components
-             - ET - total evapotranspiration (W/m2)
-             - T - plant transpiration (W/m2)
-             - E - soil/surface evaporation (W/m2)
-             - Fc - net carbon dioxide flux (mg/m2/s)
-             - R - soil/surface respiration (mg/m2/s)
-             - P - plant net photosynthesis* (mg/m2/s)
-        * this component represents carboxylation minus photorespiration and leaf respiration; therefore,
-          it is different from gross primary productivity
+        Parameters
+        ----------
+        H : float, optional
+            Hyperbolic threshold, by default 0.0.
+
+        Returns
+        -------
+        dict
+            Dictionary with the following flux components:
+            - ET : float
+                Total evapotranspiration (W/m2).
+            - T : float
+                Plant transpiration (W/m2).
+            - E : float
+                Soil/surface evaporation (W/m2).
+            - Fc : float
+                Net carbon dioxide flux (mg/m2/s).
+            - R : float
+                Soil/surface respiration (mg/m2/s).
+            - P : float
+                Plant net photosynthesis* (mg/m2/s).
+            - status : str
+                Status of the calculation.
+
+        Notes
+        -----
+        This component represents carboxylation minus photorespiration and leaf respiration; therefore,
+        it is different from gross primary productivity.
         """
 
         per_points_Q1Q2 = 15  # smallest percentage of points that must be available in the first two quadrants
@@ -923,32 +1071,38 @@ class Partitioning(object):
 
     def partFVS(self, W):
         """
-        Partitioning based on Flux Variance Similarity Theory (FVS)
-        This implementation directly follows the paper by Scanlon et al., 2019, Agr. For. Met.
-                       "Correlation-based flux partitioning of water vapor and carbon dioxidefluxes:
-                       Method simplification and estimation of canopy water use efficiency"
-        Parts of the implementation are adapted from Skaggs et al. 2018, Agr For Met
-                       "Fluxpart: Open source software for partitioning carbon dioxide and watervaporfluxes"
+        Implements the Flux Variance Similarity Theory proposed by Scanlon et al., 2019.
 
-        Input:
-              W - water use efficiency [kg_co2/kg_h2o]
-                  If not available, W can be computed from any of the models
-                  in the function WaterUseEfficiency
+        Direct Partitioning of GPP and Re in a Subalpine Forest Ecosystem.
 
-        Used variables:
-             - w_p - fluctuation of vertical velocity (m/s)
-             - c_p - fluctuations of co2 density (mg/m3)
-             - q_p - fluctuations of h2o density (g/m3)
+        Parameters
+        ----------
+        W : float, optional
+            Water use efficiency, by default 0.
 
-        Creates a dictionary 'fluxesFVS' containing all flux components
-             - ET - total evapotranspiration (W/m2)
-             - T - plant transpiration (W/m2)
-             - E - soil/surface evaporation (W/m2)
-             - Fc - carbon dioxide flux (mg/m2/s)
-             - R - soil/surface respiration (mg/m2/s)
-             - P - plant net photosynthesis* (mg/m2/s)
-        * this component represents carboxylation minus photorespiration and leaf respiration; therefore,
-          it is different from gross primary productivity
+        Returns
+        -------
+        dict
+            Dictionary with the following flux components:
+            - ET : float
+                Total evapotranspiration (W/m2).
+            - T : float
+                Plant transpiration (W/m2).
+            - E : float
+                Soil/surface evaporation (W/m2).
+            - Fc : float
+                Net carbon dioxide flux (mg/m2/s).
+            - R : float
+                Soil/surface respiration (mg/m2/s).
+            - P : float
+                Plant net photosynthesis* (mg/m2/s).
+            - status : str
+                Status of the calculation.
+
+        Notes
+        -----
+        This component represents carboxylation minus photorespiration and leaf respiration; therefore,
+        it is different from gross primary productivity.
         """
 
         aux = self.data[
@@ -1120,69 +1274,116 @@ class Partitioning(object):
 
     def partCEA(self, H=0.00):
         """
-        Implements the Conditional Eddy Accumulation
+        Implements the Conditional Eddy Accumulation method proposed by Zahn et al. 2024.
+
+        Numerical Investigation of Observational Flux Partitioning Methods for Water Vapor and Carbon Dioxide
+
+        Parameters
+        ----------
+        H : float, optional
+            Hyperbolic threshold, by default 0.0.
+
+        Returns
+        -------
+        dict
+            Dictionary with the following flux components:
+            - ET : float
+                Total evapotranspiration (W/m2).
+            - T : float
+                Plant transpiration (W/m2).
+            - E : float
+                Soil/surface evaporation (W/m2).
+            - Fc : float
+                Carbon dioxide flux (mg/m2/s).
+            - R : float
+                Soil/surface respiration (mg/m2/s).
+            - P : float
+                Plant net photosynthesis* (mg/m2/s).
+            - rRP : float
+                Ratio of respiration to photosynthesis.
+            - rET : float
+                Ratio of evaporation to transpiration.
+            - status : str
+                Status of the calculation.
+
+        Notes
+        -----
+        This component represents carboxylation minus photorespiration and leaf respiration; therefore,
+        it is different from gross primary productivity.
         """
         # Creates a dataframe with variables of interest and no constraints
         unitLE = Constants.Lv * 10**-3
         df = self.data.copy()
-        auxET = df[["c_p", "q_p", "w_p"]].copy()
+        auxET = df[["co2_p", "h2o_p", "w_p"]].copy()
         auxETcov = auxET.cov()  # covariance
         N = auxET["w_p"].index.size  # Total number of points
-        total_Fc = auxETcov["c_p"]["w_p"]  # flux [all quadrants] given in mg/(s m2)
+        total_Fc = auxETcov["co2_p"]["w_p"]  # flux [all quadrants] given in mg/(s m2)
         total_ET = (
-            auxETcov["q_p"]["w_p"] * unitLE
+            auxETcov["h2o_p"]["w_p"] * unitLE
         )  # flux [all quadrants] given in  W/m2
 
         # Creates a dataframe with variables of interest and conditioned on updrafts and on the first quadrant
         auxE = df[
             (df["w_p"] > 0)
-            & (df["c_p"] > 0)
-            & (df["q_p"] > 0)
-            & (abs(df["c_p"] / df["c_p"].std()) > abs(H * df["q_p"].std() / df["q_p"]))
-        ][["c_p", "q_p", "w_p"]]
+            & (df["co2_p"] > 0)
+            & (df["h2o_p"] > 0)
+            & (
+                abs(df["co2_p"] / df["co2_p"].std())
+                > abs(H * df["h2o_p"].std() / df["h2o_p"])
+            )
+        ][["co2_p", "h2o_p", "w_p"]]
         auxE_n = df[
             (df["w_p"] < 0)
-            & (df["c_p"] < 0)
-            & (df["q_p"] < 0)
-            & (abs(df["c_p"] / df["c_p"].std()) > abs(H * df["q_p"].std() / df["q_p"]))
-        ][["c_p", "q_p", "w_p"]]
-        C1 = auxE["c_p"].mean()
-        C2 = auxE_n["c_p"].mean()
-        Q1 = auxE["q_p"].mean()
-        Q2 = auxE_n["q_p"].mean()
+            & (df["co2_p"] < 0)
+            & (df["h2o_p"] < 0)
+            & (
+                abs(df["co2_p"] / df["co2_p"].std())
+                > abs(H * df["h2o_p"].std() / df["h2o_p"])
+            )
+        ][["co2_p", "h2o_p", "w_p"]]
+        C1 = auxE["co2_p"].mean()
+        C2 = auxE_n["co2_p"].mean()
+        Q1 = auxE["h2o_p"].mean()
+        Q2 = auxE_n["h2o_p"].mean()
         sum1 = (
-            auxE["c_p"].index.size / N
+            auxE["co2_p"].index.size / N
         ) * 100  # Number of points on the first quadrant
         sum2 = (
-            auxE_n["c_p"].index.size / N
+            auxE_n["co2_p"].index.size / N
         ) * 100  # Number of points on the first quadrant
 
         # Creates a dataframe with variables of interest and conditioned on updrafts and on the second quadrant
         auxT = df[
             (df["w_p"] > 0)
-            & (df["c_p"] < 0)
-            & (df["q_p"] > 0)
-            & (abs(df["c_p"] / df["c_p"].std()) > abs(H * df["q_p"].std() / df["q_p"]))
-        ][["c_p", "q_p", "w_p"]]
+            & (df["co2_p"] < 0)
+            & (df["h2o_p"] > 0)
+            & (
+                abs(df["co2_p"] / df["co2_p"].std())
+                > abs(H * df["h2o_p"].std() / df["h2o_p"])
+            )
+        ][["co2_p", "h2o_p", "w_p"]]
         auxT_n = df[
             (df["w_p"] < 0)
-            & (df["c_p"] > 0)
-            & (df["q_p"] < 0)
-            & (abs(df["c_p"] / df["c_p"].std()) > abs(H * df["q_p"].std() / df["q_p"]))
-        ][["c_p", "q_p", "w_p"]]
-        C3 = auxT["c_p"].mean()
-        C4 = auxT_n["c_p"].mean()
-        Q3 = auxT["q_p"].mean()
-        Q4 = auxT_n["q_p"].mean()
+            & (df["co2_p"] > 0)
+            & (df["h2o_p"] < 0)
+            & (
+                abs(df["co2_p"] / df["co2_p"].std())
+                > abs(H * df["h2o_p"].std() / df["h2o_p"])
+            )
+        ][["co2_p", "h2o_p", "w_p"]]
+        C3 = auxT["co2_p"].mean()
+        C4 = auxT_n["co2_p"].mean()
+        Q3 = auxT["h2o_p"].mean()
+        Q4 = auxT_n["h2o_p"].mean()
         sum3 = (
-            auxT["c_p"].index.size / N
+            auxT["co2_p"].index.size / N
         ) * 100  # Number of points on the first quadrant
         sum4 = (
-            auxT_n["c_p"].index.size / N
+            auxT_n["co2_p"].index.size / N
         ) * 100  # Number of points on the first quadrant
 
         # Computing flux ratios and flux components of ET and Fc
-        if (sum1 > 5) and (sum2 > 5) and (sum3 > 5) and (sum4 > 5):
+        if (sum1 > 2) and (sum2 > 2) and (sum3 > 2) and (sum4 > 2):
             ratioET = (Q1 - Q2) / (Q3 - Q4)
             T = total_ET / (1.0 + ratioET)
             E = total_ET / (1.0 + 1.0 / ratioET)
@@ -1219,23 +1420,53 @@ class Partitioning(object):
                 "wue": np.nan,
             }
 
-    def partCECw(self, WUE, H=0.00):
+    def partCECw(self, W, H=0.00):
         """
-        Implements a combination of the Conditional Eddy Covariance method proposed by Zahn et al. 2021
-               and the water use efficiency
+        Implements Conditional Eddy Covariance + water use efficiency proposed by Zahn et al. 2024.
+
+        Numerical Investigation of Observational Flux Partitioning Methods for Water Vapor and Carbon Dioxide
+
+        Parameters
+        ----------
+        W : float, optional
+            Water use efficiency, by default 0.
+
+        Returns
+        -------
+        dict
+            Dictionary with the following flux components:
+            - ET : float
+                Total evapotranspiration (W/m2).
+            - T : float
+                Plant transpiration (W/m2).
+            - E : float
+                Soil/surface evaporation (W/m2).
+            - Fc : float
+                Net carbon dioxide flux (mg/m2/s).
+            - R : float
+                Soil/surface respiration (mg/m2/s).
+            - P : float
+                Plant net photosynthesis* (mg/m2/s).
+            - status : str
+                Status of the calculation.
+
+        Notes
+        -----
+        This component represents carboxylation minus photorespiration and leaf respiration; therefore,
+        it is different from gross primary productivity.
         """
         # Creates a dataframe with variables of interest and no constraints
         df = self.data.copy()
-        auxET = df[["c_p", "q_p", "w_p"]].copy()
+        auxET = df[["co2_p", "h2o_p", "w_p"]].copy()
         auxETcov = auxET.cov()  # covariance
         N = auxET["w_p"].index.size  # Total number of points
-        total_Fc = auxETcov["c_p"]["w_p"]  # flux [all quadrants] given in mg/(s m2)
+        total_Fc = auxETcov["co2_p"]["w_p"]  # flux [all quadrants] given in mg/(s m2)
         total_ET = (
-            auxETcov["q_p"]["w_p"] * 10**3
+            auxETcov["h2o_p"]["w_p"] * 10**3
         )  # flux [all quadrants] given in mg/(s m2)
 
-        if WUE > (total_Fc / total_ET):
-            self.fluxesCEC_WUE = {
+        if W > (total_Fc / total_ET):
+            self.fluxesCECw = {
                 "ET": np.nan,
                 "E": np.nan,
                 "T": np.nan,
@@ -1248,29 +1479,35 @@ class Partitioning(object):
         # Creates a dataframe with variables of interest and conditioned on updrafts and on the first quadrant
         auxE = df[
             (df["w_p"] > 0)
-            & (df["c_p"] > 0)
-            & (df["q_p"] > 0)
-            & (abs(df["c_p"] / df["c_p"].std()) > abs(H * df["q_p"].std() / df["q_p"]))
-        ][["c_p", "q_p", "w_p"]]
+            & (df["co2_p"] > 0)
+            & (df["h2o_p"] > 0)
+            & (
+                abs(df["co2_p"] / df["co2_p"].std())
+                > abs(H * df["h2o_p"].std() / df["h2o_p"])
+            )
+        ][["co2_p", "h2o_p", "w_p"]]
         R_condition_Fc = (
-            sum(auxE["c_p"] * auxE["w_p"]) / N
+            sum(auxE["co2_p"] * auxE["w_p"]) / N
         )  # conditional flux [1st quadrant and w'>0] given in mg/(s m2)
         E_condition_ET = (
-            sum(auxE["q_p"] * auxE["w_p"]) / N
+            sum(auxE["h2o_p"] * auxE["w_p"]) / N
         )  # conditional flux [1st quadrant and w'>0] flux given in  W/m2
 
         # Creates a dataframe with variables of interest and conditioned on updrafts and on the second quadrant
         auxT = df[
             (df["w_p"] > 0)
-            & (df["c_p"] < 0)
-            & (df["q_p"] > 0)
-            & (abs(df["c_p"] / df["c_p"].std()) > abs(H * df["q_p"].std() / df["q_p"]))
-        ][["c_p", "q_p", "w_p"]]
+            & (df["co2_p"] < 0)
+            & (df["h2o_p"] > 0)
+            & (
+                abs(df["co2_p"] / df["co2_p"].std())
+                > abs(H * df["h2o_p"].std() / df["h2o_p"])
+            )
+        ][["co2_p", "h2o_p", "w_p"]]
         P_condition_Fc = (
-            sum(auxT["c_p"] * auxT["w_p"]) / N
+            sum(auxT["co2_p"] * auxT["w_p"]) / N
         )  # conditional flux [2nd quadrant and w'>0] given in mg/(s m2)
         T_condition_ET = (
-            sum(auxT["q_p"] * auxT["w_p"]) / N
+            sum(auxT["h2o_p"] * auxT["w_p"]) / N
         )  # conditional flux [2nd quadrant and w'>0] flux given in  W/m2
 
         # Compute needed parameters (ratios first) # *unitLE
@@ -1278,7 +1515,7 @@ class Partitioning(object):
             ratioET = E_condition_ET / T_condition_ET
             ratioRP = R_condition_Fc / P_condition_Fc
         else:
-            self.fluxesCEC_WUE = {
+            self.fluxesCECw = {
                 "ET": total_ET * (10**-3) * (10**-3) * Constants.Lv,
                 "E": total_ET * (10**-3) * (10**-3) * Constants.Lv,
                 "T": 0,
@@ -1290,9 +1527,9 @@ class Partitioning(object):
 
         # Compute Z -------------------------------
         if ratioET > 0:
-            Z = WUE * (ratioRP / ratioET)
+            Z = W * (ratioRP / ratioET)
         else:
-            self.fluxesCEC_WUE = {
+            self.fluxesCECw = {
                 "ET": total_ET * (10**-3) * (10**-3) * Constants.Lv,
                 "E": 0,
                 "T": total_ET * (10**-3) * (10**-3) * Constants.Lv,
@@ -1303,7 +1540,7 @@ class Partitioning(object):
             return 0
 
         # Compute flux components -----------------
-        R = (total_Fc - WUE * total_ET) / (1 - WUE / Z)  # in (mg/kg)/m2/s
+        R = (total_Fc - W * total_ET) / (1 - W / Z)  # in (mg/kg)/m2/s
         P = total_Fc - R  # in (mg/kg)/m2/s
         E = (R / Z) * (10**-3) * (10**-3) * Constants.Lv  # in W/m2
         T = total_ET * (10**-3) * (10**-3) * Constants.Lv - E  # in W/m2
@@ -1311,7 +1548,7 @@ class Partitioning(object):
 
         # ratios for spatial fluxes
 
-        self.fluxesCEC_WUE = {
+        self.fluxesCECw = {
             "ET": total_ET * (10**-3) * (10**-3) * Constants.Lv,
             "E": E,
             "T": T,

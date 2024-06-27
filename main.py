@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from src.partitioning import Partitioning
+from partitioning import Partitioning
 from glob import glob
 from pprint import pprint
 

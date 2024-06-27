@@ -1,10 +1,11 @@
 LICENSE
 README.md
 pyproject.toml
-src/partitioning/Partitioning.py
 src/partitioning/__init__.py
 src/partitioning/auxfunctions.py
+src/partitioning/partitioning.py
 src/partitioning.egg-info/PKG-INFO
 src/partitioning.egg-info/SOURCES.txt
 src/partitioning.egg-info/dependency_links.txt
 src/partitioning.egg-info/top_level.txt
+tests/test_part.py
