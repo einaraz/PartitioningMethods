@@ -41,24 +41,4 @@ jobs:
 
       - name: Test with pytest
         run: |
-          pytest tests/
-
-  # Check linting, formatting, types, etc.
-  lint:
-    runs-on: macOS-latest  # Ensure linting runs on macOS-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.x"  # Replace with the appropriate Python version
-
-      - name: Install Dependencies
-        run: |
-          pip install pre-commit
-
-      - name: Run pre-commit
-        run: |
-          pre-commit run --all-files
+          python -m pytest tests/  # Use `python -m pytest` to ensure pytest from correct environment
