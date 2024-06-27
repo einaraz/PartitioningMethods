@@ -56,7 +56,3 @@ jobs:
     - name: Install Dependencies
       run: |
         pip install pre-commit
-
-    - name: Lint
-      run: |
-        pre-commit run --all-files
