@@ -46,8 +46,8 @@ A description of the methods included in this script can be found at [Zahn et al
 
 The following files are available:
 
-  - **Partitioning.py** contains the class Partitioning. It has all necessary methods to first implement quality control and data pre-processing. It contains the three partitionong methods to partition ET and CO<sub>2</sub> fluxes into stomatal and non-stomatal components
-  - **auxfunctions.py** contains auxiliary functions for pre-processing and to compute the water-use efficiency. Adapted from <a href="https://github.com/usda-ars-ussl/fluxpart">FluxPart</a>
+  - **src/partitioning/Partitioning.py** contains the class Partitioning. It has all necessary methods to first implement quality control and data pre-processing. It contains the three partitionong methods to partition ET and CO<sub>2</sub> fluxes into stomatal and non-stomatal components
+  - **src/partitioning/auxfunctions.py** contains auxiliary functions for pre-processing and to compute the water-use efficiency. Adapted from <a href="https://github.com/usda-ars-ussl/fluxpart">FluxPart</a>
   - **main.py** contains an example of how to use the script. Examples of files containing raw high-frequency data are included in the folder RawData30min.
 
 ---
