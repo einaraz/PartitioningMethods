@@ -36,7 +36,7 @@ To install the package, follow these steps:
     If no errors occur, the package is installed correctly.
 
 ## How to use it
-For a complete example of how to use the partitioning module, see ```main.py```.
+For a complete example of how to use the partitioning module, see ```main.py``` and ```main_parellel.py```
 
 ```sh
 from partitioning import Partitioning
@@ -93,13 +93,15 @@ The package provides tools for processing and analyzing high-frequency eddy-cova
    5. **Conditional Eddy Covariance with Water-Use Efficiency (CECw)**:
       [Zahn et al., 2024](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2024JG008025) "Numerical Investigation of Observational Flux Partitioning Methods for Water Vapor and Carbon Dioxide".
 
-## Available files 
+## Available Files
 
-The following files are available:
+The following files are available in the repository:
 
-  - **src/partitioning/Partitioning.py** contains the class Partitioning. It has all necessary methods to first implement quality control and data pre-processing. It contains the three partitionong methods to partition ET and CO<sub>2</sub> fluxes into stomatal and non-stomatal components
-  - **src/partitioning/auxfunctions.py** contains auxiliary functions for pre-processing and to compute the water-use efficiency. Adapted from <a href="https://github.com/usda-ars-ussl/fluxpart">FluxPart</a>
-  - **main.py** contains an example of how to use the script. Examples of files containing raw high-frequency data are included in the folder RawData30min.
+- `src/partitioning/Partitioning.py`: Contains the `Partitioning` class with methods for quality control, data pre-processing, and five partitioning methods to separate ET and CO₂ fluxes into stomatal and non-stomatal components.
+- `src/partitioning/auxfunctions.py`: Includes auxiliary functions for pre-processing and computing water-use efficiency, some of them adapted from [FluxPart](https://github.com/usda-ars-ussl/fluxpart).
+- `main.py`: Provides an example of how to use the script, with raw high-frequency data examples included in the `RawData30min` folder.
+- `main_parallel.py`: Demonstrates how to run the script in parallel to process multiple files simultaneously.
+
 
 ---
 ## Format of Input Text Files
