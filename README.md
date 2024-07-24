@@ -7,7 +7,7 @@
 Author: Einara Zahn\
 email: einaraz@princeton.edu, einara.zahn@gmail.com
 
-A description of the methods included in this script can be found at [Zahn et al., 2021](https://www.sciencedirect.com/science/article/pii/S0168192321004767?via%3Dihub) "Direct Partitioning of Eddy-Covariance Water and Carbon Dioxide Fluxes into Ground and Plant Components" and at [Zahn et al, 2024](https://essopenarchive.org/users/742639/articles/714890-numerical-investigation-of-observational-flux-partitioning-methods-for-water-vapor-and-carbon-dioxide) "Numerical Investigation of Observational Flux Partitioning Methods for Water Vapor and Carbon Dioxide".
+A description of the methods included in this script can be found at [Zahn et al., 2021](https://www.sciencedirect.com/science/article/pii/S0168192321004767?via%3Dihub) "Direct Partitioning of Eddy-Covariance Water and Carbon Dioxide Fluxes into Ground and Plant Components" and at [Zahn et al, 2024](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2024JG008025) "Numerical Investigation of Observational Flux Partitioning Methods for Water Vapor and Carbon Dioxide".
 
 
 
@@ -38,16 +38,16 @@ A description of the methods included in this script can be found at [Zahn et al
             "Correlation-based flux partitioning of water vapor and carbon dioxide fluxes: 
             Method simplification and estimation of canopy water use efficiency"
     4. Conditional Eddy Accumulation (CEA)
-       "Numerical Investigation of Observational Flux Partitioning Methods for Water Vapor and Carbon Dioxide" [Zahn et al, 2024](https://essopenarchive.org/users/742639/articles/714890-numerical-investigation-of-observational-flux-partitioning-methods-for-water-vapor-and-carbon-dioxide)
+       "Numerical Investigation of Observational Flux Partitioning Methods for Water Vapor and Carbon Dioxide" [Zahn et al, 2024](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2024JG008025)
     6. Conditional Eddy Covariance with water-use efficiency (CECw)
-       "Numerical Investigation of Observational Flux Partitioning Methods for Water Vapor and Carbon Dioxide" [Zahn et al, 2024](https://essopenarchive.org/users/742639/articles/714890-numerical-investigation-of-observational-flux-partitioning-methods-for-water-vapor-and-carbon-dioxide)
+       "Numerical Investigation of Observational Flux Partitioning Methods for Water Vapor and Carbon Dioxide" [Zahn et al, 2024](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2024JG008025)
 ---
 ## Available files 
 
 The following files are available:
 
-  - **Partitioning.py** contains the class Partitioning. It has all necessary methods to first implement quality control and data pre-processing. It contains the three partitionong methods to partition ET and CO<sub>2</sub> fluxes into stomatal and non-stomatal components
-  - **auxfunctions.py** contains auxiliary functions for pre-processing and to compute the water-use efficiency. Adapted from <a href="https://github.com/usda-ars-ussl/fluxpart">FluxPart</a>
+  - **src/partitioning/Partitioning.py** contains the class Partitioning. It has all necessary methods to first implement quality control and data pre-processing. It contains the three partitionong methods to partition ET and CO<sub>2</sub> fluxes into stomatal and non-stomatal components
+  - **src/partitioning/auxfunctions.py** contains auxiliary functions for pre-processing and to compute the water-use efficiency. Adapted from <a href="https://github.com/usda-ars-ussl/fluxpart">FluxPart</a>
   - **main.py** contains an example of how to use the script. Examples of files containing raw high-frequency data are included in the folder RawData30min.
 
 ---
