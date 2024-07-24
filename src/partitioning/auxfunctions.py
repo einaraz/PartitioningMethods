@@ -1,6 +1,8 @@
 from scipy import stats
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+import os
 
 # Auxiliary functions to compute the water-use efficiency
 # These functions are from the algorithm fluxpart:
@@ -191,18 +193,124 @@ def find_spikes(data):
     score_up = data.median() + 7 * _mad / 0.6745
     score_dn = data.median() - 7 * _mad / 0.6745
     aux_df["binary"] = 0
-    aux_df["binary"][
-        (aux_df["data"].values > score_up) | (aux_df["data"].values < score_dn)
-    ] = 1
-    aux_df["consecutive"] = (
-        aux_df["binary"]
-        .groupby((aux_df["binary"] != aux_df["binary"].shift()).cumsum())
-        .transform("size")
-        * aux_df["binary"]
-    )
-    spikes_dates_list = aux_df[
-        (aux_df["consecutive"].values <= 8) & (aux_df["consecutive"].values > 0)
-    ].index
+    aux_df.loc[(aux_df["data"] > score_up) | (aux_df["data"] < score_dn), "binary"] = 1
+    aux_df["consecutive"] = (aux_df["binary"].groupby((aux_df["binary"] != aux_df["binary"].shift()).cumsum()).transform("size")* aux_df["binary"])
+    spikes_dates_list = aux_df[(aux_df["consecutive"].values <= 8) & (aux_df["consecutive"].values > 0)].index
     spikes_dates_list = list(spikes_dates_list)
     del aux_df, score_up, score_dn
     return spikes_dates_list
+
+def FilterLowFrequencies(x, fs, t_cut):
+    """
+    Computes fft and kills frequencies corresponding
+    to time scales equal to or larger than t_cut 
+    Adapted from Gaby Katul
+    
+    Filters a time series using Fourier transform methods
+
+    Parameters:
+    ----------
+    x : array-like
+        Input time series data.
+    fs : float
+        Sampling frequency of the time series.
+    t_cut : float
+        Cutoff time in minutes for the low-pass filter.
+
+    Returns:
+    -------
+    x_new : array-like
+        Filtered time series data.
+
+    Raises:
+    ------
+    ValueError:
+        If an invalid filter_type is provided.
+    
+    """
+    
+    NN = len(x)
+    # Generating a time vector ---------------------------------
+    t = np.arange(0, NN)*(1/fs)
+    
+    # Cutoff in minutes converted to cycles per period----------
+    n_cut = round(max(t)/60/t_cut) -1
+    n_cut = max(n_cut, 0)
+
+    # Extract the mean -----------------------------------------
+    x = x - np.mean(x)
+    
+    # Compute fourier coefficients -----------------------------
+    xn_FFT = np.fft.fft(x)
+    
+    # Set all Fourier Coefficients to zero for freq < cutoff ---
+    xn_FFTf = xn_FFT[0:NN]
+    xn_FFTf = np.append(xn_FFTf, [xn_FFT[0]])
+    xn_FFTf[0:(n_cut+1)] = 0
+    xn_FFTf[-(n_cut+1):] = 0
+    x_new = np.real(np.fft.ifft(xn_FFTf[0:NN]))
+    
+    return x_new
+
+def max_time_lag_crosscorrel( df, sampling_freq, max_lag_seconds, type_lag, saveplotlag=False):
+    """
+    Compute the lag with the highest correlation between CO2 or H2O concentration and vertical velocity (w).
+    Lag is applied to the CO2 or H2O concentration time series only, while w is kept fixed.
+    
+    Parameters:
+    - df (pd.DataFrame): DataFrame containing the time series with columns 'co2', 'h2o', and 'w'.
+    - sampling_freq (float): Sampling frequency of the data in Hz.
+    - max_lag_seconds (float): Maximum lag to consider in seconds.
+    - type_lag (str): Type of lag to consider ('negative', 'positive', or 'both').
+
+    Returns:
+    - best_lag_co2 (int): Lag (in number of samples) with the highest correlation for CO2.
+    - best_lag_h2o (int): Lag (in number of samples) with the highest correlation for H2O.
+    """
+    tseries = df.copy()
+    # Subtract the mean to compute the fluctuations
+    tseries['co2'] = tseries['co2'] - np.mean(tseries['co2'])
+    tseries['h2o'] = tseries['h2o'] - np.mean(tseries['h2o'])
+    tseries['w'] = tseries['w'] - np.mean(tseries['w'])
+    
+    # Maximum lag in points                                      
+    max_lag_points = int(max_lag_seconds * sampling_freq)
+    
+    correlations_co2 = []
+    correlations_h2o = []
+    if type_lag == 'negative':
+        lags = range(-max_lag_points, 0)
+    elif type_lag == 'positive':
+        lags = range(0, max_lag_points)
+    else:
+        lags = range(-max_lag_points, max_lag_points + 1)
+    
+    # Loop to determine the correlation for each lag
+    for lag in lags:
+        tseries_lag        = tseries.copy()
+        tseries_lag['co2'] = tseries_lag['co2'].shift(-lag)
+        tseries_lag['h2o'] = tseries_lag['h2o'].shift(-lag)
+        tseries_lag.dropna(inplace=True)
+        correlations_co2.append(tseries_lag.corr()['co2']['w'])
+        correlations_h2o.append(tseries_lag.corr()['h2o']['w'])
+
+    # Find the lag with the maximum absolute correlation
+    max_corr_index_co2 = np.argmax(np.abs(correlations_co2))
+    max_corr_index_h2o = np.argmax(np.abs(correlations_h2o))    
+    best_lag_co2 = lags[max_corr_index_co2]
+    best_lag_h2o = lags[max_corr_index_h2o]
+    
+    if saveplotlag:
+        plt.plot( np.array(lags)/sampling_freq, correlations_co2, label='CO2')
+        plt.plot( np.array(lags)/sampling_freq, correlations_h2o, label='H2O')
+        plt.title('Best lag for CO2: %.2f s , Best lag for H2O: %.2f s'%(best_lag_co2/sampling_freq, best_lag_h2o/sampling_freq))
+        plt.legend()
+        plt.ylabel('Correlation')
+        plt.xlabel('Lag (sec)')
+        # check if directiory exists
+        if not os.path.exists('TimeLagCorrelationFigures'):
+            os.makedirs('TimeLagCorrelationFigures')
+        plt.savefig('TimeLagCorrelationFigures/CrossCorrelation%s.png'%df.index[0].strftime('%Y%m%d%H%M'))
+        plt.close()
+    
+    return best_lag_co2, best_lag_h2o

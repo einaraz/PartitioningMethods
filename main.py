@@ -5,264 +5,184 @@ from partitioning import Partitioning
 from glob import glob
 from pprint import pprint
 
-"""
-    Describes how to implement CEC, MREA, and FVS to partition high-frequency eddy-covariance data into flux components
-    Implements a simple quality control (data screening and cleaning) and pre-processing (rotation, density corrections, detrending, etc)
-    This code does not include data cleaning based on sensor flags. These flags change depending on the type of sonic/gas-analyzer used. Ideally, 
-        removal of bad periods based on these flags should be included in this script. The quality control implemented here is only capable of
-        detecting outliers and unphysical values, thus missing periods of bad data that can be easily identified by flags.
+# Location of the files with the raw data as a text file
+listfiles   = glob("RawData30min/*.csv")
 
+# Information about the measurement site and data including units: needs to be modified to your case
+siteDetails = { "hi": 2.5 ,  # Canopy mean height in meters
+                "zi": 4.0 ,  # EC measurement height in meters
+              "freq": 20  ,  # EC measurement frequency in Hz
+            "length": 30  ,  # length of data file in minutes
+     "PreProcessing": True}  # If True, input is raw data and pre-processing is applied before partitioning (e.g. density corrections and fluctuations are computed)
 
-    A description of the necessary data input and options is given below. Please read carefully and modify according to your case.
-    
-
-        listfiles: string. 
-                   Path where all data (text) files are located; any extension is valid, but data should be separated by comma
-
-        usecols: list of integers. 
-                 Numbers of the columns (starting from zero) containing the input data. It does not need to be increasing order, but the
-                    order must match the list 'names' shown below. In addition, columns representing additional variables that are not needed by the script
-                    can be skipped by ommiting their respective numbers in usecols and name in names (see below)
-
-        names: list of strings
-               These are the names of the variables following the order in usecols. These do not need to match the header in the files (the original
-               header will be ignored)
-               The default list is [  'date',  'u',  'v', 'w', 'Ts',  'co2', 'h2o',  'Tair', 'P' ]. Note that all these variables are required with exception of Tair
-               Names and units must be as described below:
-                    'date': time of sampling   (-)
-                    'u': x-component velocity  (m/s)  
-                    'v': y-component velocity  (m/s)
-                    'w': x-component velocity  (m/s)
-                    'Ts': sonic temperature    (Celcius)
-                    'co2': co2 concentration   (mg/m3)   
-                    'h2o': h2o concentration   (g/m3)    
-                    'Tair': air temperatture   (Celcius) -- not required and can be omitted; Ts will be used to compute air temperature by the code
-                    'P': pressure              (kPa)
-                If co2 and h2o are in different units, they first need to be converted before any pre-processing is applied.
-                If data is already pre-processed, additional inputs should be given ( ex., 'co2_p', 'h2o_p', 'w_p', .. ) 
-                The description of all variables can be found in Partitioning.py
-
-        skiprows: list of integers.
-                  Contains the number of the initial rows to skip (starting from zero). All lines containing text, including header, must be skipped.
-                  The default files (in RawData30min/) only contain text in the first row (header); thus, by default skiprows = [0].
-
-        NAN: list of strings/numbers. 
-            How missing values are represented in the data files. If missing values in your data files are represented differently, add to this list
-            By default, the following strings, when present in the text file, are considered missing data ["NAN",-9999,'-9999', '#NA', 'NULL']
-
-   # ----------------------------------------------------------------------------------------------------
-
-   Additional information for site and processing details are required in the following dictionaries
-
-        'siteDetails'
-            hi: float;
-                canopy height (m)
-            zi: float 
-                measurement height (m)
-            freq: float 
-                  sampling frequency (Hz)
-            length: integer
-                    length in minutes of each data file. Most commonly, 30 minutes blocks are used, but other sizes are accepted by the code
-                    The example files accompanying this code are 30min blocks measured at 20Hz (36000 points each file)
-            PreProcessing: boolean,
-                           True: assumes that raw data are passed; data are pre-processed before partioning
-                           False: assumes that data is already pre-processed and that the relevant variables, including turbulent fluctuations, are available
-
-        'processing_args'
-            density_correction: boolean
-                           True: corrects data for external fluctuations (if open-gas analyzer is used)
-                           False: does not correct for external fluctuations (closed or enclosed-gas analyzer)
-            fluctuations: string 
-                          Defines how turbulent fluctuations are computed. Two options are available
-                               BA: block average
-                               LD: linear detrending
-            maxGapsInterpolate: integer 
-                                Number of consecutive gaps to be interpolated in the high-frequency time series after quality control eliminated bad data
-            RemainingData: float (0,100). 
-                           The percentage of data that should be available (ignoring missing values) in order to proceed with partioning
-            steadyness: boolean (optional)
-                        If a statistic to check stationarity is computed.
-                           True: computes statistic indicating if the time series is steady
-                           False: does not compute statistic
-                        This statistic is intended to help the user decide on the quality of the time series. 
-                        The description of the method can be found in Partioning.py
-            saveprocessed: boolean
-                        True: saves processed data (after quality control and pre-processing) to folder ProcessedData/
-                              Note that saving high-frequency processed data slowers the overal performance of the code
-                              
-
-    This script outputs a csv file with the estimates for all methods 
-
-    part_file: string,
-               Name of the text file that will store the final results
-"""
-
-# *************************************************************************************************
-# ******* INPUTS (NEED MODIFICATION) **************************************************************
-listfiles = glob("RawData30min/*.csv")
-usecols = [0, 1, 2, 3, 4, 6, 8, 11, 12]
-names = [
-    "date",
-    "u",
-    "v",
-    "w",
-    "Ts",
-    "co2",
-    "h2o",
-    "Tair",
-    "P",
-]  # * note that Tair could be omitted
-skiprows = [0]
-NAN = ["NAN", -9999, "-9999", "#NA", "NULL"]
-
-siteDetails = {"hi": 2.5, "zi": 4.0, "freq": 20, "length": 30, "PreProcessing": True}
-
+# Information about the data processing
+# All options have default values assuming that raw data is provided and measured by an open-path gas analyzer and a 3D sonic anemometer
 processing_args = {
-    "density_correction": True,  # if True, density corrections are implemented during pre-processing
-    "fluctuations": "LD",
-    "maxGapsInterpolate": 5,  # Intervals of up to 5 missing values are filled by linear interpolation
-    "RemainingData": 95,  # Only proceed with partioning if 95% of initial data is available after pre-processing
-    "steadyness": True,
-    "saveprocessed": False,
+    "density_correction": True,  # If True, density corrections are implemented during pre-processing (depends on type of gas analyzer used)
+    "fluctuations": "LD",        # If "LD", linear detrending is applied to the data. BA (block averaging) and FL (filter low freqencies) are also available
+    "filtercut": 5,              # Cutoff timescale to filter low frequencies (in minutes). Needed when FL is selected as fluctuation method
+    "maxGapsInterpolate": 5,     # Intervals of up to 5 missing values are filled by linear interpolation
+    "RemainingData": 95,         # Only proceed with partioning if 95% of initial data is available after pre-processing
+    "steadyness": False,          # Compute statistic to check stationarity (will not delete data based on this test, only print the results)
+    "saveprocessed": False,      # If True, save the intermediate processed data including all corrections and fluctuations
+    # For closed-path gas analyzers, set "density_correction" to False and use the following to correct the time lag
+    #"time_lag_correction": False, # If True, a time lag correction is applied to the CO2 and H2O time series relative to the W time series
+    #"max_lag_seconds": 5,         # Maximum time lag in seconds to consider for cross correlation analyses
+    #"saveplotlag": False,         # If True, saves a plot of the cross-correlation function between the CO2 and H2O time series with respect to the W time series
+    #'type_lag': 'positive',       # Specifies the type of lag to consider ('negative', 'positive', or 'both')
 }
 
-part_file = "ResultsPart.csv"
-
-# ******* No modifications are needed below this line *********************************************
-# *************************************************************************************************
-
-list_dates = []
-part_results = {
-    "ET": [],
-    "Fc": [],
-    "Ecec": [],
-    "Tcec": [],
-    "Pcec": [],
-    "Rcec": [],
-    "status_cec": [],
-    "Erea": [],
-    "Trea": [],
-    "Prea": [],
-    "Rrea": [],
-    "status_rea": [],
-    "Efvs": [],
-    "Tfvs": [],
-    "Pfvs": [],
-    "Rfvs": [],
-    "status_fvs": [],
-    "W_const_ppm": [],
-    "W_const_ratio": [],
-    "W_linear": [],
-    "W_sqrt": [],
-    "W_opt": [],
-}
+dates = []
+part_results = {}
 
 for n, filei in enumerate(sorted(listfiles)):
-    print("\n-------------------------------")
     print("Reading file %d/%d, file : %s" % (n + 1, len(listfiles), filei))
 
-    # Read csv file and store data in a dataframe
+    # Ensure that the header of the file constains the following variables: "date","u","v","w","Ts","co2","h2o","Tair","P"
+    # Before processing the data, ensure that the units are correct (convert if necessary)
+    # "date": [yyyy-mm-dd HH:MM:SS]
+    #  "u","v","w": [m/s]
+    #         "Ts": [oC]
+    #        "co2": [mg_CO2/m3]
+    #        "h2o": [g_h2o/m3]
+    #       "Tair": [oC]
+    #          "P": [kPa]
+    # Missing values should be coded as NaN
     df = pd.read_csv(
         filei,
         header=None,
         index_col=0,
-        usecols=usecols,
-        names=names,
-        na_values=NAN,
-        skiprows=skiprows,
-    )
+        usecols=[0, 1, 2, 3, 4, 6, 8, 11, 12],
+        names=["date","u","v","w","Ts","co2","h2o","Tair","P"],
+        na_values=["NAN", -9999, "-9999", "#NA", "NULL"],
+        skiprows=[0] )
     df.index = pd.to_datetime(df.index)
 
-    if n == 0:
-        print("\nPlease check units for first file (won't be asked again)")
-        M = df.median()
-        for _var, unit in [
-            ("u", "m/s"),
-            ("v", "m/s"),
-            ("w", "m/s"),
-            ("Ts", "Celcius"),
-            ("co2", "mg/m3"),
-            ("h2o", "g/m3"),
-        ]:
-            print("      Median %s: %.3f %s" % (_var, M[_var], unit))
-
-    # Create object
+    # Create a partitioning object
     part = Partitioning(
-        hi=siteDetails["hi"],
-        zi=siteDetails["zi"],
-        freq=siteDetails["freq"],
-        length=siteDetails["length"],
-        df=df,
-        PreProcessing=siteDetails["PreProcessing"],
-        argsQC=processing_args,
-    )
+                hi=siteDetails["hi"],
+                zi=siteDetails["zi"],
+                freq=siteDetails["freq"],
+                length=siteDetails["length"],
+                df=df,
+                PreProcessing=siteDetails["PreProcessing"],
+                argsQC=processing_args)
 
-    # % of valid data after quality control and interpolation
-    print("      Valid data: %.1f %%" % part.valid_data)
-    if part.valid_data < processing_args["RemainingData"]:
-        print("    Less than %s of the total data is available. Skipping file.")
-        del df, part
-        continue
-
-    data_begin = df.index[0].strftime("%Y-%m-%d %H:%M")
+    # Plot time series of fluctuations
+    #fig, ax = plt.subplots(4, 1, figsize=(12, 6))
+    #ax[0].plot(part.data.index, part.data["co2_p"],)
+    #ax[1].plot(part.data.index, part.data["h2o_p"],)
+    #ax[2].plot(part.data.index, part.data["w_p"],  )
+    #ax[3].plot(part.data.index, part.data["Ts_p"], )
+    #ax[0].set_ylabel("CO2")
+    #ax[1].set_ylabel("H2O")
+    #ax[2].set_ylabel("w")
+    #ax[3].set_ylabel("Ts")
+    #plt.show()
 
     if processing_args["saveprocessed"]:
-        part.data.to_csv(
-            "ProcessedData/processed-%s.csv" % data_begin.replace(" ", "_")
-        )
+        part.data.to_csv("ProcessedData/processed-%s.csv" % (n+1) )
 
     """
     Applying partitioning methods ---------------
     """
-    list_dates.append(data_begin)
-
+    dates.append(df.index[0])
+    
+    # ------------------------------------
+    # Total fluxes and statistics
+    part.TurbulentStats()
+    # print(part.turbstats)
+    
+    # Save the results to a dictionary (use .magnitude to get the value and .units to get the units)
+    if "ustar" not in part_results.keys():
+        for key in part.turbstats.keys():
+            part_results[key] = []
+    for key in part.turbstats.keys():
+        part_results[key].append(part.turbstats[key].magnitude)
+    
+    # If steadyness is True, results can also be acessed here
+    # print(part.FokenStatTest())
+    
+    # ------------------------------------
     # CEC method
-    part.partCEC(H=0)
-    part_results["Ecec"].append(part.fluxesCEC["E"])
-    part_results["Tcec"].append(part.fluxesCEC["T"])
-    part_results["Pcec"].append(part.fluxesCEC["P"])
-    part_results["Rcec"].append(part.fluxesCEC["R"])
-    part_results["status_cec"].append(part.fluxesCEC["status"])
+    part.partCEC()
+    # print(part.fluxesCEC)
+    
+    # Save the results in a dictionary (use .magnitude to get the value and .units to get the units)
+    if "Ecec" not in part_results.keys():
+        for key in ['Ecec', 'Tcec', 'Pcec', 'Rcec', 'statuscec']:
+            part_results[key] = []
+            
+    for key in ['Ecec', 'Tcec', 'Pcec', 'Rcec']:
+        part_results[key].append(part.fluxesCEC[key].magnitude)
+    part_results["statuscec"].append(part.fluxesCEC["statuscec"])
 
-    # total fluxes
-    part_results["ET"].append(part.fluxesCEC["ET"])
-    part_results["Fc"].append(part.fluxesCEC["Fc"])
+    # MREA method ------------------------
+    part.partREA()
+    #print(part.fluxesREA)
+    
+    # Save the results in a dictionary (use .magnitude to get the value and .units to get the units)
+    if "Emrea" not in part_results.keys():
+        for key in ['Emrea', 'Tmrea', 'Pmrea', 'Rmrea', 'statusmrea']:
+            part_results[key] = []
+    for key in ['Emrea', 'Tmrea', 'Pmrea', 'Rmrea']:
+        part_results[key].append(part.fluxesREA[key].magnitude)
+    part_results["statusmrea"].append(part.fluxesREA["statusmrea"])
 
-    # MREA method
-    part.partREA(H=0.0)
-    part_results["Erea"].append(part.fluxesREA["E"])
-    part_results["Trea"].append(part.fluxesREA["T"])
-    part_results["Prea"].append(part.fluxesREA["P"])
-    part_results["Rrea"].append(part.fluxesREA["R"])
-    part_results["status_rea"].append(part.fluxesREA["status"])
-
-    # Compute water-use efficiency
+    # Water-use efficiency ---------------
     # All models are implemented: 'const_ppm', "const_ratio", "linear", "sqrt", "opt"
     part.WaterUseEfficiency(ppath="C3")
+    #print(part.wue)
+    
+    # Save the results to a dictionary
+    if "W_const_ppm" not in part_results.keys():
+        for key in part.wue.keys():
+            part_results[f"W_{key}"] = []
+    for key in part.wue.keys():
+        part_results[f"W_{key}"].append(part.wue[key])
 
-    part_results["W_const_ppm"].append(part.wue["const_ppm"])
-    part_results["W_const_ratio"].append(part.wue["const_ratio"])
-    part_results["W_linear"].append(part.wue["linear"])
-    part_results["W_sqrt"].append(part.wue["sqrt"])
-    part_results["W_opt"].append(part.wue["opt"])
+    # FVS method --------------------------
+    # - loop over all water-use efficiencies
+    for _w in part.wue.keys():
+        part.partFVS( W = part.wue[_w])
+        
+        # Save the results in a dictionary (use .magnitude to get the value and .units to get the units)
+        if f"Efvs{_w}" not in part_results.keys():
+             for key in ['Efvs', 'Tfvs', 'Pfvs', 'Rfvs', 'statusfvs']:
+                 part_results[f"{key}{_w}"] = []
+        for key in ['Efvs', 'Tfvs', 'Pfvs', 'Rfvs']:
+            part_results[f"{key}{_w}"].append(part.fluxesFVS[key].magnitude)
+        part_results[f"statusfvs{_w}"].append(part.fluxesFVS["statusfvs"])
 
-    # FVS method - must enter one water-use efficiency in kg_co2/kg_h2o
-    part.partFVS(W=part.wue["const_ppm"])
-    part_results["Efvs"].append(part.fluxesFVS["E"])
-    part_results["Tfvs"].append(part.fluxesFVS["T"])
-    part_results["Pfvs"].append(part.fluxesFVS["P"])
-    part_results["Rfvs"].append(part.fluxesFVS["R"])
-    part_results["status_fvs"].append(part.fluxesFVS["status"])
+    # FVS method - select one water-use efficiency model or use an external value kg_co2/kg_h2o
+    #part.partFVS(W=part.wue["const_ppm"])
+    #print(part.fluxesFVS)
 
-    # alternatively, compute FVS from all options of W
-    # for _w in part.wue.keys():
-    #     part.partFVS( W = part.wue[_w])
-    #
-
-    plt.scatter(part.data["h2o"], part.data["co2"])
-    plt.show()
-    plt.close()
+    # CECw method
+    for _w in part.wue.keys():
+        part.partCECw(W=part.wue[_w])
+        
+        # Save the results in a dictionary (use .magnitude to get the value and .units to get the units)
+        if f"Ececw{_w}" not in part_results.keys():
+            for key in ['Ececw', 'Tcecw', 'Pcecw', 'Rcecw']:
+                part_results[f"{key}{_w}"] = []
+        for key in ['Ececw', 'Tcecw', 'Pcecw', 'Rcecw']:
+            part_results[f"{key}{_w}"].append(part.fluxesCECw[key].magnitude)
+            
+    # CEA method
+    part.partCEA()
+    
+    # Save the results in a dictionary (use .magnitude to get the value and .units to get the units)
+    if "Ecea" not in part_results.keys():
+        for key in ['Ecea', 'Tcea', 'Pcea', 'Rcea', 'statuscea']:
+            part_results[key] = []
+    for key in ['Ecea', 'Tcea', 'Pcea', 'Rcea']:
+        part_results[key].append(part.fluxesCEA[key].magnitude)
+    part_results["statuscea"].append(part.fluxesCEA["statuscea"])
+    
     del df, part
 
-part_results = pd.DataFrame(part_results, index=list_dates)
-part_results.to_csv(part_file)
+part_results = pd.DataFrame(part_results, index=dates)
+print(part_results)
+part_results.to_csv("PartitioningResults.csv")
+

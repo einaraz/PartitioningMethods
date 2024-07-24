@@ -16,7 +16,7 @@ def test_partitioning(sample_data_read):
         "fluctuations": "LD",
         "maxGapsInterpolate": 5,  # Intervals of up to 5 missing values are filled by linear interpolation
         "RemainingData": 95,  # Only proceed with partioning if 95% of initial data is available after pre-processing
-        "steadyness": True,
+        "steadyness": False,
         "saveprocessed": False,
     }
 
@@ -42,18 +42,18 @@ def test_partitioning(sample_data_read):
             part.wue["const_ratio"],
             part.wue["linear"],
             part.wue["opt"],
-            part.fluxesCEC["ET"],
-            part.fluxesCEC["Fc"],
-            part.fluxesCEC["T"],
-            part.fluxesCEC["P"],
-            part.fluxesREA["T"],
-            part.fluxesREA["P"],
-            part.fluxesCEA["T"],
-            part.fluxesCEA["P"],
-            part.fluxesFVS["T"],
-            part.fluxesFVS["P"],
-            part.fluxesCECw["T"],
-            part.fluxesCECw["P"],
+            part.fluxesCEC["ETcec"].magnitude,
+            part.fluxesCEC["Fccec"].magnitude,
+            part.fluxesCEC["Tcec"].magnitude,
+            part.fluxesCEC["Pcec"].magnitude,
+            part.fluxesREA["Tmrea"].magnitude,
+            part.fluxesREA["Pmrea"].magnitude,
+            part.fluxesCEA["Tcea"].magnitude,
+            part.fluxesCEA["Pcea"].magnitude,
+            part.fluxesFVS["Tfvs"].magnitude,
+            part.fluxesFVS["Pfvs"].magnitude,
+            part.fluxesCECw["Tcecw"].magnitude,
+            part.fluxesCECw["Pcecw"].magnitude,
         ]
     )
     expected_output = np.array(
