@@ -875,7 +875,7 @@ class Partitioning(object):
         per_poits_each = 3  # smallest percentage of points in each quadrant
 
         # Creates a dataframe with variables of interest and no constraints
-        auxET = self.data[["co2_p", "h2o_p", "w_p"]]
+        auxET = self.data[["co2_p", "h2o_p", "w_p"]].copy()
         N = auxET.index.size
         total_Fc = np.mean(auxET["co2_p"].values * auxET["w_p"].values)  # flux [all quadrants] given in mg/(s m2)
         total_ET = ((10**-3)* Constants.Lv.magnitude * np.mean(auxET["h2o_p"].values * auxET["w_p"].values))  # flux [all quadrants] given in  W/m2
@@ -889,7 +889,7 @@ class Partitioning(object):
         # Creates a dataframe with variables of interest and conditioned on updrafts and on the second quadrant
         auxT = self.data[(self.data["w_p"] > 0)&(self.data["co2_p"] < 0)&(self.data["h2o_p"] > 0)& (abs(self.data["co2_p"] / self.data["co2_p"].std())> abs(H * self.data["h2o_p"].std() / self.data["h2o_p"]))][["co2_p", "h2o_p", "w_p"]]
         P_condition_Fc = (np.sum(auxT["co2_p"].values * auxT["w_p"].values) / N)  # conditional flux [2nd quadrant and w'>0] given in mg/(s m2)
-        T_condition_ET = ((10**-3) * Constants.Lv * np.sum(auxT["h2o_p"] * auxT["w_p"]) / N)  # conditional flux [2nd quadrant and w'>0] flux given in  W/m2
+        T_condition_ET = ((10**-3) * Constants.Lv.magnitude * np.sum(auxT["h2o_p"] * auxT["w_p"]) / N)  # conditional flux [2nd quadrant and w'>0] flux given in  W/m2
         sumQ2 = (auxT["w_p"].index.size / N) * 100  # Percentage of points in the second quadrant
 
         # Computing flux ratios and flux components of ET and Fc

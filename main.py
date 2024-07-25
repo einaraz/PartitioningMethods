@@ -67,6 +67,7 @@ for n, filei in enumerate(sorted(listfiles)):
                 df=df,
                 PreProcessing=siteDetails["PreProcessing"],
                 argsQC=processing_args)
+    # add some noise to the data
 
     # Plot time series of fluctuations
     #fig, ax = plt.subplots(4, 1, figsize=(12, 6))
@@ -91,7 +92,8 @@ for n, filei in enumerate(sorted(listfiles)):
     # ------------------------------------
     # Total fluxes and statistics
     part.TurbulentStats()
-    # print(part.turbstats)
+    #pprint(part.turbstats)
+    #input("....")
     
     # Save the results to a dictionary (use .magnitude to get the value and .units to get the units)
     if "ustar" not in part_results.keys():
