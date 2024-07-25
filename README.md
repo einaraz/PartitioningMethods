@@ -120,7 +120,12 @@ The following variables are required by the code when using raw high-frequency d
 - **P**: Pressure (kPa).
 
 
-## References
-[Zahn et al., 2021](https://www.sciencedirect.com/science/article/pii/S0168192321004767?via%3Dihub) "Direct Partitioning of Eddy-Covariance Water and Carbon Dioxide Fluxes into Ground and Plant Components" 
+## References for papers and datasets
 
-[Zahn et al, 2024](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2024JG008025) "Numerical Investigation of Observational Flux Partitioning Methods for Water Vapor and Carbon Dioxide".
+- Zahn, E., Bou-Zeid, E., Good, S. P., Katul, G. G., Thomas, C. K., Ghannam, K., Smith, J. A., Chamecki, M., Dias, N. L., Fuentes, J. D., Alfieri, J. G., Kwon, H., Caylor, K. K., Gao, Z., Soderberg, K., Bambach, N. E., Hipps, L. E., Prueger, J. H., & Kustas, W. P. (2022). Direct partitioning of eddy-covariance water and carbon dioxide fluxes into ground and plant components. *Agricultural and Forest Meteorology, 315*, 108790. [https://doi.org/10.1016/j.agrformet.2021.108790](https://doi.org/10.1016/j.agrformet.2021.108790)
+
+- Zahn, E., Ghannam, K., Chamecki, M., Moene, A. F., Kustas, W. P., Good, S. P., & Bou-Zeid, E. (2024). Numerical investigation of observational flux partitioning methods for water vapor and carbon dioxide. *Journal of Geophysical Research: Biogeosciences, 129*, e2024JG008025. [https://doi.org/10.1029/2024JG008025](https://doi.org/10.1029/2024JG008025)
+
+- Zahn, E., & Bou-Zeid, E. (2024). Partitioning of water and CO2 fluxes at NEON sites into soil and plant components: A five-year dataset for spatial and temporal analysis. *Earth System Science Data Discussions* [preprint]. [https://doi.org/10.5194/essd-2024-272](https://doi.org/10.5194/essd-2024-272)
+
+- Zahn, E., & Bou-Zeid, E. (2024). Partitioning of water and CO2 fluxes at NEON sites into soil and plant components: a five-year dataset for spatial and temporal analysis (1.0) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.12191876
