@@ -59,6 +59,8 @@ for n, filei in enumerate(sorted(listfiles)):
     df.index = pd.to_datetime(df.index)
 
     # Create a partitioning object
+    # Include a try and except to catch any errors caused by poor data quality
+    # If bad periods where removed before hand, the try/except can be removed
     try:
         part = Partitioning(
                     hi=siteDetails["hi"],

@@ -59,14 +59,23 @@ def CallPartitioning(filei):
     df.index = pd.to_datetime(df.index)
 
     # Create a partitioning object
-    part = Partitioning(
-                hi=siteDetails["hi"],
-                zi=siteDetails["zi"],
-                freq=siteDetails["freq"],
-                length=siteDetails["length"],
-                df=df,
-                PreProcessing=siteDetails["PreProcessing"],
-                argsQC=processing_args)
+    # Include a try and except to catch any errors caused by poor data quality
+    # If bad periods where removed before hand, the try/except can be removed
+    try:
+        part = Partitioning(
+                    hi=siteDetails["hi"],
+                    zi=siteDetails["zi"],
+                    freq=siteDetails["freq"],
+                    length=siteDetails["length"],
+                    df=df,
+                    PreProcessing=siteDetails["PreProcessing"],
+                    argsQC=processing_args)
+    except ValueError as e:
+        print("Error caused by: %s" % e)
+        return None
+    except TypeError as te:
+        print("Error caused by: %s" % te)
+        return None
 
     """
     Applying partitioning methods ---------------
@@ -140,8 +149,13 @@ if __name__ == '__main__':
     # multiprocessing
     pool    = multiprocessing.Pool(4)  # use 4 cores
     part_results = pool.map(CallPartitioning, listfiles)
-    part_results = pd.DataFrame(part_results)
+    pool.close()
+    pool.join()
+    valid_results = [result for result in part_results if result is not None]
+    # Create a dataframe with the results
+    part_results = pd.DataFrame(valid_results)
     part_results.index = part_results['date']
+    part_results = part_results.drop(columns=['date'])
     part_results = part_results.sort_index()
     part_results.to_csv("PartitioningResultsParallel.csv")
     #part_results = pd.DataFrame(part_results, index=dates)
