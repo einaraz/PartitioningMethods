@@ -59,14 +59,22 @@ for n, filei in enumerate(sorted(listfiles)):
     df.index = pd.to_datetime(df.index)
 
     # Create a partitioning object
-    part = Partitioning(
-                hi=siteDetails["hi"],
-                zi=siteDetails["zi"],
-                freq=siteDetails["freq"],
-                length=siteDetails["length"],
-                df=df,
-                PreProcessing=siteDetails["PreProcessing"],
-                argsQC=processing_args)
+    try:
+        part = Partitioning(
+                    hi=siteDetails["hi"],
+                    zi=siteDetails["zi"],
+                    freq=siteDetails["freq"],
+                    length=siteDetails["length"],
+                    df=df,
+                    PreProcessing=siteDetails["PreProcessing"],
+                    argsQC=processing_args)
+    except ValueError as e:
+        print("Error caused by: %s" % e)
+        continue
+    except TypeError as te:
+        print("Error caused by: %s" % te)
+        continue
+
     # add some noise to the data
 
     # Plot time series of fluctuations

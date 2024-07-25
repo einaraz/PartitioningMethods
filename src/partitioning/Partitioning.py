@@ -153,6 +153,7 @@ class Partitioning(object):
         self.data = df
         self.freq = freq / ureg.second
         self.length = length * ureg.minute
+        self.valid = True
         self.default_argsQC = {
                        "time_lag_correction": False, # If True, a time lag correction is applied to the CO2 and H2O time series relative to the W time series
                            "max_lag_seconds": 5, # Maximum time lag in seconds to consider for correlation
@@ -191,6 +192,7 @@ class Partitioning(object):
                       'Tv_p': ureg.kelvin,
              "rho_moist_air": ureg.kilogram / ureg.meter**3}
 
+        self._checkMissingdata(percData=self.argsQC.get("RemainingData"))
         self._checkUnits()
         if PreProcessing:
             self._checkPhysicalBounds()
@@ -204,7 +206,7 @@ class Partitioning(object):
             self._fillGaps(self.argsQC.get("maxGapsInterpolate"))
             if self.argsQC.get("steadyness"):
                 self._steadynessTest()
-        self._checkMissingdata(self.argsQC.get("RemainingData"))
+        self._checkMissingdata(percData=self.argsQC.get("RemainingData"), dropna_=True)
     
     def _checkUnits(self):
         """Check if units of temperature, CO2, H2O and pressure are correct.
@@ -214,21 +216,25 @@ class Partitioning(object):
         h2o_range  = [0, 50]     # g/m3
         press_range = [60, 150]  # kPa
         
+        # Check that not all values are NaN
+        if self.data.isnull().all().all():
+            return None
+        
         mean_Ts  = self.data[self.data['Ts'] > 0]['Ts'].median()
         mean_co2 = self.data[self.data['co2'] > 0]['co2'].median()
         mean_h2o = self.data[self.data['h2o'] > 0]['h2o'].median()
         mean_P = self.data[self.data['P'] > 0]['P'].median()
         
         if not temp_range[0] < mean_Ts < temp_range[1]:
-            raise ValueError(f"Mean sonic temperature {mean_Ts} not in Celsius")
+            raise ValueError(f"Mean sonic temperature {mean_Ts} not in Celsius or data quality is poor\n")
         if not co2_range[0] < mean_co2 < co2_range[1]:
-            raise ValueError(f"Mean CO2 {mean_co2} not in mg/m3")
+            raise ValueError(f"Mean CO2 {mean_co2} not in mg/m3 or data quality is poor\n")
         if not h2o_range[0] < mean_h2o < h2o_range[1]:
-            raise ValueError(f"Mean H2O {mean_h2o} not in g/m3")
+            raise ValueError(f"Mean H2O {mean_h2o} not in g/m3 or data quality is poor\n")
         if not press_range[0] < mean_P < press_range[1]:
-            raise ValueError(f"Mean atm pressure {mean_P} not in kPa")
+            raise ValueError(f"Mean atm pressure {mean_P} not in kPa or data quality is poor\n")
 
-    def _checkMissingdata(self, percData):
+    def _checkMissingdata(self, percData, dropna_=False):
         """
         Checks how many missing points are present and only accepts periods when valid data points >= percData.
 
@@ -246,11 +252,13 @@ class Partitioning(object):
         maxNAN, indMAX = (
             self.data.isnull().sum().max(),
             self.data.isnull().sum().idxmax() )
-        total_size = self.freq * self.length * 60  # total number of points in period
+        total_size = self.freq.magnitude * self.length.magnitude * 60  # total number of points in period
         self.valid_data = ((total_size - maxNAN) / total_size) * 100
-        if self.valid_data < percData:
-            raise ValueError(f"Too many missing points ({maxNAN} at {indMAX}). Less than {percData}\% is available for partitioning.")
-        self.data.dropna(inplace=True)
+        if (self.valid_data < percData) and self.valid:
+            self.valid = False
+            raise ValueError(f"*** Too many missing points {maxNAN}. Less than {percData}\% is available for partitioning. Delete period and try again.\n")
+        if dropna_:
+            self.data.dropna(inplace=True)
             
     def _checkPhysicalBounds(self):
         """
@@ -446,7 +454,7 @@ class Partitioning(object):
             for ii, _var in enumerate(Lvars):
                 self.data[_var + "_p"] = self.data[_var] - self.data[_var].mean()
         else:
-            raise TypeError("Method to extract fluctuations must be 'LD' or 'BA'. ")
+            raise TypeError("Method to extract fluctuations must be 'LD', 'BA' or 'FL \n")
 
     def _densityCorrections(self, method):
         """
@@ -533,7 +541,7 @@ class Partitioning(object):
             DataFrame containing the input data with potential gaps.
         """
         if maxGaps > 20:
-            raise TypeError("Too many consecutive points to be interpolated. Consider a smaller gaps.")
+            raise TypeError("Too many consecutive points to be interpolated. Consider a smaller gap (up to 20 points). \n")
 
         self.data.interpolate(method="linear", limit=maxGaps, limit_direction="both", inplace=True)
 
@@ -645,7 +653,7 @@ class Partitioning(object):
         H_wm2  = matrixCov['w_p']['Ts_p'] * (10**3) * Constants.cp.magnitude * rho_moist_air.magnitude 
         H_wm2 = H_wm2 * ureg.watt/ureg.meter**2
 
-        if self.hi < self.zi:
+        if self.hi.magnitude < self.zi.magnitude:
             zeta = -0.4*Constants.g*( self.zi - d )*Qv/((meanTkelvin)*((ustar * self.units["u"]) **3))
         else: 
             zeta = np.nan 
@@ -799,7 +807,7 @@ class Partitioning(object):
         # vapor pressure deficit
         vpd = vapor_press_deficit(ambient_h2o, leaf_T, Constants.Rvapor.magnitude)
         if vpd < 0:
-            raise ValueError("Negative vapor pressure deficit. Check the input data.")
+            raise ValueError("Negative vapor pressure deficit. Check the input data and try again or remove period.\n")
 
         # Calculating inside stomata co2 concentration
 
