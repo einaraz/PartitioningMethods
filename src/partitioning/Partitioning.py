@@ -786,6 +786,15 @@ class Partitioning(object):
         # 1 - Finding near canopy concentrations --------------------------------------------------
         # Calculating Monin Obukhov nondimensional function
         # Following Fluxpart - Skaggs et al., 2018
+        
+        # Limiting zeta to avoid numerical errors
+        zeta_min = -5.0  
+        zeta_max =  5.0   
+        if zeta < zeta_min:
+            zeta = zeta_min
+        elif zeta > zeta_max:
+            zeta = zeta_max
+            
         if zeta < -0.04:
             psi_v = 2.0 * np.log((1 + (1 - 16.0 * zeta) ** 0.5) / 2)
         elif zeta <= 0.04:
@@ -806,6 +815,7 @@ class Partitioning(object):
 
         # vapor pressure deficit
         vpd = vapor_press_deficit(ambient_h2o, leaf_T, Constants.Rvapor.magnitude)
+
         if vpd < 0:
             raise ValueError("Negative vapor pressure deficit. Check the input data and try again or remove period.\n")
 
