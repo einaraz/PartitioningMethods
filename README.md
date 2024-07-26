@@ -7,6 +7,12 @@
 Author: Einara Zahn\
 email: einaraz@princeton.edu, einara.zahn@gmail.com
 
+# Flux Partitioning Package
+
+This Python package implements five partitioning methods to separate evapotranspiration (ET) and CO<sub>2</sub> fluxes (Fc) into ground (evaporation and respiration) and plant (transpiration and net CO<sub>2</sub> assimilation) fluxes. It processes instantaneous raw eddy covariance measurements and returns fluxes, flux components, and additional turbulent variables.
+
+The package includes pre-processing steps such as coordinate rotation and density corrections. While it does not perform all post-processing corrections provided by other eddy covariance flux software, users are encouraged to reach out with inquiries about adding additional pre- and post-processing techniques or to contribute to the code.
+
 # Installation Guide
 
 To install the package, follow these steps:
@@ -35,25 +41,68 @@ To install the package, follow these steps:
 
     If no errors occur, the package is installed correctly.
 
+## Format of Input Text Files
+
+This script works with text files separated by commas (CSV format). It reads eddy-covariance time series of any length, although 30-minute intervals are typically used under neutral to unstable conditions.
+
+The following variables are required by the code when using raw high-frequency data as input (see the code for requirements when using pre-processed data as input):
+
+- **index**: Date and time of acquisition in the format `[yyyy-mm-dd HH:MM]`.
+- **w**: Vertical velocity component (m/s).
+- **u**: Streamwise velocity component (m/s).
+- **v**: Cross-stream velocity component (m/s).
+- **Ts**: Sonic temperature (Celsius).
+- **co2**: Carbon dioxide density (mg_CO2/m³).
+- **h2o**: Water vapor density (g_H2O/m³).
+- **P**: Pressure (kPa).
+  
 ## How to use it
 For a complete example of how to use the partitioning module, see ```main.py``` and ```main_parellel.py```
 
 ```sh
 from partitioning import Partitioning
 
-# Crate a partitioning object - it takes raw data and applies all necessary corrections
+processing_args = {
+    "density_correction": True,  # If True, density corrections are implemented during pre-processing (depends on type of gas analyzer used)
+    "fluctuations": "LD",        # If "LD", linear detrending is applied to the data. BA (block averaging) and FL (filter low freqencies) are also available
+    "maxGapsInterpolate": 5,     # Intervals of up to 5 missing values are filled by linear interpolation
+    "RemainingData": 95,         # Only proceed with partioning if 95% of initial data is available after pre-processing
+    }
+
+# Create a partitioning object - it takes raw data and applies all necessary corrections
 part = Partitioning(
-            hi=2.5,
-            zi=4.0,
-            freq=20,
-            length=30,
-            df=df,
-            PreProcessing=True,
-            argsQC=processing_args)
+            hi=2.5,    # mean canopy height [m]
+            zi=4.0,    # eddy covariance measurement height [m]
+            freq=20,   # sampling frequency [Hz]
+            length=30, # length of time series [minutes]
+            df=df,     # dataframe containing all variables descrived above
+            PreProcessing=True,     # if True, performs pre-processing before applying partitioning
+            argsQC=processing_args) # additional arguments
 
 # To implement CEC
 part.partCEC()
 print(part.fluxesCEC)
+```
+
+The class may return errors if the data is invalid, contains excessive missing periods, or is of poor quality. If you are running the code in a loop that processes multiple files, it is recommended to implement a try/except block to handle such cases effectively and prevent interruptions in the code.
+
+```sh
+try:
+    part = Partitioning(
+            hi=2.5,    # mean canopy height [m]
+            zi=4.0,    # eddy covariance measurement height [m]
+            freq=20,   # sampling frequency [Hz]
+            length=30, # length of time series [minutes]
+            df=df,     # dataframe containing all variables descrived above
+            PreProcessing=True,     # if True, performs pre-processing before applying partitioning
+            argsQC=processing_args) # additional arguments
+    part.partCEC()
+    # other partitioning methods
+    # save data to object
+except ValueError as ve:
+    print(ve)
+except TypeError as te:
+    print(te)
 ```
 
 ---
@@ -70,6 +119,7 @@ The package provides tools for processing and analyzing high-frequency eddy-cova
    - Applies density corrections for CO<sub>2</sub> and H<sub>2</sub>O measured by open-path gas analyzers ("instantaneous" WPL correction, based on the paper [Detto and Katul, 2007](https://link.springer.com/article/10.1007%2Fs10546-006-9105-1))
    - Performs stationarity tests
    - Fills gaps
+   > **Note**: Additional data cleaning, such as screening sensor flags, is recommended before using the partitioning class. While the package includes several quality control and assurance features, users are encouraged to perform their own tests as well. Refer to [Vickers and Mahrt, 1997](https://journals.ametsoc.org/view/journals/atot/14/3/1520-0426_1997_014_0512_qcafsp_2_0_co_2.xml) and [Zahn et al., 2016](http://article.sapub.org/10.5923.s.ajee.201601.20.html) for examples of additional tests. If you have suggestions on additional pre- and/or post-processing methods, please feel free to reach out or consider contributing to the code!
 
 2. **Water-Use Efficiency Parameterizations**:
    Implements five parameterizations as described in [Zahn et al., 2021](https://www.sciencedirect.com/science/article/pii/S0168192321004767?via%3Dihub) "Direct Partitioning of Eddy-Covariance Water and Carbon Dioxide Fluxes into Ground and Plant Components".
@@ -104,20 +154,6 @@ The following files are available in the repository:
 
 
 ---
-## Format of Input Text Files
-
-This script works with text files separated by commas (CSV format).
-
-The following variables are required by the code when using raw high-frequency data as input (see the code for requirements when using pre-processed data as input):
-
-- **index**: Date and time of acquisition in the format `[yyyy-mm-dd HH:MM]`.
-- **w**: Vertical velocity component (m/s).
-- **u**: Streamwise velocity component (m/s).
-- **v**: Cross-stream velocity component (m/s).
-- **Ts**: Sonic temperature (Celsius).
-- **co2**: Carbon dioxide density (mg_CO2/m³).
-- **h2o**: Water vapor density (g_H2O/m³).
-- **P**: Pressure (kPa).
 
 
 ## References for papers and datasets
