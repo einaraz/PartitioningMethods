@@ -1,0 +1,22 @@
+name: Partitioning CI installing, formatting, linting, and testing
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Copy the code to test
+      uses: action/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.11
+    - name: Install my library
+      run: python -m pip install .
+    - name: Install additional dependencies
+      run: python -m pip install --upgrade pip && pip install pytest
+    - name: Test code with pytest
+      run: pytest
+
