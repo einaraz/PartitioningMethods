@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
 import math
 import pint
@@ -12,7 +11,6 @@ from .auxfunctions import (
     sat_vapor_press,
     vapor_press_deficit,
     vapor_press_deficit_mass,
-    fes,
     LinearDetrend,
     Stats5min,
     find_spikes,
@@ -281,7 +279,7 @@ class Partitioning(object):
         self.valid_data : float
             The percentage of valid data points.
         """
-        maxNAN, indMAX = (
+        maxNAN, indMAX = (  # noqa: F841
             self.data.isnull().sum().max(),
             self.data.isnull().sum().idxmax(),
         )
