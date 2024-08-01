@@ -2,9 +2,12 @@ import pytest
 import pandas as pd
 import os
 
+
 @pytest.fixture
 def sample_data_read():
-    filei = os.path.join(os.path.dirname(__file__), '../RawData30min/2018-07-05-1000.csv')
+    filei = os.path.join(
+        os.path.dirname(__file__), "../RawData30min/2018-07-05-1000.csv"
+    )
     ecdata = pd.read_csv(
         filei,
         header=None,

@@ -1,9 +1,8 @@
 import numpy as np
 from partitioning import Partitioning
-import pytest
+
 
 def test_partitioning(sample_data_read):
-
     siteDetails = {
         "hi": 2.5,
         "zi": 4.0,
