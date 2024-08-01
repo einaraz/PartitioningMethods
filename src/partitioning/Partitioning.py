@@ -279,10 +279,10 @@ class Partitioning(object):
         self.valid_data : float
             The percentage of valid data points.
         """
-        maxNAN, indMAX = (
+        maxNAN, indMAX = ( 
             self.data.isnull().sum().max(),
             self.data.isnull().sum().idxmax(),
-        )
+        ) # noqa: F841
         total_size = (
             self.freq.magnitude * self.length.magnitude * 60
         )  # total number of points in period
