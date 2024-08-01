@@ -1,24 +1,25 @@
+
 <!DOCTYPE html>
 
-<html lang="en" data-content_root="../../">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>partitioning.Partitioning &#8212; Partitioning 1.0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d1102ebc" />
-    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=c058f7c8" />
-    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
-    <script src="../../_static/documentation_options.js?v=292eb321"></script>
-    <script src="../../_static/doctools.js?v=9a2dae69"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
   
-
   
-  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head><body>
   
@@ -57,9 +58,7 @@
 <span class="n">ureg</span> <span class="o">=</span> <span class="n">pint</span><span class="o">.</span><span class="n">UnitRegistry</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="Constants">
-<a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Constants">[docs]</a>
-<span class="k">class</span> <span class="nc">Constants</span><span class="p">:</span>
+<div class="viewcode-block" id="Constants"><a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Constants">[docs]</a><span class="k">class</span> <span class="nc">Constants</span><span class="p">:</span>
     <span class="n">Rd</span> <span class="o">=</span> <span class="p">(</span>
         <span class="mi">287</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">joule</span> <span class="o">/</span> <span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">kelvin</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">kilogram</span><span class="p">)</span>
     <span class="p">)</span>  <span class="c1"># Gas constant of dry air - J/K/kg</span>
@@ -100,10 +99,7 @@
     <span class="p">}</span></div>
 
 
-
-<div class="viewcode-block" id="Partitioning">
-<a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Partitioning">[docs]</a>
-<span class="k">class</span> <span class="nc">Partitioning</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Partitioning"><a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Partitioning">[docs]</a><span class="k">class</span> <span class="nc">Partitioning</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Initializes the Partitioning class.</span>
 
@@ -202,9 +198,7 @@
 <span class="sd">    will only need time series of w_p, h2o_p, co2_p.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Partitioning.__init__">
-<a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Partitioning.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hi</span><span class="p">,</span> <span class="n">zi</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">PreProcessing</span><span class="p">,</span> <span class="n">argsQC</span><span class="p">):</span>
+<div class="viewcode-block" id="Partitioning.__init__"><a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Partitioning.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hi</span><span class="p">,</span> <span class="n">zi</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">PreProcessing</span><span class="p">,</span> <span class="n">argsQC</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hi</span> <span class="o">=</span> <span class="n">hi</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">meter</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">zi</span> <span class="o">=</span> <span class="n">zi</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">meter</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">df</span>
@@ -272,7 +266,6 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">argsQC</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;steadyness&quot;</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_steadynessTest</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checkMissingdata</span><span class="p">(</span><span class="n">percData</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">argsQC</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;RemainingData&quot;</span><span class="p">),</span> <span class="n">dropna_</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
-
 
     <span class="k">def</span> <span class="nf">_checkUnits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if units of temperature, CO2, H2O and pressure are correct.&quot;&quot;&quot;</span>
@@ -749,9 +742,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">FokenStatTest</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Partitioning.TurbulentStats">
-<a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Partitioning.TurbulentStats">[docs]</a>
-    <span class="k">def</span> <span class="nf">TurbulentStats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Partitioning.TurbulentStats"><a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Partitioning.TurbulentStats">[docs]</a>    <span class="k">def</span> <span class="nf">TurbulentStats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        # Calculate turbulent statistics (scales, standard deviations, and correlations).</span>
 
@@ -839,10 +830,7 @@
             <span class="s2">&quot;H&quot;</span><span class="p">:</span> <span class="n">H_wm2</span><span class="p">,</span>
         <span class="p">}</span></div>
 
-
-<div class="viewcode-block" id="Partitioning.WaterUseEfficiency">
-<a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Partitioning.WaterUseEfficiency">[docs]</a>
-    <span class="k">def</span> <span class="nf">WaterUseEfficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ppath</span><span class="o">=</span><span class="s2">&quot;C3&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="Partitioning.WaterUseEfficiency"><a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Partitioning.WaterUseEfficiency">[docs]</a>    <span class="k">def</span> <span class="nf">WaterUseEfficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ppath</span><span class="o">=</span><span class="s2">&quot;C3&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates water use efficiency in kg_co2/kg_h2o.</span>
 
@@ -1080,10 +1068,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">wue</span><span class="p">[</span><span class="s2">&quot;opt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>  <span class="c1"># Model is not suitable for C4 and CAM plants</span>
         <span class="k">del</span> <span class="n">aux</span></div>
 
-
-<div class="viewcode-block" id="Partitioning.partCEC">
-<a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Partitioning.partCEC">[docs]</a>
-    <span class="k">def</span> <span class="nf">partCEC</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+<div class="viewcode-block" id="Partitioning.partCEC"><a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Partitioning.partCEC">[docs]</a>    <span class="k">def</span> <span class="nf">partCEC</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements the Conditional Eddy Covariance method proposed by Zahn et al. 2021.</span>
 
@@ -1248,10 +1233,7 @@
             <span class="s2">&quot;statuscec&quot;</span><span class="p">:</span> <span class="n">finalstat</span><span class="p">,</span>
         <span class="p">}</span></div>
 
-
-<div class="viewcode-block" id="Partitioning.partREA">
-<a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Partitioning.partREA">[docs]</a>
-    <span class="k">def</span> <span class="nf">partREA</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="Partitioning.partREA"><a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Partitioning.partREA">[docs]</a>    <span class="k">def</span> <span class="nf">partREA</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements the Modified Relaxed Eddy Accumulation proposed by Thomas et al., 2008 (Agr For Met).</span>
 
@@ -1401,10 +1383,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">pass</span></div>
 
-
-<div class="viewcode-block" id="Partitioning.partFVS">
-<a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Partitioning.partFVS">[docs]</a>
-    <span class="k">def</span> <span class="nf">partFVS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">W</span><span class="p">):</span>
+<div class="viewcode-block" id="Partitioning.partFVS"><a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Partitioning.partFVS">[docs]</a>    <span class="k">def</span> <span class="nf">partFVS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">W</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements the Flux Variance Similarity Theory proposed by Scanlon et al., 2019.</span>
 
@@ -1631,10 +1610,7 @@
             <span class="s2">&quot;statusfvs&quot;</span><span class="p">:</span> <span class="n">finalstat</span><span class="p">,</span>
         <span class="p">}</span></div>
 
-
-<div class="viewcode-block" id="Partitioning.partCEA">
-<a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Partitioning.partCEA">[docs]</a>
-    <span class="k">def</span> <span class="nf">partCEA</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="o">=</span><span class="mf">0.00</span><span class="p">):</span>
+<div class="viewcode-block" id="Partitioning.partCEA"><a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Partitioning.partCEA">[docs]</a>    <span class="k">def</span> <span class="nf">partCEA</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="o">=</span><span class="mf">0.00</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements the Conditional Eddy Accumulation method proposed by Zahn et al. 2024.</span>
 
@@ -1793,10 +1769,7 @@
                 <span class="s2">&quot;statuscea&quot;</span><span class="p">:</span> <span class="s2">&quot;Not enough points&quot;</span><span class="p">,</span>
             <span class="p">}</span></div>
 
-
-<div class="viewcode-block" id="Partitioning.partCECw">
-<a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Partitioning.partCECw">[docs]</a>
-    <span class="k">def</span> <span class="nf">partCECw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">H</span><span class="o">=</span><span class="mf">0.00</span><span class="p">):</span>
+<div class="viewcode-block" id="Partitioning.partCECw"><a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Partitioning.partCECw">[docs]</a>    <span class="k">def</span> <span class="nf">partCECw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">H</span><span class="o">=</span><span class="mf">0.00</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements Conditional Eddy Covariance + water use efficiency proposed by Zahn et al. 2024.</span>
 
@@ -1947,16 +1920,14 @@
             <span class="s2">&quot;Fccecw&quot;</span><span class="p">:</span> <span class="n">total_Fc</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">milligram</span> <span class="o">/</span> <span class="n">ureg</span><span class="o">.</span><span class="n">meter</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">ureg</span><span class="o">.</span><span class="n">second</span><span class="p">,</span>
             <span class="s2">&quot;Pcecw&quot;</span><span class="p">:</span> <span class="n">P</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">milligram</span> <span class="o">/</span> <span class="n">ureg</span><span class="o">.</span><span class="n">meter</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">ureg</span><span class="o">.</span><span class="n">second</span><span class="p">,</span>
             <span class="s2">&quot;Rcecw&quot;</span><span class="p">:</span> <span class="n">R</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">milligram</span> <span class="o">/</span> <span class="n">ureg</span><span class="o">.</span><span class="n">meter</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">ureg</span><span class="o">.</span><span class="n">second</span><span class="p">,</span>
-        <span class="p">}</span></div>
-</div>
-
+        <span class="p">}</span></div></div>
 </pre></div>
 
           </div>
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <h1 class="logo"><a href="../../index.html">Partitioning</a></h1>
 
@@ -1967,16 +1938,7 @@
 
 
 
-
-<search id="searchbox" style="display: none" role="search">
-    <div class="searchformwrapper">
-    <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</search>
-<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../modules.html">Partitioning</a></li>
@@ -1991,6 +1953,16 @@
   </ul></li>
 </ul>
 </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -2004,11 +1976,11 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &#169;2024, Einara Zahn.
+      &copy;2024, Einara Zahn.
       
       |
-      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
-      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
 
