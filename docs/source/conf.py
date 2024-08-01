@@ -43,6 +43,12 @@ autodoc_default_options = {
     'show-inheritance': True,
 }
 
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3.6', None),
+    'pandas': ('http://pandas.pydata.org/pandas-docs/stable/', None),
+    'numpy': ('https://docs.scipy.org/doc/numpy/', None),
+}
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
