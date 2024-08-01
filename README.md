@@ -7,7 +7,7 @@
 Author: Einara Zahn\
 email: einaraz@princeton.edu, einara.zahn@gmail.com
 
-# Flux Partitioning Package
+## Flux Partitioning Package
 
 This Python package implements five partitioning methods to separate evapotranspiration (ET) and CO<sub>2</sub> fluxes (Fc) into ground (evaporation and respiration) and plant (transpiration and net CO<sub>2</sub> assimilation) fluxes. It processes instantaneous raw eddy covariance measurements and returns fluxes, flux components, and additional turbulent variables.
 
@@ -21,27 +21,79 @@ To install the package, follow these steps:
 
 1. **Clone or download the repository** to your computer.
 
+    ```sh
+    git clone git@github.com:einaraz/PartitioningMethods.git
+    ```
+
 2. **Navigate to the main folder** of the repository:
 
     ```sh
     cd PartitioningMethods/
     ```
 
-3. **Install the package** using pip:
+3. **Create and activate a virtual environment** (not required, but recommended to avoid conflicts with local python packages):
+
+    > **Note**: A virtual environment is an isolated environment in which you can install packages without affecting your system-wide Python installation. This helps prevent conflicts between package versions and keeps your project dependencies organized.
+
+    - **Create the virtual environment:**
+
+      This command creates a directory named `venv` that contains the virtual environment. You only need to do this once per project.
+
+      ```sh
+      python -m venv venv
+      ```
+
+    - **Activate the virtual environment:**
+
+      Activation adjusts your environment to use the packages installed in the virtual environment instead of the global Python installation. You need to activate the environment every time you start a new terminal session or work on your project.
+
+      - **On macOS/Linux:**
+
+        ```sh
+        source venv/bin/activate
+        ```
+
+      - **On Windows:**
+
+        ```sh
+        venv\Scripts\activate
+        ```
+
+      After activation, your command prompt should change to show the name of the virtual environment, typically `(venv)`.
+
+      If you see `(venv)` at the beginning of your command prompt, the virtual environment is active. If you don't see it, try running the activation command again. 
+
+4. **Install the package** using pip:
+
+    With the virtual environment activated, install your package:
 
     ```sh
     pip install .
     ```
 
-    Note: To avoid conflicts with local Python libraries, it is recommended to install the package inside a virtual environment.
+    This command installs the package partitioning and all other python dependencies in the virtual environment.
+   
+6. **Verify the installation** by importing the package in a Python interpreter:
 
-4. **Verify the installation** by importing the package in a Python interpreter:
+    To check if the package is installed correctly, open a Python interpreter and try importing it:
 
     ```sh
     python -c "import partitioning"
     ```
 
     If no errors occur, the package is installed correctly.
+
+### Additional Information
+
+- **Deactivating the Virtual Environment:**
+
+  When you’re done working in the virtual environment, you can deactivate it by running:
+
+  ```sh
+  deactivate
+  ```
+  **Important:** After installing the package `partitioning` inside the virtual environment, you must activate the `venv` environment each time you work on the project. This ensures that you are using the correct package versions and dependencies specified for your project.
+
 
 ## Format of Input Text Files
 
