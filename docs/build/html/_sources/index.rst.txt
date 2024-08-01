@@ -10,10 +10,7 @@ Welcome to Partitioning's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   introduction
-   usage
-   api
-
+   modules
 
 Indices and tables
 ==================

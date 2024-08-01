@@ -67,6 +67,8 @@ class Constants:
 
 class Partitioning(object):
     """
+    Initializes the Partitioning class.
+
     Parameters
     ----------
     hi : float
@@ -81,7 +83,7 @@ class Partitioning(object):
         DataFrame with data (e.g., 30min intervals, but any length works), each variable in a column.
         If raw data is used, pre-processing is first implemented following these steps:
             - Quality control (removing outliers, despiking, flags of instruments, etc)
-            - Rotation of coordinates (double rotation) for velocity components u, v, w measured by csat
+            - Rotation of coordinates (double rotation) for velocity components u, v, w measured by CSAT
             - Density corrections for instantaneous fluctuations of CO2 (c_p) and H2O (q_p) measured by open-gas analyser
               ("instantaneous" WPL correction) based on the paper:
                 Detto, M. and Katul, G. G., 2007. "Simplified expressions for adjusting higher-order turbulent statistics
@@ -99,7 +101,7 @@ class Partitioning(object):
             - CO2 : carbon dioxide density (mg/m3)
             - H2O : water vapor density (g/m3)
 
-        After pre-processing, the following additional variables are created (***):
+        After pre-processing, the following additional variables are created:
             - w_p : fluctuations of velocity in the z direction (m/s)
             - u_p : fluctuations of velocity in the x direction (m/s)
             - v_p : fluctuations of velocity in the y direction (m/s)
@@ -110,11 +112,12 @@ class Partitioning(object):
             - Ts_p : fluctuations of sonic air temperature (Celsius)
             - Tv_p : fluctuations of virtual temperature (Celsius)
 
-    PreProcessing : bool
+    PreProcessing : bool, optional
         Indicates if pre-processing is necessary. If True, all pre-processing steps are implemented to raw data. If False,
         pre-processing is ignored and partitioning is immediately applied. In this case, the input files must contain all
-        pre-processed variables listed above (***).
-    argsQC : dict
+        pre-processed variables listed above.
+
+    argsQC : dict, optional
         Contains options to be used during pre-processing regarding fluctuation extraction and if density corrections are
         necessary. All options have default values, but can be modified if needed.
 
@@ -122,7 +125,7 @@ class Partitioning(object):
             - density_correction : bool
                 True if density corrections are necessary (open gas analyzer); False (closed or enclosed gas analyzer).
             - fluctuations : str
-                Describes the type of operation used to extract fluctuations.
+                Describes the type of operation used to extract fluctuations:
                 'BA': block average
                 'LD': Linear detrending
                 'FL': Filter low frequencies. Requires filtercut to indicate the cutoff time in minutes.
@@ -144,7 +147,7 @@ class Partitioning(object):
                 Maximum time lag in seconds to consider for correlation. Defaults to 5 seconds.
             - type_lag : str
                 Specifies the type of lag to consider. Options are 'positive', 'negative', or 'both'. Defaults to 'positive'.
-                'Positive' means that CO2 and H2O lag behind W as expected in closed-path systems when the tube delays the signal
+                'Positive' means that CO2 and H2O lag behind W as expected in closed-path systems when the tube delays the signal.
 
     Available Partitioning Methods
     ------------------------------
@@ -156,7 +159,7 @@ class Partitioning(object):
 
     Notes
     -----
-    CEC, CEA and MREA only need time series of w_p, co2_p, h2o_p. The remaining quantities (e.g., P, T, Tv, etc) are only needed if the
+    CEC, CEA, and MREA only need time series of w_p, co2_p, h2o_p. The remaining quantities (e.g., P, T, Tv, etc.) are only needed if the
     water use efficiency (WUE) is computed for the FVS and CECw method. Alternatively, an external WUE can be used; in this case, FVS and CECw
     will only need time series of w_p, h2o_p, co2_p.
     """

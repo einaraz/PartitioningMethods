@@ -1,0 +1,276 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Partitioning &#8212; Partitioning 1.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Welcome to Partitioning’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-partitioning.Partitioning.Partitioning">
+<span id="partitioning"></span><h1>Partitioning<a class="headerlink" href="#module-partitioning.Partitioning.Partitioning" title="Permalink to this heading">¶</a></h1>
+<p>Initializes the Partitioning class.</p>
+<dl class="field-list">
+<dt class="field-odd">param hi<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Canopy height (m).</p>
+</dd>
+<dt class="field-even">type hi<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+<dt class="field-odd">param zi<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Eddy covariance measurement height (m).</p>
+</dd>
+<dt class="field-even">type zi<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+<dt class="field-odd">param freq<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Sampling frequency (Hz).</p>
+</dd>
+<dt class="field-even">type freq<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+<dt class="field-odd">param length<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Length of the time series (in minutes).</p>
+</dd>
+<dt class="field-even">type length<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+<dt class="field-odd">param df<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DataFrame with data (e.g., 30min intervals, but any length works), each variable in a column.
+If raw data is used, pre-processing is first implemented following these steps:</p>
+<blockquote>
+<div><ul>
+<li><p>Quality control (removing outliers, despiking, flags of instruments, etc)</p></li>
+<li><p>Rotation of coordinates (double rotation) for velocity components u, v, w measured by CSAT</p></li>
+<li><p>Density corrections for instantaneous fluctuations of CO2 (c_p) and H2O (q_p) measured by open-gas analyser
+(“instantaneous” WPL correction) based on the paper:</p>
+<blockquote>
+<div><p>Detto, M. and Katul, G. G., 2007. “Simplified expressions for adjusting higher-order turbulent statistics
+obtained from open path gas analyzers”. Boundary-Layer Meteorology, 10.1007/s10546-006-9105-1</p>
+</div></blockquote>
+</li>
+<li><p>Turbulent fluctuations, here denoted as primed quantities (“_p”), are computed</p></li>
+<li><p>Air temperature (T) and virtual temperature (Tv) computed from the sonic temperature (Ts)</p></li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt>Raw data requires the following variables and units:</dt><dd><ul class="simple">
+<li><p>index : datetime</p></li>
+<li><p>w : velocity in the z direction (m/s)</p></li>
+<li><p>u : velocity in the x direction (m/s)</p></li>
+<li><p>v : velocity in the y direction (m/s)</p></li>
+<li><p>Ts : sonic temperature (Celsius)</p></li>
+<li><p>P : pressure (kPa)</p></li>
+<li><p>CO2 : carbon dioxide density (mg/m3)</p></li>
+<li><p>H2O : water vapor density (g/m3)</p></li>
+</ul>
+</dd>
+<dt>After pre-processing, the following additional variables are created:</dt><dd><ul class="simple">
+<li><p>w_p : fluctuations of velocity in the z direction (m/s)</p></li>
+<li><p>u_p : fluctuations of velocity in the x direction (m/s)</p></li>
+<li><p>v_p : fluctuations of velocity in the y direction (m/s)</p></li>
+<li><p>T : thermodynamic air temperature (Celsius)</p></li>
+<li><p>Tv : virtual temperature (Celsius)</p></li>
+<li><p>co2_p : fluctuations of carbon dioxide density (mg/m3) - (corrected for external densities (WPL) if needed)</p></li>
+<li><p>h2o_p : fluctuations of water vapor density (g/m3) - (corrected for external densities (WPL) if needed)</p></li>
+<li><p>Ts_p : fluctuations of sonic air temperature (Celsius)</p></li>
+<li><p>Tv_p : fluctuations of virtual temperature (Celsius)</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">type df<span class="colon">:</span></dt>
+<dd class="field-even"><p>pandas.DataFrame</p>
+</dd>
+<dt class="field-odd">param PreProcessing<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Indicates if pre-processing is necessary. If True, all pre-processing steps are implemented to raw data. If False,
+pre-processing is ignored and partitioning is immediately applied. In this case, the input files must contain all
+pre-processed variables listed above.</p>
+</dd>
+<dt class="field-even">type PreProcessing<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool, optional</p>
+</dd>
+<dt class="field-odd">param argsQC<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Contains options to be used during pre-processing regarding fluctuation extraction and if density corrections are
+necessary. All options have default values, but can be modified if needed.</p>
+<dl class="simple">
+<dt>Keys:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>density_correction<span class="classifier">bool</span></dt><dd><p>True if density corrections are necessary (open gas analyzer); False (closed or enclosed gas analyzer).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>fluctuations<span class="classifier">str</span></dt><dd><p>Describes the type of operation used to extract fluctuations:
+‘BA’: block average
+‘LD’: Linear detrending
+‘FL’: Filter low frequencies. Requires filtercut to indicate the cutoff time in minutes.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>filtercut<span class="classifier">int</span></dt><dd><p>Cutoff time in minutes for the low-pass filter. Only used if method is ‘FL’.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>maxGapsInterpolate<span class="classifier">int</span></dt><dd><p>Number of consecutive gaps that will be interpolated.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>RemainingData<span class="classifier">int</span></dt><dd><p>Percentage (0-100) of the time series that should remain after pre-processing. If less than this quantity,
+partitioning is not implemented.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>steadyness<span class="classifier">bool</span></dt><dd><p>If True, Foken’s stationarity test is implemented to check if the data is stationary. If False, the test is not
+implemented. The test is only informative and does not remove data, which is left to the user’s discretion.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>saveprocessed<span class="classifier">bool</span></dt><dd><p>If True, the processed data is saved to a CSV file.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>time_lag_correction<span class="classifier">bool</span></dt><dd><p>If True, a time lag correction is applied to the CO2 and H2O time series relative to the W time series.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>max_lag_seconds<span class="classifier">int</span></dt><dd><p>Maximum time lag in seconds to consider for correlation. Defaults to 5 seconds.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>type_lag<span class="classifier">str</span></dt><dd><p>Specifies the type of lag to consider. Options are ‘positive’, ‘negative’, or ‘both’. Defaults to ‘positive’.
+‘Positive’ means that CO2 and H2O lag behind W as expected in closed-path systems when the tube delays the signal.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">type argsQC<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict, optional</p>
+</dd>
+<dt class="field-odd">param Available Partitioning Methods<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+<dt class="field-even">param ——————————<span class="colon">:</span></dt>
+<dd class="field-even"><p></p></dd>
+<dt class="field-odd">param - Conditional Eddy Covariance (CEC)<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+<dt class="field-even">param - Modified Relaxed Eddy Accumulation (MREA)<span class="colon">:</span></dt>
+<dd class="field-even"><p></p></dd>
+<dt class="field-odd">param - Flux Variance Similarity (FVS)<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+<dt class="field-even">param - Conditional Eddy Accumulation (CEA)<span class="colon">:</span></dt>
+<dd class="field-even"><p></p></dd>
+<dt class="field-odd">param - Conditional Eddy Covariance + WUE (CECw)<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>CEC, CEA, and MREA only need time series of w_p, co2_p, h2o_p. The remaining quantities (e.g., P, T, Tv, etc.) are only needed if the
+water use efficiency (WUE) is computed for the FVS and CECw method. Alternatively, an external WUE can be used; in this case, FVS and CECw
+will only need time series of w_p, h2o_p, co2_p.</p>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Partitioning</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Partitioning</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to Partitioning’s documentation!</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2024, Einara Zahn.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/modules.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

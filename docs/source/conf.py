@@ -35,6 +35,14 @@ extensions = [
     'sphinx.ext.napoleon',  # For Google style and NumPy style docstrings
     'sphinx.ext.viewcode',  # Optional, for viewing source code
 ]
+
+autodoc_default_options = {
+    'members': True,
+    'special-members': '__init__',
+    'inherited-members': True,
+    'show-inheritance': True,
+}
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
