@@ -49,10 +49,10 @@ jobs:
       - name: Test code with pytest
         run: pytest
 
-   lint:
-     runs-on: ubuntu-latest
+  lint:
+    runs-on: ubuntu-latest
 
-     steps:
+    steps:
       - uses: actions/checkout@v4
   
       - name: Set up Python
