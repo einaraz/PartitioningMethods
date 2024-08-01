@@ -13,7 +13,7 @@ This Python package implements five partitioning methods to separate evapotransp
 
 The package includes pre-processing steps such as coordinate rotation and density corrections. While it does not perform all post-processing corrections provided by other eddy covariance flux software, users are encouraged to reach out with inquiries about adding additional pre- and post-processing techniques or to contribute to the code.
 
-See the [Documentation]{https://einaraz.github.io/PartitioningMethods/) here!
+See the [Documentation](https://einaraz.github.io/PartitioningMethods/) here.
 
 # Installation Guide
 
@@ -60,6 +60,7 @@ The following variables are required by the code when using raw high-frequency d
   
 ## How to use it
 For a complete example of how to use the partitioning module, see ```main.py``` and ```main_parellel.py```
+See the [Documentation](https://einaraz.github.io/PartitioningMethods/) for more details.
 
 ```sh
 from partitioning import Partitioning
