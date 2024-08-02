@@ -3,6 +3,9 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+import pint
+
+ureg = pint.UnitRegistry()
 
 # Auxiliary functions to compute the water-use efficiency
 # These functions are from the algorithm fluxpart:
@@ -10,6 +13,45 @@ import os
 #                "Fluxpart: Open source software for partitioning carbon dioxide and watervaporfluxes"
 # https://github.com/usda-ars-ussl/fluxpart
 
+class Constants:
+    Rd = (
+        287 * ureg.joule / (ureg.kelvin * ureg.kilogram)
+    )  # Gas constant of dry air - J/K/kg
+    Lv = 2.453e6 * ureg.joule / ureg.kilogram  # Latent heat - J/kg
+    rho_w = 1000 * ureg.kilogram / ureg.meter**3  # Density of water - kg/m^3
+    VON_KARMAN = 0.4  # Von Karman constant (dimensionless)
+    MWdryair = (
+        0.0289645 * ureg.kilogram / ureg.mole
+    )  # Molecular weight of dry air - kg/mol
+    MWvapor = 0.018016 * ureg.kilogram / ureg.mole  # Molecular weight of vapor - kg/mol
+    MWco2 = (
+        0.044010 * ureg.kilogram / ureg.mole
+    )  # Molecular weight of carbon dioxide - kg/mol
+    Rco2 = (
+        8.3144598 * ureg.joule / (ureg.mole * ureg.kelvin) / MWco2
+    )  # Gas constant for CO2 - J/(mol K)/kg/mol
+    Rvapor = (
+        8.3144598 * ureg.joule / (ureg.mole * ureg.kelvin) / MWvapor
+    )  # Gas constant for water vapor - J/(mol K)/kg/mol
+    diff_ratio = 1.6  # Ratio of diffusivities water/CO2 (dimensionless)
+    g = 9.8160 * ureg.meter / ureg.second**2  # Gravity - m/s^2
+    cp = (
+        1.005 * ureg.kilojoule / (ureg.kilogram * ureg.kelvin)
+    )  # specific heat capacity at constant pressure (kJ/kg/K)
+    wue_constants = {
+        "C3": {
+            "const_ppm": 280 * ureg.ppm,
+            "const_ratio": 0.70,
+            "linear": (1.0, 1.6e-4 / ureg.pascal),
+            "sqrt": (22e-9 * ureg.kg / (ureg.meter**3 * ureg.pascal)),
+        },
+        "C4": {
+            "const_ppm": 130 * ureg.ppm,
+            "const_ratio": 0.44,
+            "linear": (1.0, 2.7e-4 / ureg.pascal),
+            "sqrt": np.nan,
+        },
+    }
 
 # Water-use efficiency computation -------------------
 def ci_const_ppm(pressure, temperature, Rco2, ci_ppm):
