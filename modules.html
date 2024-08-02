@@ -7,8 +7,9 @@
 
     <title>Partitioning &#8212; Partitioning 1.0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
-    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=c058f7c8" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/jquery.js?v=5d32c60e"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
     <script src="_static/documentation_options.js?v=292eb321"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
@@ -33,81 +34,81 @@
           <div class="body" role="main">
             
   <section id="module-partitioning.Partitioning">
-<span id="partitioning"></span><h1>Partitioning<a class="headerlink" href="#module-partitioning.Partitioning" title="Link to this heading">¶</a></h1>
+<span id="partitioning"></span><h1>Partitioning<a class="headerlink" href="#module-partitioning.Partitioning" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Constants">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">partitioning.Partitioning.</span></span><span class="sig-name descname"><span class="pre">Constants</span></span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Constants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Constants" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">partitioning.Partitioning.</span></span><span class="sig-name descname"><span class="pre">Constants</span></span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Constants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Constants" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Constants.Lv">
-<span class="sig-name descname"><span class="pre">Lv</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Quantity(2453000.0,</span> <span class="pre">'joule</span> <span class="pre">/</span> <span class="pre">kilogram')&gt;</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.Lv" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">Lv</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Quantity(2453000.0,</span> <span class="pre">'joule</span> <span class="pre">/</span> <span class="pre">kilogram')&gt;</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.Lv" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Constants.MWco2">
-<span class="sig-name descname"><span class="pre">MWco2</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Quantity(0.04401,</span> <span class="pre">'kilogram</span> <span class="pre">/</span> <span class="pre">mole')&gt;</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.MWco2" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">MWco2</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Quantity(0.04401,</span> <span class="pre">'kilogram</span> <span class="pre">/</span> <span class="pre">mole')&gt;</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.MWco2" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Constants.MWdryair">
-<span class="sig-name descname"><span class="pre">MWdryair</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Quantity(0.0289645,</span> <span class="pre">'kilogram</span> <span class="pre">/</span> <span class="pre">mole')&gt;</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.MWdryair" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">MWdryair</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Quantity(0.0289645,</span> <span class="pre">'kilogram</span> <span class="pre">/</span> <span class="pre">mole')&gt;</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.MWdryair" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Constants.MWvapor">
-<span class="sig-name descname"><span class="pre">MWvapor</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Quantity(0.018016,</span> <span class="pre">'kilogram</span> <span class="pre">/</span> <span class="pre">mole')&gt;</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.MWvapor" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">MWvapor</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Quantity(0.018016,</span> <span class="pre">'kilogram</span> <span class="pre">/</span> <span class="pre">mole')&gt;</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.MWvapor" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Constants.Rco2">
-<span class="sig-name descname"><span class="pre">Rco2</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Quantity(188.922059,</span> <span class="pre">'joule</span> <span class="pre">/</span> <span class="pre">kelvin</span> <span class="pre">/</span> <span class="pre">kilogram')&gt;</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.Rco2" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">Rco2</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Quantity(188.922059,</span> <span class="pre">'joule</span> <span class="pre">/</span> <span class="pre">kelvin</span> <span class="pre">/</span> <span class="pre">kilogram')&gt;</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.Rco2" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Constants.Rd">
-<span class="sig-name descname"><span class="pre">Rd</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Quantity(287.0,</span> <span class="pre">'joule</span> <span class="pre">/</span> <span class="pre">kelvin</span> <span class="pre">/</span> <span class="pre">kilogram')&gt;</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.Rd" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">Rd</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Quantity(287.0,</span> <span class="pre">'joule</span> <span class="pre">/</span> <span class="pre">kelvin</span> <span class="pre">/</span> <span class="pre">kilogram')&gt;</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.Rd" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Constants.Rvapor">
-<span class="sig-name descname"><span class="pre">Rvapor</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Quantity(461.504207,</span> <span class="pre">'joule</span> <span class="pre">/</span> <span class="pre">kelvin</span> <span class="pre">/</span> <span class="pre">kilogram')&gt;</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.Rvapor" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">Rvapor</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Quantity(461.504207,</span> <span class="pre">'joule</span> <span class="pre">/</span> <span class="pre">kelvin</span> <span class="pre">/</span> <span class="pre">kilogram')&gt;</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.Rvapor" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Constants.VON_KARMAN">
-<span class="sig-name descname"><span class="pre">VON_KARMAN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.4</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.VON_KARMAN" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">VON_KARMAN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.4</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.VON_KARMAN" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Constants.cp">
-<span class="sig-name descname"><span class="pre">cp</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Quantity(1.005,</span> <span class="pre">'kilojoule</span> <span class="pre">/</span> <span class="pre">kilogram</span> <span class="pre">/</span> <span class="pre">kelvin')&gt;</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.cp" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">cp</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Quantity(1.005,</span> <span class="pre">'kilojoule</span> <span class="pre">/</span> <span class="pre">kilogram</span> <span class="pre">/</span> <span class="pre">kelvin')&gt;</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.cp" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Constants.diff_ratio">
-<span class="sig-name descname"><span class="pre">diff_ratio</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.6</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.diff_ratio" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">diff_ratio</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.6</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.diff_ratio" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Constants.g">
-<span class="sig-name descname"><span class="pre">g</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Quantity(9.816,</span> <span class="pre">'meter</span> <span class="pre">/</span> <span class="pre">second</span> <span class="pre">**</span> <span class="pre">2')&gt;</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.g" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">g</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Quantity(9.816,</span> <span class="pre">'meter</span> <span class="pre">/</span> <span class="pre">second</span> <span class="pre">**</span> <span class="pre">2')&gt;</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.g" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Constants.rho_w">
-<span class="sig-name descname"><span class="pre">rho_w</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Quantity(1000.0,</span> <span class="pre">'kilogram</span> <span class="pre">/</span> <span class="pre">meter</span> <span class="pre">**</span> <span class="pre">3')&gt;</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.rho_w" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">rho_w</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Quantity(1000.0,</span> <span class="pre">'kilogram</span> <span class="pre">/</span> <span class="pre">meter</span> <span class="pre">**</span> <span class="pre">3')&gt;</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.rho_w" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Constants.wue_constants">
-<span class="sig-name descname"><span class="pre">wue_constants</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'C3':</span> <span class="pre">{'const_ppm':</span> <span class="pre">&lt;Quantity(280,</span> <span class="pre">'ppm')&gt;,</span> <span class="pre">'const_ratio':</span> <span class="pre">0.7,</span> <span class="pre">'linear':</span> <span class="pre">(1.0,</span> <span class="pre">&lt;Quantity(0.00016,</span> <span class="pre">'1</span> <span class="pre">/</span> <span class="pre">pascal')&gt;),</span> <span class="pre">'sqrt':</span> <span class="pre">&lt;Quantity(2.2e-08,</span> <span class="pre">'kilogram</span> <span class="pre">/</span> <span class="pre">meter</span> <span class="pre">**</span> <span class="pre">3</span> <span class="pre">/</span> <span class="pre">pascal')&gt;},</span> <span class="pre">'C4':</span> <span class="pre">{'const_ppm':</span> <span class="pre">&lt;Quantity(130,</span> <span class="pre">'ppm')&gt;,</span> <span class="pre">'const_ratio':</span> <span class="pre">0.44,</span> <span class="pre">'linear':</span> <span class="pre">(1.0,</span> <span class="pre">&lt;Quantity(0.00027,</span> <span class="pre">'1</span> <span class="pre">/</span> <span class="pre">pascal')&gt;),</span> <span class="pre">'sqrt':</span> <span class="pre">nan}}</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.wue_constants" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">wue_constants</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'C3':</span> <span class="pre">{'const_ppm':</span> <span class="pre">&lt;Quantity(280,</span> <span class="pre">'ppm')&gt;,</span> <span class="pre">'const_ratio':</span> <span class="pre">0.7,</span> <span class="pre">'linear':</span> <span class="pre">(1.0,</span> <span class="pre">&lt;Quantity(0.00016,</span> <span class="pre">'1</span> <span class="pre">/</span> <span class="pre">pascal')&gt;),</span> <span class="pre">'sqrt':</span> <span class="pre">&lt;Quantity(2.2e-08,</span> <span class="pre">'kilogram</span> <span class="pre">/</span> <span class="pre">meter</span> <span class="pre">**</span> <span class="pre">3</span> <span class="pre">/</span> <span class="pre">pascal')&gt;},</span> <span class="pre">'C4':</span> <span class="pre">{'const_ppm':</span> <span class="pre">&lt;Quantity(130,</span> <span class="pre">'ppm')&gt;,</span> <span class="pre">'const_ratio':</span> <span class="pre">0.44,</span> <span class="pre">'linear':</span> <span class="pre">(1.0,</span> <span class="pre">&lt;Quantity(0.00027,</span> <span class="pre">'1</span> <span class="pre">/</span> <span class="pre">pascal')&gt;),</span> <span class="pre">'sqrt':</span> <span class="pre">nan}}</span></em><a class="headerlink" href="#partitioning.Partitioning.Constants.wue_constants" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Partitioning">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">partitioning.Partitioning.</span></span><span class="sig-name descname"><span class="pre">Partitioning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PreProcessing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">argsQC</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">partitioning.Partitioning.</span></span><span class="sig-name descname"><span class="pre">Partitioning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PreProcessing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">argsQC</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Initializes the Partitioning class.</p>
 <dl class="field-list simple">
@@ -243,11 +244,11 @@ water use efficiency (WUE) is computed for the FVS and CECw method. Alternativel
 will only need time series of w_p, h2o_p, co2_p.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Partitioning.TurbulentStats">
-<span class="sig-name descname"><span class="pre">TurbulentStats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.TurbulentStats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.TurbulentStats" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">TurbulentStats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.TurbulentStats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.TurbulentStats" title="Link to this definition"></a></dt>
 <dd><p># Calculate turbulent statistics (scales, standard deviations, and correlations).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Partitioning.self.turbstats">
-<span class="sig-prename descclassname"><span class="pre">self.</span></span><span class="sig-name descname"><span class="pre">turbstats</span></span><a class="headerlink" href="#partitioning.Partitioning.Partitioning.self.turbstats" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">self.</span></span><span class="sig-name descname"><span class="pre">turbstats</span></span><a class="headerlink" href="#partitioning.Partitioning.Partitioning.self.turbstats" title="Link to this definition"></a></dt>
 <dd><p>Dictionary containing the following turbulent statistics:
 - ‘ustar’: friction velocity [m/s]
 - ‘cstar’: scale for CO2 [mg/m3]
@@ -277,7 +278,7 @@ will only need time series of w_p, h2o_p, co2_p.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Partitioning.WaterUseEfficiency">
-<span class="sig-name descname"><span class="pre">WaterUseEfficiency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'C3'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.WaterUseEfficiency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.WaterUseEfficiency" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">WaterUseEfficiency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'C3'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.WaterUseEfficiency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.WaterUseEfficiency" title="Link to this definition"></a></dt>
 <dd><p>Calculates water use efficiency in kg_co2/kg_h2o.</p>
 <p>Main references:
 - Scanlon and Sahu 2008, Water Resources Research</p>
@@ -363,12 +364,12 @@ explained by the economics of gas exchange. Plant, Cell &amp; Environment, 32(8)
 
 <dl class="py method">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Partitioning.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PreProcessing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">argsQC</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.__init__" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PreProcessing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">argsQC</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.__init__" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Partitioning.partCEA">
-<span class="sig-name descname"><span class="pre">partCEA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.partCEA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.partCEA" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">partCEA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.partCEA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.partCEA" title="Link to this definition"></a></dt>
 <dd><p>Implements the Conditional Eddy Accumulation method proposed by Zahn et al. 2024.</p>
 <p>Numerical Investigation of Observational Flux Partitioning Methods for Water Vapor and Carbon Dioxide</p>
 <dl class="field-list simple">
@@ -436,7 +437,7 @@ it is different from gross primary productivity.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Partitioning.partCEC">
-<span class="sig-name descname"><span class="pre">partCEC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.partCEC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.partCEC" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">partCEC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.partCEC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.partCEC" title="Link to this definition"></a></dt>
 <dd><p>Implements the Conditional Eddy Covariance method proposed by Zahn et al. 2021.</p>
 <p>Direct Partitioning of Eddy-Covariance Water and Carbon Dioxide Fluxes into Ground and Plant Components.</p>
 <dl class="field-list simple">
@@ -504,7 +505,7 @@ it is different from gross primary productivity.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Partitioning.partCECw">
-<span class="sig-name descname"><span class="pre">partCECw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">W</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.partCECw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.partCECw" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">partCECw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">W</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.partCECw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.partCECw" title="Link to this definition"></a></dt>
 <dd><p>Implements Conditional Eddy Covariance + water use efficiency proposed by Zahn et al. 2024.</p>
 <p>Numerical Investigation of Observational Flux Partitioning Methods for Water Vapor and Carbon Dioxide</p>
 <dl class="field-list simple">
@@ -562,7 +563,7 @@ it is different from gross primary productivity.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Partitioning.partFVS">
-<span class="sig-name descname"><span class="pre">partFVS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">W</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.partFVS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.partFVS" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">partFVS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">W</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.partFVS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.partFVS" title="Link to this definition"></a></dt>
 <dd><p>Implements the Flux Variance Similarity Theory proposed by Scanlon et al., 2019.</p>
 <p>Direct Partitioning of GPP and Re in a Subalpine Forest Ecosystem.</p>
 <dl class="field-list simple">
@@ -620,7 +621,7 @@ it is different from gross primary productivity.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Partitioning.partREA">
-<span class="sig-name descname"><span class="pre">partREA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.partREA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.partREA" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">partREA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.partREA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.partREA" title="Link to this definition"></a></dt>
 <dd><p>Implements the Modified Relaxed Eddy Accumulation proposed by Thomas et al., 2008 (Agr For Met).</p>
 <p>Estimating daytime subcanopy respiration from conditional sampling methods applied to multi-scalar high frequency turbulence time series
 <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0168192308000737">https://www.sciencedirect.com/science/article/pii/S0168192308000737</a>
@@ -698,16 +699,7 @@ it is different from gross primary productivity.</p>
 
 
 
-
-<search id="searchbox" style="display: none" role="search">
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</search>
-<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Partitioning</a><ul>
@@ -725,6 +717,16 @@ it is different from gross primary productivity.</p>
   </ul></li>
 </ul>
 </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -741,8 +743,8 @@ it is different from gross primary productivity.</p>
       &#169;2024, Einara Zahn.
       
       |
-      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
-      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
       
       |
       <a href="_sources/modules.rst.txt"
