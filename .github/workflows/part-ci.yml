@@ -13,7 +13,9 @@ jobs:
         with:
           python-version: '3.x'
       - name: Install Sphinx
-        run: pip install sphinx
+        run: |
+          pip install sphinx
+          python -m pip install .
       - name: Build HTML
         run: sphinx-build -b html docs/source/ docs/build/html
       - name: Upload artifacts
