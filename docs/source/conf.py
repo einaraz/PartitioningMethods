@@ -36,8 +36,19 @@ extensions = [
     "sphinx.ext.napoleon",  # For Google style and NumPy style docstrings
     "sphinx.ext.viewcode",  # Optional, for viewing source code
     "sphinx_rtd_theme"  # If you are using the Read the Docs theme
-
 ]
+
+todo_include_todos = True
+
+html_theme = 'sphinx_rtd_theme'
+
+html_theme_options = {
+    'collapse_navigation': False,
+    'sticky_navigation': True,
+    'navigation_depth': 4,
+    'includehidden': True,
+    'titles_only': False,
+}
 
 autodoc_default_options = {
     "members": True,
