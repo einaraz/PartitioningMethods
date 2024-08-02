@@ -35,7 +35,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",  # For Google style and NumPy style docstrings
     "sphinx.ext.viewcode",  # Optional, for viewing source code
-    "sphinx_rtd_theme'"  # If you are using the Read the Docs theme
+    "sphinx_rtd_theme"  # If you are using the Read the Docs theme
 
 ]
 
