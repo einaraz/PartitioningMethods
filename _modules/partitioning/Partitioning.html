@@ -50,55 +50,11 @@
     <span class="n">find_spikes</span><span class="p">,</span>
     <span class="n">FilterLowFrequencies</span><span class="p">,</span>
     <span class="n">max_time_lag_crosscorrel</span><span class="p">,</span>
+    <span class="n">Constants</span>
 <span class="p">)</span>
 
 <span class="c1"># Create a unit registry</span>
 <span class="n">ureg</span> <span class="o">=</span> <span class="n">pint</span><span class="o">.</span><span class="n">UnitRegistry</span><span class="p">()</span>
-
-
-<div class="viewcode-block" id="Constants">
-<a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Constants">[docs]</a>
-<span class="k">class</span> <span class="nc">Constants</span><span class="p">:</span>
-    <span class="n">Rd</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="mi">287</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">joule</span> <span class="o">/</span> <span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">kelvin</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">kilogram</span><span class="p">)</span>
-    <span class="p">)</span>  <span class="c1"># Gas constant of dry air - J/K/kg</span>
-    <span class="n">Lv</span> <span class="o">=</span> <span class="mf">2.453e6</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">joule</span> <span class="o">/</span> <span class="n">ureg</span><span class="o">.</span><span class="n">kilogram</span>  <span class="c1"># Latent heat - J/kg</span>
-    <span class="n">rho_w</span> <span class="o">=</span> <span class="mi">1000</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">kilogram</span> <span class="o">/</span> <span class="n">ureg</span><span class="o">.</span><span class="n">meter</span><span class="o">**</span><span class="mi">3</span>  <span class="c1"># Density of water - kg/m^3</span>
-    <span class="n">VON_KARMAN</span> <span class="o">=</span> <span class="mf">0.4</span>  <span class="c1"># Von Karman constant (dimensionless)</span>
-    <span class="n">MWdryair</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="mf">0.0289645</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">kilogram</span> <span class="o">/</span> <span class="n">ureg</span><span class="o">.</span><span class="n">mole</span>
-    <span class="p">)</span>  <span class="c1"># Molecular weight of dry air - kg/mol</span>
-    <span class="n">MWvapor</span> <span class="o">=</span> <span class="mf">0.018016</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">kilogram</span> <span class="o">/</span> <span class="n">ureg</span><span class="o">.</span><span class="n">mole</span>  <span class="c1"># Molecular weight of vapor - kg/mol</span>
-    <span class="n">MWco2</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="mf">0.044010</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">kilogram</span> <span class="o">/</span> <span class="n">ureg</span><span class="o">.</span><span class="n">mole</span>
-    <span class="p">)</span>  <span class="c1"># Molecular weight of carbon dioxide - kg/mol</span>
-    <span class="n">Rco2</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="mf">8.3144598</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">joule</span> <span class="o">/</span> <span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">mole</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">kelvin</span><span class="p">)</span> <span class="o">/</span> <span class="n">MWco2</span>
-    <span class="p">)</span>  <span class="c1"># Gas constant for CO2 - J/(mol K)/kg/mol</span>
-    <span class="n">Rvapor</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="mf">8.3144598</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">joule</span> <span class="o">/</span> <span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">mole</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">kelvin</span><span class="p">)</span> <span class="o">/</span> <span class="n">MWvapor</span>
-    <span class="p">)</span>  <span class="c1"># Gas constant for water vapor - J/(mol K)/kg/mol</span>
-    <span class="n">diff_ratio</span> <span class="o">=</span> <span class="mf">1.6</span>  <span class="c1"># Ratio of diffusivities water/CO2 (dimensionless)</span>
-    <span class="n">g</span> <span class="o">=</span> <span class="mf">9.8160</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">meter</span> <span class="o">/</span> <span class="n">ureg</span><span class="o">.</span><span class="n">second</span><span class="o">**</span><span class="mi">2</span>  <span class="c1"># Gravity - m/s^2</span>
-    <span class="n">cp</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="mf">1.005</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">kilojoule</span> <span class="o">/</span> <span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">kilogram</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">kelvin</span><span class="p">)</span>
-    <span class="p">)</span>  <span class="c1"># specific heat capacity at constant pressure (kJ/kg/K)</span>
-    <span class="n">wue_constants</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;C3&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;const_ppm&quot;</span><span class="p">:</span> <span class="mi">280</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">ppm</span><span class="p">,</span>
-            <span class="s2">&quot;const_ratio&quot;</span><span class="p">:</span> <span class="mf">0.70</span><span class="p">,</span>
-            <span class="s2">&quot;linear&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.6e-4</span> <span class="o">/</span> <span class="n">ureg</span><span class="o">.</span><span class="n">pascal</span><span class="p">),</span>
-            <span class="s2">&quot;sqrt&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">22e-9</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">kg</span> <span class="o">/</span> <span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">meter</span><span class="o">**</span><span class="mi">3</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">pascal</span><span class="p">)),</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;C4&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;const_ppm&quot;</span><span class="p">:</span> <span class="mi">130</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">ppm</span><span class="p">,</span>
-            <span class="s2">&quot;const_ratio&quot;</span><span class="p">:</span> <span class="mf">0.44</span><span class="p">,</span>
-            <span class="s2">&quot;linear&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.7e-4</span> <span class="o">/</span> <span class="n">ureg</span><span class="o">.</span><span class="n">pascal</span><span class="p">),</span>
-            <span class="s2">&quot;sqrt&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
-        <span class="p">},</span>
-    <span class="p">}</span></div>
-
-
 
 <div class="viewcode-block" id="Partitioning">
 <a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Partitioning">[docs]</a>
