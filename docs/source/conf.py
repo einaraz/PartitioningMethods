@@ -12,6 +12,7 @@
 #
 import os
 import sys
+import sphinx_pdj_theme
 
 sys.path.insert(0, os.path.abspath("../../src"))
 
@@ -40,10 +41,8 @@ extensions = [
 
 todo_include_todos = True
 
-#html_theme = "sphinx_rtd_theme"
-import sphinx_adc_theme
-html_theme = 'sphinx_adc_theme'
-html_theme_path = [sphinx_adc_theme.get_html_theme_path()]
+html_theme = 'sphinx_pdj_theme'
+html_theme_path = [sphinx_pdj_theme.get_html_theme_path()]
 
 html_static_path = ["_static"]
 html_css_files = [
