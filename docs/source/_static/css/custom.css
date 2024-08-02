@@ -1,0 +1,39 @@
+/* _static/css/custom.css */
+
+:root {
+    --rt-theme-primary-color: #2980b9;
+    --rt-theme-secondary-color: #2980b9;
+    --rt-theme-body-background: #f8f8f8;
+    --rt-theme-nav-background: #2980b9;
+    --rt-theme-sidebar-background: #f8f8f8;
+    --rt-theme-sidebar-item-color: #000000;
+    --rt-theme-sidebar-item-background: #ffffff;
+    --rt-theme-sidebar-item-hover-color: #ffffff;
+    --rt-theme-sidebar-item-hover-background: #2980b9;
+    --rt-theme-sidebar-item-active-color: #ffffff;
+    --rt-theme-sidebar-item-active-background: #3498db;
+}
+
+/* Override specific elements if needed */
+.wy-nav-content {
+    background: var(--rt-theme-body-background);
+}
+
+.wy-side-nav-search input {
+    background-color: var(--rt-theme-sidebar-item-background);
+    color: var(--rt-theme-sidebar-item-color);
+}
+
+.wy-menu ul a {
+    color: var(--rt-theme-sidebar-item-color);
+}
+
+.wy-menu ul a:hover {
+    background-color: var(--rt-theme-sidebar-item-hover-background);
+    color: var(--rt-theme-sidebar-item-hover-color);
+}
+
+.wy-menu ul li.current a {
+    background-color: var(--rt-theme-sidebar-item-active-background);
+    color: var(--rt-theme-sidebar-item-active-color);
+}

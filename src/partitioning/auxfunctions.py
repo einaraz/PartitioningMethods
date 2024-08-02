@@ -13,6 +13,7 @@ ureg = pint.UnitRegistry()
 #                "Fluxpart: Open source software for partitioning carbon dioxide and watervaporfluxes"
 # https://github.com/usda-ars-ussl/fluxpart
 
+
 class Constants:
     Rd = (
         287 * ureg.joule / (ureg.kelvin * ureg.kilogram)
@@ -52,6 +53,7 @@ class Constants:
             "sqrt": np.nan,
         },
     }
+
 
 # Water-use efficiency computation -------------------
 def ci_const_ppm(pressure, temperature, Rco2, ci_ppm):

@@ -16,11 +16,12 @@ from .auxfunctions import (
     find_spikes,
     FilterLowFrequencies,
     max_time_lag_crosscorrel,
-    Constants
+    Constants,
 )
 
 # Create a unit registry
 ureg = pint.UnitRegistry()
+
 
 class Partitioning(object):
     """
