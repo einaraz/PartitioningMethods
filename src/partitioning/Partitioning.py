@@ -43,7 +43,7 @@ class Partitioning(object):
            - Quality control (removing outliers, despiking, flags of instruments, etc)
            - Rotation of coordinates (double rotation) for velocity components u, v, w measured by CSAT
            - Density corrections for instantaneous fluctuations of CO2 (c_p) and H2O (q_p) measured by open-gas analyser
-             ("instantaneous" WPL correction) based on the paper: Detto, M. and Katul, G. G., 2007. "Simplified expressions for adjusting higher-order 
+             ("instantaneous" WPL correction) based on the paper: Detto, M. and Katul, G. G., 2007. "Simplified expressions for adjusting higher-order
               turbulent statistics obtained from open path gas analyzers". Boundary-Layer Meteorology, 10.1007/s10546-006-9105-1
            - Turbulent fluctuations, here denoted as primed quantities ("_p"), are computed
            - Air temperature (T) and virtual temperature (Tv) computed from the sonic temperature (Ts)
@@ -790,7 +790,7 @@ class Partitioning(object):
             Type of photosynthesis ('C3' or 'C4').
 
         Models
-        
+
             Computes the water use efficiency (eq A1 in Scanlon and Sahu, 2008):
                 - wue = 0.65 * (c_c - c_s) / (q_c - q_s)
                 - c_c (kg/m3) and q_c (kg/m3) are near canopy concentrations of CO2 and H2O
@@ -798,23 +798,23 @@ class Partitioning(object):
                 - c_s (kg/m3) and q_s (kg/m3) are stomata concentrations of CO2 and H2O
                     - q_s is assumed to be at saturation.
                     - c_s is parameterized from different models (Skaggs et al., 2018; Scanlon et al., 2019).
-        
+
             The following models for c_s are implemented
-    
+
             const_ppm:
                 - Concentrations in kg/m3 are computed from a constant value in ppm.
                 - Values from Campbell and Norman, 1998, p. 150.
                   Campbell, G. S. and Norman, J. M. (1998). An Introduction to Environmental Biophysics. Springer, New York, NY.
                 - c_s = 280 ppm (C3 plants).
                 - c_s = 130 ppm (C4 plants).
-        
+
             const_ratio:
                 - The ratio of near canopy and stomata CO2 concentrations is assumed constant (c_s/c_c = constant).
                 - Constants from Sinclair, T. R., Tanner, C. B., and Bennett, J. M. (1984).
                   Water-use efficiency in crop production. BioScience, 34(1):36–40.
                 - c_s/c_c = 0.70 for C3 plants.
                 - c_s/c_c = 0.44 for C4 plants.
-        
+
             linear:
                 - The ratio of near canopy and stomata CO2 concentrations is a linear function of VPD.
                 - Based on the results of Morison, J. I. L. and Gifford, R. M. (1983).
@@ -824,7 +824,7 @@ class Partitioning(object):
                 - a, b = 1, 1.6*10-4 Pa-1 for C3 plants.
                 - a, b = 1, 2.7*10-4 Pa-1 for C4 plants.
                 - D (Pa) is vapor pressure deficit based on leaf-temperature.
-    
+
             sqrt:
                 - The ratio of near canopy and stomata CO2 concentrations is proportional
                   to the 1/2 power of VPD.
@@ -834,12 +834,12 @@ class Partitioning(object):
                 - c_s/c_c = 1 - sqrt(1.6 * lambda * D / c_c)
                 - lambda = 22e-9 kg-CO2 / m^3 / Pa for C3 plants (from Skaggs et al., 2018).
                 - Not available for C4 plants.
-        
+
             opt:
                 - Optimization model proposed by Scanlon et al (2019).
                 - Does not need extra parameters.
                 - Only available for C3 plants.
-        
+
         Returns
         ----------
         self.wue : dict
@@ -1033,10 +1033,10 @@ class Partitioning(object):
             Hyperbolic threshold, by default 0.0.
 
         Attributes
-        ----------       
+        ----------
         Attributes: self.fluxesCEC
             Contains all the flux components and status of the calculation.
-        
+
             - ET - float
                 Total evapotranspiration (W/m2).
             - T - float
@@ -1197,10 +1197,10 @@ class Partitioning(object):
             Hyperbolic threshold, by default 0.0.
 
         Attributes
-        ----------       
+        ----------
         Attributes: self.fluxesREA
             Dictionary with the following flux components:
-            
+
             - ET - float
                 Total evapotranspiration (W/m2).
             - Tmrea - float
@@ -1346,10 +1346,10 @@ class Partitioning(object):
             Water use efficiency, by default 0.
 
         Attributes
-        ----------       
+        ----------
         Attributes: self.fluxesFVS
             Contains all the flux components and status of the calculation.
-        
+
             - ET - float
                 Total evapotranspiration (W/m2).
             - Tfvs - float
@@ -1574,10 +1574,10 @@ class Partitioning(object):
             Hyperbolic threshold, by default 0.0.
 
         Attributes
-        ----------       
+        ----------
         Attributes: self.fluxesCEA
             Contains all the flux components and status of the calculation.
-        
+
             - ET - float
                 Total evapotranspiration (W/m2).
             - Tcea - float
@@ -1730,7 +1730,7 @@ class Partitioning(object):
             Water use efficiency, by default 0.
 
         Attributes
-        ----------       
+        ----------
         Attributes: self.fluxesCECw
             Contains all the flux components and status of the calculation.
 
