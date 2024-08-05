@@ -6,39 +6,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Partitioning &#8212; Partitioning 1.0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
-    <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=3f05da46" />
-    <script src="_static/jquery.js?v=5d32c60e"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/pd.css?v=b6646a53" />
     <script src="_static/documentation_options.js?v=292eb321"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="Welcome to Partitioning’s documentation!" href="index.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
-
-  
-  
+    <script type="text/javascript" src="_static/pd.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
   </head><body>
+    <div id="header">
+        <h1>Partitioning 1.0.1 documentation</h1>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+        <ul>
+            <li class="nav-item nav-item-0"><a href="index.html">Partitioning 1.0.1 documentation</a> &#187;
+            </li>
+        </ul>
+    </div>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
-  <section id="module-partitioning.Partitioning">
-<span id="partitioning"></span><h1>Partitioning<a class="headerlink" href="#module-partitioning.Partitioning" title="Link to this heading"></a></h1>
+<section id="module-partitioning.Partitioning">
+<span id="partitioning"></span><h1>Partitioning<a class="headerlink" href="#module-partitioning.Partitioning" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Partitioning">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">partitioning.Partitioning.</span></span><span class="sig-name descname"><span class="pre">Partitioning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PreProcessing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">argsQC</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">partitioning.Partitioning.</span></span><span class="sig-name descname"><span class="pre">Partitioning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PreProcessing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">argsQC</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Initializes the Partitioning class.</p>
 <dl class="field-list simple">
@@ -55,10 +55,9 @@ If raw data is used, pre-processing is first implemented following these steps:<
 <li><p>Quality control (removing outliers, despiking, flags of instruments, etc)</p></li>
 <li><p>Rotation of coordinates (double rotation) for velocity components u, v, w measured by CSAT</p></li>
 <li><p>Density corrections for instantaneous fluctuations of CO2 (c_p) and H2O (q_p) measured by open-gas analyser
-(“instantaneous” WPL correction) based on the paper:</p>
+(“instantaneous” WPL correction) based on the paper: Detto, M. and Katul, G. G., 2007. “Simplified expressions for adjusting higher-order</p>
 <blockquote>
-<div><p>Detto, M. and Katul, G. G., 2007. “Simplified expressions for adjusting higher-order turbulent statistics
-obtained from open path gas analyzers”. Boundary-Layer Meteorology, 10.1007/s10546-006-9105-1</p>
+<div><p>turbulent statistics obtained from open path gas analyzers”. Boundary-Layer Meteorology, 10.1007/s10546-006-9105-1</p>
 </div></blockquote>
 </li>
 <li><p>Turbulent fluctuations, here denoted as primed quantities (“_p”), are computed</p></li>
@@ -96,119 +95,107 @@ pre-processing is ignored and partitioning is immediately applied. In this case,
 pre-processed variables listed above.</p></li>
 <li><p><strong>argsQC</strong> (<em>dict</em><em>, </em><em>optional</em>) – <p>Contains options to be used during pre-processing regarding fluctuation extraction and if density corrections are
 necessary. All options have default values, but can be modified if needed.</p>
-<dl class="simple">
-<dt>Keys:</dt><dd><ul>
-<li><dl class="simple">
-<dt>density_correction<span class="classifier">bool</span></dt><dd><p>True if density corrections are necessary (open gas analyzer); False (closed or enclosed gas analyzer).</p>
+<blockquote>
+<div><dl class="simple">
+<dt>density_correction - bool</dt><dd><p>True if density corrections are necessary (open gas analyzer); False (closed or enclosed gas analyzer).</p>
 </dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>fluctuations<span class="classifier">str</span></dt><dd><p>Describes the type of operation used to extract fluctuations:
+<dt>fluctuations - str</dt><dd><p>Describes the type of operation used to extract fluctuations:
 ‘BA’: block average
 ‘LD’: Linear detrending
 ‘FL’: Filter low frequencies. Requires filtercut to indicate the cutoff time in minutes.</p>
 </dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>filtercut<span class="classifier">int</span></dt><dd><p>Cutoff time in minutes for the low-pass filter. Only used if method is ‘FL’.</p>
+<dt>filtercut - int</dt><dd><p>Cutoff time in minutes for the low-pass filter. Only used if method is ‘FL’.</p>
 </dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>maxGapsInterpolate<span class="classifier">int</span></dt><dd><p>Number of consecutive gaps that will be interpolated.</p>
+<dt>maxGapsInterpolate - int</dt><dd><p>Number of consecutive gaps that will be interpolated.</p>
 </dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>RemainingData<span class="classifier">int</span></dt><dd><p>Percentage (0-100) of the time series that should remain after pre-processing. If less than this quantity,
-partitioning is not implemented.</p>
+<dt>RemainingData - int</dt><dd><p>Percentage (0-100) of the time series that should remain after pre-processing. If less than this quantity, partitioning is not implemented.</p>
 </dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>steadyness<span class="classifier">bool</span></dt><dd><p>If True, Foken’s stationarity test is implemented to check if the data is stationary. If False, the test is not
+<dt>steadyness - bool</dt><dd><p>If True, Foken’s stationarity test is implemented to check if the data is stationary. If False, the test is not
 implemented. The test is only informative and does not remove data, which is left to the user’s discretion.</p>
 </dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>saveprocessed<span class="classifier">bool</span></dt><dd><p>If True, the processed data is saved to a CSV file.</p>
+<dt>saveprocessed - bool</dt><dd><p>If True, the processed data is saved to a CSV file.</p>
 </dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>time_lag_correction<span class="classifier">bool</span></dt><dd><p>If True, a time lag correction is applied to the CO2 and H2O time series relative to the W time series.</p>
+<dt>time_lag_correction - bool</dt><dd><p>If True, a time lag correction is applied to the CO2 and H2O time series relative to the W time series.</p>
 </dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>max_lag_seconds<span class="classifier">int</span></dt><dd><p>Maximum time lag in seconds to consider for correlation. Defaults to 5 seconds.</p>
+<dt>max_lag_seconds - int</dt><dd><p>Maximum time lag in seconds to consider for correlation. Defaults to 5 seconds.</p>
 </dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>type_lag<span class="classifier">str</span></dt><dd><p>Specifies the type of lag to consider. Options are ‘positive’, ‘negative’, or ‘both’. Defaults to ‘positive’.
+<dt>type_lag - str</dt><dd><p>Specifies the type of lag to consider. Options are ‘positive’, ‘negative’, or ‘both’. Defaults to ‘positive’.
 ‘Positive’ means that CO2 and H2O lag behind W as expected in closed-path systems when the tube delays the signal.</p>
 </dd>
 </dl>
-</li>
-</ul>
-</dd>
-</dl>
+</div></blockquote>
 </p></li>
-<li><p><strong>Methods</strong> (<em>Available Partitioning</em>)</p></li>
-<li><p><strong>------------------------------</strong></p></li>
-<li><p><strong>(</strong><strong>CEC</strong><strong>)</strong> (<em>- Conditional Eddy Covariance</em>)</p></li>
-<li><p><strong>(</strong><strong>MREA</strong><strong>)</strong> (<em>- Modified Relaxed Eddy Accumulation</em>)</p></li>
-<li><p><strong>(</strong><strong>FVS</strong><strong>)</strong> (<em>- Flux Variance Similarity</em>)</p></li>
-<li><p><strong>(</strong><strong>CEA</strong><strong>)</strong> (<em>- Conditional Eddy Accumulation</em>)</p></li>
-<li><p><strong>(</strong><strong>CECw</strong><strong>)</strong> (<em>- Conditional Eddy Covariance + WUE</em>)</p></li>
 </ul>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
+<dl class="simple">
+<dt>Notes: Available Partitioning Methods</dt><dd><ul class="simple">
+<li><p>Conditional Eddy Covariance (CEC)</p></li>
+<li><p>Modified Relaxed Eddy Accumulation (MREA)</p></li>
+<li><p>Flux Variance Similarity (FVS)</p></li>
+<li><p>Conditional Eddy Accumulation (CEA)</p></li>
+<li><p>Conditional Eddy Covariance + WUE (CECw)</p></li>
+</ul>
+</dd>
+</dl>
 <p>CEC, CEA, and MREA only need time series of w_p, co2_p, h2o_p. The remaining quantities (e.g., P, T, Tv, etc.) are only needed if the
 water use efficiency (WUE) is computed for the FVS and CECw method. Alternatively, an external WUE can be used; in this case, FVS and CECw
 will only need time series of w_p, h2o_p, co2_p.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Partitioning.TurbulentStats">
-<span class="sig-name descname"><span class="pre">TurbulentStats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.TurbulentStats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.TurbulentStats" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">TurbulentStats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.TurbulentStats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.TurbulentStats" title="Link to this definition">¶</a></dt>
 <dd><p># Calculate turbulent statistics (scales, standard deviations, and correlations).</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="partitioning.Partitioning.Partitioning.self.turbstats">
-<span class="sig-prename descclassname"><span class="pre">self.</span></span><span class="sig-name descname"><span class="pre">turbstats</span></span><a class="headerlink" href="#partitioning.Partitioning.Partitioning.self.turbstats" title="Link to this definition"></a></dt>
-<dd><p>Dictionary containing the following turbulent statistics:
-- ‘ustar’: friction velocity [m/s]
-- ‘cstar’: scale for CO2 [mg/m3]
-- ‘qstar’: scale for H2O [g/m3]
-- ‘tstar’: scale for temperature [K]
-- ‘zeta’: Monin-Obukhov stability parameter
-- ‘std_t’: standard deviation of temperature [K]
-- ‘std_q’: standard deviation of H2O [g/m3]
-- ‘std_c’: standard deviation of CO2 [mg/m3]
-- ‘std_w’: standard deviation of w [m/s]
-- ‘std_u’: standard deviation of u [m/s]
-- ‘std_v’: standard deviation of v [m/s]
-- ‘rqc’: correlation between H2O and CO2
-- ‘rqt’: correlation between H2O and temperature
-- ‘rct’: correlation between CO2 and temperature
-- ‘Fc’: covariance between w and CO2 [mg/m2/s]
-- ‘LE’: latent heat flux [W/m2]
-- ‘H’: sensible heat flux [W/m2]</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><blockquote>
+<div><dl class="simple">
+<dt>‘ustar’: float</dt><dd><p>friction velocity [m/s]</p>
+</dd>
+<dt>’cstar’: float</dt><dd><p>scale for CO2 [mg/m3]</p>
+</dd>
+<dt>’qstar’: float</dt><dd><p>scale for H2O [g/m3]</p>
+</dd>
+<dt>’tstar’: float</dt><dd><p>scale for temperature [K]</p>
+</dd>
+<dt>’zeta’: float</dt><dd><p>Monin-Obukhov stability parameter</p>
+</dd>
+<dt>’std_t’: float</dt><dd><p>standard deviation of temperature [K]</p>
+</dd>
+<dt>’std_q’: float</dt><dd><p>standard deviation of H2O [g/m3]</p>
+</dd>
+<dt>’std_c’: float</dt><dd><p>standard deviation of CO2 [mg/m3]</p>
+</dd>
+<dt>’std_w’: float</dt><dd><p>standard deviation of w [m/s]</p>
+</dd>
+<dt>’std_u’: float</dt><dd><p>standard deviation of u [m/s]</p>
+</dd>
+<dt>’std_v’: float</dt><dd><p>floatstandard deviation of v [m/s]</p>
+</dd>
+<dt>’rqc’: float</dt><dd><p>correlation between H2O and CO2</p>
+</dd>
+<dt>’rqt’: float</dt><dd><p>correlation between H2O and temperature</p>
+</dd>
+<dt>’rct’: float</dt><dd><p>correlation between CO2 and temperature</p>
+</dd>
+<dt>’Fc’: float</dt><dd><p>covariance between w and CO2 [mg/m2/s]</p>
+</dd>
+<dt>’LE’: float</dt><dd><p>latent heat flux [W/m2]</p>
+</dd>
+<dt>’H’: float</dt><dd><p>sensible heat flux [W/m2]</p>
+</dd>
+</dl>
+</div></blockquote>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
 
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Partitioning.WaterUseEfficiency">
-<span class="sig-name descname"><span class="pre">WaterUseEfficiency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'C3'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.WaterUseEfficiency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.WaterUseEfficiency" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">WaterUseEfficiency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'C3'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.WaterUseEfficiency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.WaterUseEfficiency" title="Link to this definition">¶</a></dt>
 <dd><p>Calculates water use efficiency in kg_co2/kg_h2o.</p>
 <p>Main references:
 - Scanlon and Sahu 2008, Water Resources Research</p>
@@ -226,26 +213,32 @@ Method simplification and estimation of canopy water use efficiency”</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ppath</strong> (<em>str</em>) – Type of photosynthesis (‘C3’ or ‘C4’).</p>
-</dd>
-</dl>
-<p class="rubric">Notes</p>
-<dl class="simple">
-<dt>Computes the water use efficiency (eq A1 in Scanlon and Sahu, 2008):</dt><dd><p>wue = 0.65 * (c_c - c_s) / (q_c - q_s)</p>
-</dd>
-<dt>c_c (kg/m3) and q_c (kg/m3) are near canopy concentrations of CO2 and H2O:</dt><dd><ul class="simple">
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ppath</strong> (<em>str</em>) – Type of photosynthesis (‘C3’ or ‘C4’).</p></li>
+<li><p><strong>Models</strong> – <dl class="simple">
+<dt>Computes the water use efficiency (eq A1 in Scanlon and Sahu, 2008):</dt><dd><ul>
+<li><p>wue = 0.65 * (c_c - c_s) / (q_c - q_s)</p></li>
+<li><dl class="simple">
+<dt>c_c (kg/m3) and q_c (kg/m3) are near canopy concentrations of CO2 and H2O</dt><dd><ul>
 <li><p>Estimated from log profiles (eq A2a in Scanlon and Sahu, 2008).</p></li>
 </ul>
 </dd>
-<dt>c_s (kg/m3) and q_s (kg/m3) are stomata concentrations of CO2 and H2O:</dt><dd><ul class="simple">
+</dl>
+</li>
+<li><dl class="simple">
+<dt>c_s (kg/m3) and q_s (kg/m3) are stomata concentrations of CO2 and H2O</dt><dd><ul>
 <li><p>q_s is assumed to be at saturation.</p></li>
 <li><p>c_s is parameterized from different models (Skaggs et al., 2018; Scanlon et al., 2019).</p></li>
 </ul>
 </dd>
 </dl>
-<p>The following models for c_s are implemented:</p>
+</li>
+</ul>
+</dd>
+</dl>
+<p>The following models for c_s are implemented</p>
 <dl class="simple">
-<dt>const_ppm:</dt><dd><ul class="simple">
+<dt>const_ppm:</dt><dd><ul>
 <li><p>Concentrations in kg/m3 are computed from a constant value in ppm.</p></li>
 <li><p>Values from Campbell and Norman, 1998, p. 150.
 Campbell, G. S. and Norman, J. M. (1998). An Introduction to Environmental Biophysics. Springer, New York, NY.</p></li>
@@ -253,7 +246,7 @@ Campbell, G. S. and Norman, J. M. (1998). An Introduction to Environmental Bioph
 <li><p>c_s = 130 ppm (C4 plants).</p></li>
 </ul>
 </dd>
-<dt>const_ratio:</dt><dd><ul class="simple">
+<dt>const_ratio:</dt><dd><ul>
 <li><p>The ratio of near canopy and stomata CO2 concentrations is assumed constant (c_s/c_c = constant).</p></li>
 <li><p>Constants from Sinclair, T. R., Tanner, C. B., and Bennett, J. M. (1984).
 Water-use efficiency in crop production. BioScience, 34(1):36–40.</p></li>
@@ -261,7 +254,7 @@ Water-use efficiency in crop production. BioScience, 34(1):36–40.</p></li>
 <li><p>c_s/c_c = 0.44 for C4 plants.</p></li>
 </ul>
 </dd>
-<dt>linear:</dt><dd><ul class="simple">
+<dt>linear:</dt><dd><ul>
 <li><p>The ratio of near canopy and stomata CO2 concentrations is a linear function of VPD.</p></li>
 <li><p>Based on the results of Morison, J. I. L. and Gifford, R. M. (1983).
 Stomatal sensitivity to carbon dioxide and humidity. Plant Physiology, 71(4):789–796.
@@ -272,7 +265,7 @@ Estimated constants from Skaggs et al (2018).</p></li>
 <li><p>D (Pa) is vapor pressure deficit based on leaf-temperature.</p></li>
 </ul>
 </dd>
-<dt>sqrt:</dt><dd><ul class="simple">
+<dt>sqrt:</dt><dd><ul>
 <li><p>The ratio of near canopy and stomata CO2 concentrations is proportional
 to the 1/2 power of VPD.</p></li>
 <li><p>Model by Katul, G. G., Palmroth, S., and Oren, R. (2009).
@@ -283,73 +276,40 @@ explained by the economics of gas exchange. Plant, Cell &amp; Environment, 32(8)
 <li><p>Not available for C4 plants.</p></li>
 </ul>
 </dd>
-<dt>opt:</dt><dd><ul class="simple">
+<dt>opt:</dt><dd><ul>
 <li><p>Optimization model proposed by Scanlon et al (2019).</p></li>
 <li><p>Does not need extra parameters.</p></li>
 <li><p>Only available for C3 plants.</p></li>
 </ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="partitioning.Partitioning.Partitioning.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PreProcessing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">argsQC</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.__init__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="partitioning.Partitioning.Partitioning.partCEA">
-<span class="sig-name descname"><span class="pre">partCEA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.partCEA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.partCEA" title="Link to this definition"></a></dt>
-<dd><p>Implements the Conditional Eddy Accumulation method proposed by Zahn et al. 2024.</p>
-<p>Numerical Investigation of Observational Flux Partitioning Methods for Water Vapor and Carbon Dioxide</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>H</strong> (<em>float</em><em>, </em><em>optional</em>) – Hyperbolic threshold, by default 0.0.</p>
+</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><p>Dictionary with the following flux components:
-- ET : float</p>
+<dd class="field-even"><p><p><strong>self.wue</strong> – Dictionary containing the water use efficiency from different methods:
+- ‘const_ppm’: float</p>
 <blockquote>
-<div><p>Total evapotranspiration (W/m2).</p>
+<div><p>WUE from constant ppm [kg_co2/kg_h2o].</p>
 </div></blockquote>
 <ul class="simple">
 <li><dl class="simple">
-<dt>T<span class="classifier">float</span></dt><dd><p>Plant transpiration (W/m2).</p>
+<dt>’const_ratio’: float</dt><dd><p>WUE from constant ratio [kg_co2/kg_h2o].</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>E<span class="classifier">float</span></dt><dd><p>Soil/surface evaporation (W/m2).</p>
+<dt>’linear’: float</dt><dd><p>WUE from linear model [kg_co2/kg_h2o].</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>Fc<span class="classifier">float</span></dt><dd><p>Carbon dioxide flux (mg/m2/s).</p>
+<dt>’sqrt’: float</dt><dd><p>WUE from sqrt model [kg_co2/kg_h2o].</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>R<span class="classifier">float</span></dt><dd><p>Soil/surface respiration (mg/m2/s).</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>P<span class="classifier">float</span></dt><dd><p>Plant net photosynthesis* (mg/m2/s).</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>rRP<span class="classifier">float</span></dt><dd><p>Ratio of respiration to photosynthesis.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>rET<span class="classifier">float</span></dt><dd><p>Ratio of evaporation to transpiration.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>status<span class="classifier">str</span></dt><dd><p>Status of the calculation.</p>
+<dt>’opt’: float</dt><dd><p>WUE from optimization model [kg_co2/kg_h2o].</p>
 </dd>
 </dl>
 </li>
@@ -360,6 +320,66 @@ explained by the economics of gas exchange. Plant, Cell &amp; Environment, 32(8)
 <dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="partitioning.Partitioning.Partitioning.partCEA">
+<span class="sig-name descname"><span class="pre">partCEA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.partCEA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.partCEA" title="Link to this definition">¶</a></dt>
+<dd><p>Implements the Conditional Eddy Accumulation method proposed by Zahn et al. 2024.</p>
+<p>Numerical Investigation of Observational Flux Partitioning Methods for Water Vapor and Carbon Dioxide</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>H</strong> (<em>float</em><em>, </em><em>optional</em>) – Hyperbolic threshold, by default 0.0.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="partitioning.Partitioning.Partitioning.Attributes">
+<span class="sig-name descname"><span class="pre">Attributes</span></span><a class="headerlink" href="#partitioning.Partitioning.Partitioning.Attributes" title="Link to this definition">¶</a></dt>
+<dd><p>Contains all the flux components and status of the calculation.</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>ET - float</dt><dd><p>Total evapotranspiration (W/m2).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Tcea - float</dt><dd><p>Plant transpiration (W/m2).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Ecea - float</dt><dd><p>Soil/surface evaporation (W/m2).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Fc - float</dt><dd><p>Carbon dioxide flux (mg/m2/s).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Rcea - float</dt><dd><p>Soil/surface respiration (mg/m2/s).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Pcea - float</dt><dd><p>Plant net photosynthesis* (mg/m2/s).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>statuscea - str</dt><dd><p>Status of the calculation.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>self.fluxesCEA</p>
+</dd>
+</dl>
+</dd></dl>
+
 <p class="rubric">Notes</p>
 <p>This component represents carboxylation minus photorespiration and leaf respiration; therefore,
 it is different from gross primary productivity.</p>
@@ -367,67 +387,62 @@ it is different from gross primary productivity.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Partitioning.partCEC">
-<span class="sig-name descname"><span class="pre">partCEC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.partCEC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.partCEC" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">partCEC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.partCEC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.partCEC" title="Link to this definition">¶</a></dt>
 <dd><p>Implements the Conditional Eddy Covariance method proposed by Zahn et al. 2021.</p>
 <p>Direct Partitioning of Eddy-Covariance Water and Carbon Dioxide Fluxes into Ground and Plant Components.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>H</strong> (<em>float</em><em>, </em><em>optional</em>) – Hyperbolic threshold, by default 0.0.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><p>Dictionary with the following flux components:
-- ET : float</p>
-<blockquote>
-<div><p>Total evapotranspiration (W/m2).</p>
-</div></blockquote>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">Attributes</span></span><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
+<dd><p>Contains all the flux components and status of the calculation.</p>
 <ul class="simple">
 <li><dl class="simple">
-<dt>T<span class="classifier">float</span></dt><dd><p>Plant transpiration (W/m2).</p>
+<dt>ET - float</dt><dd><p>Total evapotranspiration (W/m2).</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>E<span class="classifier">float</span></dt><dd><p>Soil/surface evaporation (W/m2).</p>
+<dt>T - float</dt><dd><p>Plant transpiration (W/m2).</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>Fc<span class="classifier">float</span></dt><dd><p>Carbon dioxide flux (mg/m2/s).</p>
+<dt>Ecec - float</dt><dd><p>Soil/surface evaporation (W/m2).</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>R<span class="classifier">float</span></dt><dd><p>Soil/surface respiration (mg/m2/s).</p>
+<dt>Fc - float</dt><dd><p>Carbon dioxide flux (mg/m2/s).</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>P<span class="classifier">float</span></dt><dd><p>Plant net photosynthesis* (mg/m2/s).</p>
+<dt>Rcec - float</dt><dd><p>Soil/surface respiration (mg/m2/s).</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>rRP<span class="classifier">float</span></dt><dd><p>Ratio of respiration to photosynthesis.</p>
+<dt>Pcec - float</dt><dd><p>Plant net photosynthesis* (mg/m2/s).</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>rET<span class="classifier">float</span></dt><dd><p>Ratio of evaporation to transpiration.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>status<span class="classifier">str</span></dt><dd><p>Status of the calculation.</p>
+<dt>statuscec - str</dt><dd><p>Status of the calculation.</p>
 </dd>
 </dl>
 </li>
 </ul>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>self.fluxesCEC</p>
 </dd>
 </dl>
+</dd></dl>
+
 <p class="rubric">Notes</p>
 <p>This component represents carboxylation minus photorespiration and leaf respiration; therefore,
 it is different from gross primary productivity.</p>
@@ -435,57 +450,62 @@ it is different from gross primary productivity.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Partitioning.partCECw">
-<span class="sig-name descname"><span class="pre">partCECw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">W</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.partCECw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.partCECw" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">partCECw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">W</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.partCECw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.partCECw" title="Link to this definition">¶</a></dt>
 <dd><p>Implements Conditional Eddy Covariance + water use efficiency proposed by Zahn et al. 2024.</p>
 <p>Numerical Investigation of Observational Flux Partitioning Methods for Water Vapor and Carbon Dioxide</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>W</strong> (<em>float</em><em>, </em><em>optional</em>) – Water use efficiency, by default 0.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><p>Dictionary with the following flux components:
-- ET : float</p>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">Attributes</span></span><a class="headerlink" href="#id1" title="Link to this definition">¶</a></dt>
+<dd><p>Contains all the flux components and status of the calculation.</p>
+<p>Dictionary with the following flux components:
+- ET - float</p>
 <blockquote>
 <div><p>Total evapotranspiration (W/m2).</p>
 </div></blockquote>
 <ul class="simple">
 <li><dl class="simple">
-<dt>T<span class="classifier">float</span></dt><dd><p>Plant transpiration (W/m2).</p>
+<dt>Tcecw - float</dt><dd><p>Plant transpiration (W/m2).</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>E<span class="classifier">float</span></dt><dd><p>Soil/surface evaporation (W/m2).</p>
+<dt>Ececw - float</dt><dd><p>Soil/surface evaporation (W/m2).</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>Fc<span class="classifier">float</span></dt><dd><p>Net carbon dioxide flux (mg/m2/s).</p>
+<dt>Fc - float</dt><dd><p>Net carbon dioxide flux (mg/m2/s).</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>R<span class="classifier">float</span></dt><dd><p>Soil/surface respiration (mg/m2/s).</p>
+<dt>Rcecw - float</dt><dd><p>Soil/surface respiration (mg/m2/s).</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>P<span class="classifier">float</span></dt><dd><p>Plant net photosynthesis* (mg/m2/s).</p>
+<dt>Pcecw - float</dt><dd><p>Plant net photosynthesis* (mg/m2/s).</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>status<span class="classifier">str</span></dt><dd><p>Status of the calculation.</p>
+<dt>statuscecw - str</dt><dd><p>Status of the calculation.</p>
 </dd>
 </dl>
 </li>
 </ul>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>self.fluxesCECw</p>
 </dd>
 </dl>
+</dd></dl>
+
 <p class="rubric">Notes</p>
 <p>This component represents carboxylation minus photorespiration and leaf respiration; therefore,
 it is different from gross primary productivity.</p>
@@ -493,57 +513,62 @@ it is different from gross primary productivity.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Partitioning.partFVS">
-<span class="sig-name descname"><span class="pre">partFVS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">W</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.partFVS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.partFVS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">partFVS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">W</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.partFVS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.partFVS" title="Link to this definition">¶</a></dt>
 <dd><p>Implements the Flux Variance Similarity Theory proposed by Scanlon et al., 2019.</p>
 <p>Direct Partitioning of GPP and Re in a Subalpine Forest Ecosystem.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>W</strong> (<em>float</em><em>, </em><em>optional</em><em> [</em><em>kg_co2/kg_h2o</em><em>]</em>) – Water use efficiency, by default 0.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><p>Dictionary with the following flux components:
-- ET : float</p>
-<blockquote>
-<div><p>Total evapotranspiration (W/m2).</p>
-</div></blockquote>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">Attributes</span></span><a class="headerlink" href="#id2" title="Link to this definition">¶</a></dt>
+<dd><p>Contains all the flux components and status of the calculation.</p>
 <ul class="simple">
 <li><dl class="simple">
-<dt>T<span class="classifier">float</span></dt><dd><p>Plant transpiration (W/m2).</p>
+<dt>ET - float</dt><dd><p>Total evapotranspiration (W/m2).</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>E<span class="classifier">float</span></dt><dd><p>Soil/surface evaporation (W/m2).</p>
+<dt>Tfvs - float</dt><dd><p>Plant transpiration (W/m2).</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>Fc<span class="classifier">float</span></dt><dd><p>Net carbon dioxide flux (mg/m2/s).</p>
+<dt>Efvs - float</dt><dd><p>Soil/surface evaporation (W/m2).</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>R<span class="classifier">float</span></dt><dd><p>Soil/surface respiration (mg/m2/s).</p>
+<dt>Fc - float</dt><dd><p>Net carbon dioxide flux (mg/m2/s).</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>P<span class="classifier">float</span></dt><dd><p>Plant net photosynthesis* (mg/m2/s).</p>
+<dt>Rfvs - float</dt><dd><p>Soil/surface respiration (mg/m2/s).</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>status<span class="classifier">str</span></dt><dd><p>Status of the calculation.</p>
+<dt>Pfvs - float</dt><dd><p>Plant net photosynthesis* (mg/m2/s).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>status - str</dt><dd><p>Status of the calculation.</p>
 </dd>
 </dl>
 </li>
 </ul>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>self.fluxesFVS</p>
 </dd>
 </dl>
+</dd></dl>
+
 <p class="rubric">Notes</p>
 <p>This component represents carboxylation minus photorespiration and leaf respiration; therefore,
 it is different from gross primary productivity.</p>
@@ -551,7 +576,7 @@ it is different from gross primary productivity.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="partitioning.Partitioning.Partitioning.partREA">
-<span class="sig-name descname"><span class="pre">partREA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.partREA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.partREA" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">partREA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/partitioning/Partitioning.html#Partitioning.partREA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#partitioning.Partitioning.Partitioning.partREA" title="Link to this definition">¶</a></dt>
 <dd><p>Implements the Modified Relaxed Eddy Accumulation proposed by Thomas et al., 2008 (Agr For Met).</p>
 <p>Estimating daytime subcanopy respiration from conditional sampling methods applied to multi-scalar high frequency turbulence time series
 <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0168192308000737">https://www.sciencedirect.com/science/article/pii/S0168192308000737</a>
@@ -560,50 +585,55 @@ New contraints defined in Zahn et al (2021).</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>H</strong> (<em>float</em><em>, </em><em>optional</em>) – Hyperbolic threshold, by default 0.0.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><p>Dictionary with the following flux components:
-- ET : float</p>
-<blockquote>
-<div><p>Total evapotranspiration (W/m2).</p>
-</div></blockquote>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">Attributes</span></span><a class="headerlink" href="#id3" title="Link to this definition">¶</a></dt>
+<dd><p>Dictionary with the following flux components:</p>
 <ul class="simple">
 <li><dl class="simple">
-<dt>T<span class="classifier">float</span></dt><dd><p>Plant transpiration (W/m2).</p>
+<dt>ET - float</dt><dd><p>Total evapotranspiration (W/m2).</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>E<span class="classifier">float</span></dt><dd><p>Soil/surface evaporation (W/m2).</p>
+<dt>Tmrea - float</dt><dd><p>Plant transpiration (W/m2).</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>Fc<span class="classifier">float</span></dt><dd><p>Net carbon dioxide flux (mg/m2/s).</p>
+<dt>Emrea - float</dt><dd><p>Soil/surface evaporation (W/m2).</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>R<span class="classifier">float</span></dt><dd><p>Soil/surface respiration (mg/m2/s).</p>
+<dt>Fc - float</dt><dd><p>Net carbon dioxide flux (mg/m2/s).</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>P<span class="classifier">float</span></dt><dd><p>Plant net photosynthesis* (mg/m2/s).</p>
+<dt>Rmrea - float</dt><dd><p>Soil/surface respiration (mg/m2/s).</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>status<span class="classifier">str</span></dt><dd><p>Status of the calculation.</p>
+<dt>Pmrea - float</dt><dd><p>Plant net photosynthesis* (mg/m2/s).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>statusmrea - str</dt><dd><p>Status of the calculation.</p>
 </dd>
 </dl>
 </li>
 </ul>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>self.fluxesREA</p>
 </dd>
 </dl>
+</dd></dl>
+
 <p class="rubric">Notes</p>
 <p>This component represents carboxylation minus photorespiration and leaf respiration; therefore,
 it is different from gross primary productivity.</p>
@@ -614,38 +644,58 @@ it is different from gross primary productivity.</p>
 </section>
 
 
+            <div class="clearer"></div>
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">Partitioning</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Partitioning</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#partitioning.Partitioning.Partitioning"><code class="docutils literal notranslate"><span class="pre">Partitioning</span></code></a></li>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Partitioning</a><ul>
+<li><a class="reference internal" href="#partitioning.Partitioning.Partitioning"><code class="docutils literal notranslate"><span class="pre">Partitioning</span></code></a><ul>
+<li><a class="reference internal" href="#partitioning.Partitioning.Partitioning.TurbulentStats"><code class="docutils literal notranslate"><span class="pre">Partitioning.TurbulentStats()</span></code></a></li>
+<li><a class="reference internal" href="#partitioning.Partitioning.Partitioning.WaterUseEfficiency"><code class="docutils literal notranslate"><span class="pre">Partitioning.WaterUseEfficiency()</span></code></a></li>
+<li><a class="reference internal" href="#partitioning.Partitioning.Partitioning.partCEA"><code class="docutils literal notranslate"><span class="pre">Partitioning.partCEA()</span></code></a><ul>
+<li><a class="reference internal" href="#partitioning.Partitioning.Partitioning.Attributes"><code class="docutils literal notranslate"><span class="pre">Partitioning.Attributes</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#partitioning.Partitioning.Partitioning.partCEC"><code class="docutils literal notranslate"><span class="pre">Partitioning.partCEC()</span></code></a><ul>
+<li><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">Partitioning.Attributes</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#partitioning.Partitioning.Partitioning.partCECw"><code class="docutils literal notranslate"><span class="pre">Partitioning.partCECw()</span></code></a><ul>
+<li><a class="reference internal" href="#id1"><code class="docutils literal notranslate"><span class="pre">Partitioning.Attributes</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#partitioning.Partitioning.Partitioning.partFVS"><code class="docutils literal notranslate"><span class="pre">Partitioning.partFVS()</span></code></a><ul>
+<li><a class="reference internal" href="#id2"><code class="docutils literal notranslate"><span class="pre">Partitioning.Attributes</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#partitioning.Partitioning.Partitioning.partREA"><code class="docutils literal notranslate"><span class="pre">Partitioning.partREA()</span></code></a><ul>
+<li><a class="reference internal" href="#id3"><code class="docutils literal notranslate"><span class="pre">Partitioning.Attributes</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="index.html" title="previous chapter">Welcome to Partitioning’s documentation!</a></li>
-  </ul></li>
-</ul>
-</div>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="index.html"
+                          title="previous chapter">Welcome to Partitioning’s documentation!</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/modules.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -656,32 +706,13 @@ it is different from gross primary productivity.</p>
     </div>
 </search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
-
-
-
-
-
-
-
-
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &#169;2024, Einara Zahn.
-      
-      |
-      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
-      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
-      
-      |
-      <a href="_sources/modules.rst.txt"
-          rel="nofollow">Page source</a>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2024, Einara Zahn.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     </div>
-
-    
-
-    
   </body>
 </html>

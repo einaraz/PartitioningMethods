@@ -5,34 +5,36 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>partitioning.Partitioning &#8212; Partitioning 1.0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d1102ebc" />
-    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=12dfc556" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=3f05da46" />
-    <script src="../../_static/jquery.js?v=5d32c60e"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pd.css?v=b6646a53" />
     <script src="../../_static/documentation_options.js?v=292eb321"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-   
-  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
-  
-
-  
-  
+    <script type="text/javascript" src="../../_static/pd.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
   </head><body>
+    <div id="header">
+        <h1>Partitioning 1.0.1 documentation</h1>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+        <ul>
+            <li class="nav-item nav-item-0"><a href="../../index.html">Partitioning 1.0.1 documentation</a> &#187;
+            </li>
+                <li class="nav-item nav-item-1"><a href="../index.html"
+                        accesskey="U">Module code</a> &#187;</li>
+        </ul>
+    </div>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
-  <h1>Source code for partitioning.Partitioning</h1><div class="highlight"><pre>
+<h1>Source code for partitioning.Partitioning</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -77,14 +79,13 @@
 <span class="sd">    df : pandas.DataFrame</span>
 <span class="sd">        DataFrame with data (e.g., 30min intervals, but any length works), each variable in a column.</span>
 <span class="sd">        If raw data is used, pre-processing is first implemented following these steps:</span>
-<span class="sd">            - Quality control (removing outliers, despiking, flags of instruments, etc)</span>
-<span class="sd">            - Rotation of coordinates (double rotation) for velocity components u, v, w measured by CSAT</span>
-<span class="sd">            - Density corrections for instantaneous fluctuations of CO2 (c_p) and H2O (q_p) measured by open-gas analyser</span>
-<span class="sd">              (&quot;instantaneous&quot; WPL correction) based on the paper:</span>
-<span class="sd">                Detto, M. and Katul, G. G., 2007. &quot;Simplified expressions for adjusting higher-order turbulent statistics</span>
-<span class="sd">                obtained from open path gas analyzers&quot;. Boundary-Layer Meteorology, 10.1007/s10546-006-9105-1</span>
-<span class="sd">            - Turbulent fluctuations, here denoted as primed quantities (&quot;_p&quot;), are computed</span>
-<span class="sd">            - Air temperature (T) and virtual temperature (Tv) computed from the sonic temperature (Ts)</span>
+<span class="sd">           - Quality control (removing outliers, despiking, flags of instruments, etc)</span>
+<span class="sd">           - Rotation of coordinates (double rotation) for velocity components u, v, w measured by CSAT</span>
+<span class="sd">           - Density corrections for instantaneous fluctuations of CO2 (c_p) and H2O (q_p) measured by open-gas analyser</span>
+<span class="sd">             (&quot;instantaneous&quot; WPL correction) based on the paper: Detto, M. and Katul, G. G., 2007. &quot;Simplified expressions for adjusting higher-order</span>
+<span class="sd">              turbulent statistics obtained from open path gas analyzers&quot;. Boundary-Layer Meteorology, 10.1007/s10546-006-9105-1</span>
+<span class="sd">           - Turbulent fluctuations, here denoted as primed quantities (&quot;_p&quot;), are computed</span>
+<span class="sd">           - Air temperature (T) and virtual temperature (Tv) computed from the sonic temperature (Ts)</span>
 
 <span class="sd">        Raw data requires the following variables and units:</span>
 <span class="sd">            - index : datetime</span>
@@ -116,51 +117,47 @@
 <span class="sd">        Contains options to be used during pre-processing regarding fluctuation extraction and if density corrections are</span>
 <span class="sd">        necessary. All options have default values, but can be modified if needed.</span>
 
-<span class="sd">        Keys:</span>
-<span class="sd">            - density_correction : bool</span>
+<span class="sd">        Keys</span>
+<span class="sd">        -----</span>
+<span class="sd">            density_correction - bool</span>
 <span class="sd">                True if density corrections are necessary (open gas analyzer); False (closed or enclosed gas analyzer).</span>
-<span class="sd">            - fluctuations : str</span>
+<span class="sd">            fluctuations - str</span>
 <span class="sd">                Describes the type of operation used to extract fluctuations:</span>
 <span class="sd">                &#39;BA&#39;: block average</span>
 <span class="sd">                &#39;LD&#39;: Linear detrending</span>
 <span class="sd">                &#39;FL&#39;: Filter low frequencies. Requires filtercut to indicate the cutoff time in minutes.</span>
-<span class="sd">            - filtercut : int</span>
+<span class="sd">            filtercut - int</span>
 <span class="sd">                Cutoff time in minutes for the low-pass filter. Only used if method is &#39;FL&#39;.</span>
-<span class="sd">            - maxGapsInterpolate : int</span>
+<span class="sd">            maxGapsInterpolate - int</span>
 <span class="sd">                Number of consecutive gaps that will be interpolated.</span>
-<span class="sd">            - RemainingData : int</span>
-<span class="sd">                Percentage (0-100) of the time series that should remain after pre-processing. If less than this quantity,</span>
-<span class="sd">                partitioning is not implemented.</span>
-<span class="sd">            - steadyness : bool</span>
+<span class="sd">            RemainingData - int</span>
+<span class="sd">                Percentage (0-100) of the time series that should remain after pre-processing. If less than this quantity, partitioning is not implemented.</span>
+<span class="sd">            steadyness - bool</span>
 <span class="sd">                If True, Foken&#39;s stationarity test is implemented to check if the data is stationary. If False, the test is not</span>
 <span class="sd">                implemented. The test is only informative and does not remove data, which is left to the user&#39;s discretion.</span>
-<span class="sd">            - saveprocessed : bool</span>
+<span class="sd">            saveprocessed - bool</span>
 <span class="sd">                If True, the processed data is saved to a CSV file.</span>
-<span class="sd">            - time_lag_correction : bool</span>
+<span class="sd">            time_lag_correction - bool</span>
 <span class="sd">                If True, a time lag correction is applied to the CO2 and H2O time series relative to the W time series.</span>
-<span class="sd">            - max_lag_seconds : int</span>
+<span class="sd">            max_lag_seconds - int</span>
 <span class="sd">                Maximum time lag in seconds to consider for correlation. Defaults to 5 seconds.</span>
-<span class="sd">            - type_lag : str</span>
+<span class="sd">            type_lag - str</span>
 <span class="sd">                Specifies the type of lag to consider. Options are &#39;positive&#39;, &#39;negative&#39;, or &#39;both&#39;. Defaults to &#39;positive&#39;.</span>
 <span class="sd">                &#39;Positive&#39; means that CO2 and H2O lag behind W as expected in closed-path systems when the tube delays the signal.</span>
 
-<span class="sd">    Available Partitioning Methods</span>
-<span class="sd">    ------------------------------</span>
-<span class="sd">    - Conditional Eddy Covariance (CEC)</span>
-<span class="sd">    - Modified Relaxed Eddy Accumulation (MREA)</span>
-<span class="sd">    - Flux Variance Similarity (FVS)</span>
-<span class="sd">    - Conditional Eddy Accumulation (CEA)</span>
-<span class="sd">    - Conditional Eddy Covariance + WUE (CECw)</span>
 
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
+<span class="sd">    Notes: Available Partitioning Methods</span>
+<span class="sd">        - Conditional Eddy Covariance (CEC)</span>
+<span class="sd">        - Modified Relaxed Eddy Accumulation (MREA)</span>
+<span class="sd">        - Flux Variance Similarity (FVS)</span>
+<span class="sd">        - Conditional Eddy Accumulation (CEA)</span>
+<span class="sd">        - Conditional Eddy Covariance + WUE (CECw)</span>
+
 <span class="sd">    CEC, CEA, and MREA only need time series of w_p, co2_p, h2o_p. The remaining quantities (e.g., P, T, Tv, etc.) are only needed if the</span>
 <span class="sd">    water use efficiency (WUE) is computed for the FVS and CECw method. Alternatively, an external WUE can be used; in this case, FVS and CECw</span>
 <span class="sd">    will only need time series of w_p, h2o_p, co2_p.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Partitioning.__init__">
-<a class="viewcode-back" href="../../modules.html#partitioning.Partitioning.Partitioning.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hi</span><span class="p">,</span> <span class="n">zi</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">PreProcessing</span><span class="p">,</span> <span class="n">argsQC</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hi</span> <span class="o">=</span> <span class="n">hi</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">meter</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">zi</span> <span class="o">=</span> <span class="n">zi</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">meter</span>
@@ -228,8 +225,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_fillGaps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">argsQC</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;maxGapsInterpolate&quot;</span><span class="p">))</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">argsQC</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;steadyness&quot;</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_steadynessTest</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checkMissingdata</span><span class="p">(</span><span class="n">percData</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">argsQC</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;RemainingData&quot;</span><span class="p">),</span> <span class="n">dropna_</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checkMissingdata</span><span class="p">(</span><span class="n">percData</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">argsQC</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;RemainingData&quot;</span><span class="p">),</span> <span class="n">dropna_</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_checkUnits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if units of temperature, CO2, H2O and pressure are correct.&quot;&quot;&quot;</span>
@@ -712,28 +708,46 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        # Calculate turbulent statistics (scales, standard deviations, and correlations).</span>
 
-<span class="sd">        Attributes</span>
+<span class="sd">        Returns</span>
 <span class="sd">        ----------</span>
 <span class="sd">        self.turbstats : dict</span>
-<span class="sd">            Dictionary containing the following turbulent statistics:</span>
-<span class="sd">            - &#39;ustar&#39;: friction velocity [m/s]</span>
-<span class="sd">            - &#39;cstar&#39;: scale for CO2 [mg/m3]</span>
-<span class="sd">            - &#39;qstar&#39;: scale for H2O [g/m3]</span>
-<span class="sd">            - &#39;tstar&#39;: scale for temperature [K]</span>
-<span class="sd">            - &#39;zeta&#39;: Monin-Obukhov stability parameter</span>
-<span class="sd">            - &#39;std_t&#39;: standard deviation of temperature [K]</span>
-<span class="sd">            - &#39;std_q&#39;: standard deviation of H2O [g/m3]</span>
-<span class="sd">            - &#39;std_c&#39;: standard deviation of CO2 [mg/m3]</span>
-<span class="sd">            - &#39;std_w&#39;: standard deviation of w [m/s]</span>
-<span class="sd">            - &#39;std_u&#39;: standard deviation of u [m/s]</span>
-<span class="sd">            - &#39;std_v&#39;: standard deviation of v [m/s]</span>
-<span class="sd">            - &#39;rqc&#39;: correlation between H2O and CO2</span>
-<span class="sd">            - &#39;rqt&#39;: correlation between H2O and temperature</span>
-<span class="sd">            - &#39;rct&#39;: correlation between CO2 and temperature</span>
-<span class="sd">            - &#39;Fc&#39;: covariance between w and CO2 [mg/m2/s]</span>
-<span class="sd">            - &#39;LE&#39;: latent heat flux [W/m2]</span>
-<span class="sd">            - &#39;H&#39;: sensible heat flux [W/m2]</span>
 
+<span class="sd">            Keys:</span>
+<span class="sd">            -----</span>
+<span class="sd">                &#39;ustar&#39;: float</span>
+<span class="sd">                    friction velocity [m/s]</span>
+<span class="sd">                &#39;cstar&#39;: float</span>
+<span class="sd">                    scale for CO2 [mg/m3]</span>
+<span class="sd">                &#39;qstar&#39;: float</span>
+<span class="sd">                    scale for H2O [g/m3]</span>
+<span class="sd">                &#39;tstar&#39;: float</span>
+<span class="sd">                    scale for temperature [K]</span>
+<span class="sd">                &#39;zeta&#39;: float</span>
+<span class="sd">                    Monin-Obukhov stability parameter</span>
+<span class="sd">                &#39;std_t&#39;: float</span>
+<span class="sd">                    standard deviation of temperature [K]</span>
+<span class="sd">                &#39;std_q&#39;: float</span>
+<span class="sd">                    standard deviation of H2O [g/m3]</span>
+<span class="sd">                &#39;std_c&#39;: float</span>
+<span class="sd">                    standard deviation of CO2 [mg/m3]</span>
+<span class="sd">                &#39;std_w&#39;: float</span>
+<span class="sd">                    standard deviation of w [m/s]</span>
+<span class="sd">                &#39;std_u&#39;: float</span>
+<span class="sd">                    standard deviation of u [m/s]</span>
+<span class="sd">                &#39;std_v&#39;: float</span>
+<span class="sd">                    floatstandard deviation of v [m/s]</span>
+<span class="sd">                &#39;rqc&#39;: float</span>
+<span class="sd">                    correlation between H2O and CO2</span>
+<span class="sd">                &#39;rqt&#39;: float</span>
+<span class="sd">                    correlation between H2O and temperature</span>
+<span class="sd">                &#39;rct&#39;: float</span>
+<span class="sd">                    correlation between CO2 and temperature</span>
+<span class="sd">                &#39;Fc&#39;: float</span>
+<span class="sd">                    covariance between w and CO2 [mg/m2/s]</span>
+<span class="sd">                &#39;LE&#39;: float</span>
+<span class="sd">                    latent heat flux [W/m2]</span>
+<span class="sd">                &#39;H&#39;: float</span>
+<span class="sd">                    sensible heat flux [W/m2]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">aux</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[[</span><span class="s2">&quot;u_p&quot;</span><span class="p">,</span> <span class="s2">&quot;v_p&quot;</span><span class="p">,</span> <span class="s2">&quot;w_p&quot;</span><span class="p">,</span> <span class="s2">&quot;co2_p&quot;</span><span class="p">,</span> <span class="s2">&quot;h2o_p&quot;</span><span class="p">,</span> <span class="s2">&quot;Ts_p&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">matrixCov</span> <span class="o">=</span> <span class="n">aux</span><span class="o">.</span><span class="n">cov</span><span class="p">()</span>  <span class="c1"># Covariance matrix</span>
@@ -819,57 +833,71 @@
 <span class="sd">        ppath : str</span>
 <span class="sd">            Type of photosynthesis (&#39;C3&#39; or &#39;C4&#39;).</span>
 
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        Computes the water use efficiency (eq A1 in Scanlon and Sahu, 2008):</span>
-<span class="sd">            wue = 0.65 * (c_c - c_s) / (q_c - q_s)</span>
+<span class="sd">        Models</span>
 
-<span class="sd">        c_c (kg/m3) and q_c (kg/m3) are near canopy concentrations of CO2 and H2O:</span>
-<span class="sd">            - Estimated from log profiles (eq A2a in Scanlon and Sahu, 2008).</span>
-<span class="sd">        c_s (kg/m3) and q_s (kg/m3) are stomata concentrations of CO2 and H2O:</span>
-<span class="sd">            - q_s is assumed to be at saturation.</span>
-<span class="sd">            - c_s is parameterized from different models (Skaggs et al., 2018; Scanlon et al., 2019).</span>
+<span class="sd">            Computes the water use efficiency (eq A1 in Scanlon and Sahu, 2008):</span>
+<span class="sd">                - wue = 0.65 * (c_c - c_s) / (q_c - q_s)</span>
+<span class="sd">                - c_c (kg/m3) and q_c (kg/m3) are near canopy concentrations of CO2 and H2O</span>
+<span class="sd">                    - Estimated from log profiles (eq A2a in Scanlon and Sahu, 2008).</span>
+<span class="sd">                - c_s (kg/m3) and q_s (kg/m3) are stomata concentrations of CO2 and H2O</span>
+<span class="sd">                    - q_s is assumed to be at saturation.</span>
+<span class="sd">                    - c_s is parameterized from different models (Skaggs et al., 2018; Scanlon et al., 2019).</span>
 
-<span class="sd">        The following models for c_s are implemented:</span>
+<span class="sd">            The following models for c_s are implemented</span>
 
-<span class="sd">        const_ppm:</span>
-<span class="sd">            - Concentrations in kg/m3 are computed from a constant value in ppm.</span>
-<span class="sd">            - Values from Campbell and Norman, 1998, p. 150.</span>
-<span class="sd">              Campbell, G. S. and Norman, J. M. (1998). An Introduction to Environmental Biophysics. Springer, New York, NY.</span>
-<span class="sd">            - c_s = 280 ppm (C3 plants).</span>
-<span class="sd">            - c_s = 130 ppm (C4 plants).</span>
+<span class="sd">            const_ppm:</span>
+<span class="sd">                - Concentrations in kg/m3 are computed from a constant value in ppm.</span>
+<span class="sd">                - Values from Campbell and Norman, 1998, p. 150.</span>
+<span class="sd">                  Campbell, G. S. and Norman, J. M. (1998). An Introduction to Environmental Biophysics. Springer, New York, NY.</span>
+<span class="sd">                - c_s = 280 ppm (C3 plants).</span>
+<span class="sd">                - c_s = 130 ppm (C4 plants).</span>
 
-<span class="sd">        const_ratio:</span>
-<span class="sd">            - The ratio of near canopy and stomata CO2 concentrations is assumed constant (c_s/c_c = constant).</span>
-<span class="sd">            - Constants from Sinclair, T. R., Tanner, C. B., and Bennett, J. M. (1984).</span>
-<span class="sd">              Water-use efficiency in crop production. BioScience, 34(1):36–40.</span>
-<span class="sd">            - c_s/c_c = 0.70 for C3 plants.</span>
-<span class="sd">            - c_s/c_c = 0.44 for C4 plants.</span>
+<span class="sd">            const_ratio:</span>
+<span class="sd">                - The ratio of near canopy and stomata CO2 concentrations is assumed constant (c_s/c_c = constant).</span>
+<span class="sd">                - Constants from Sinclair, T. R., Tanner, C. B., and Bennett, J. M. (1984).</span>
+<span class="sd">                  Water-use efficiency in crop production. BioScience, 34(1):36–40.</span>
+<span class="sd">                - c_s/c_c = 0.70 for C3 plants.</span>
+<span class="sd">                - c_s/c_c = 0.44 for C4 plants.</span>
 
-<span class="sd">        linear:</span>
-<span class="sd">            - The ratio of near canopy and stomata CO2 concentrations is a linear function of VPD.</span>
-<span class="sd">            - Based on the results of Morison, J. I. L. and Gifford, R. M. (1983).</span>
-<span class="sd">              Stomatal sensitivity to carbon dioxide and humidity. Plant Physiology, 71(4):789–796.</span>
-<span class="sd">              Estimated constants from Skaggs et al (2018).</span>
-<span class="sd">            - c_s/c_c = a - b * D</span>
-<span class="sd">            - a, b = 1, 1.6*10-4 Pa-1 for C3 plants.</span>
-<span class="sd">            - a, b = 1, 2.7*10-4 Pa-1 for C4 plants.</span>
-<span class="sd">            - D (Pa) is vapor pressure deficit based on leaf-temperature.</span>
+<span class="sd">            linear:</span>
+<span class="sd">                - The ratio of near canopy and stomata CO2 concentrations is a linear function of VPD.</span>
+<span class="sd">                - Based on the results of Morison, J. I. L. and Gifford, R. M. (1983).</span>
+<span class="sd">                  Stomatal sensitivity to carbon dioxide and humidity. Plant Physiology, 71(4):789–796.</span>
+<span class="sd">                  Estimated constants from Skaggs et al (2018).</span>
+<span class="sd">                - c_s/c_c = a - b * D</span>
+<span class="sd">                - a, b = 1, 1.6*10-4 Pa-1 for C3 plants.</span>
+<span class="sd">                - a, b = 1, 2.7*10-4 Pa-1 for C4 plants.</span>
+<span class="sd">                - D (Pa) is vapor pressure deficit based on leaf-temperature.</span>
 
-<span class="sd">        sqrt:</span>
-<span class="sd">            - The ratio of near canopy and stomata CO2 concentrations is proportional</span>
-<span class="sd">              to the 1/2 power of VPD.</span>
-<span class="sd">            - Model by Katul, G. G., Palmroth, S., and Oren, R. (2009).</span>
-<span class="sd">              Leaf stomatal responses to vapour pressure deficit under current and CO2-enriched atmosphere</span>
-<span class="sd">              explained by the economics of gas exchange. Plant, Cell &amp; Environment, 32(8):968–979.</span>
-<span class="sd">            - c_s/c_c = 1 - sqrt(1.6 * lambda * D / c_c)</span>
-<span class="sd">            - lambda = 22e-9 kg-CO2 / m^3 / Pa for C3 plants (from Skaggs et al., 2018).</span>
-<span class="sd">            - Not available for C4 plants.</span>
+<span class="sd">            sqrt:</span>
+<span class="sd">                - The ratio of near canopy and stomata CO2 concentrations is proportional</span>
+<span class="sd">                  to the 1/2 power of VPD.</span>
+<span class="sd">                - Model by Katul, G. G., Palmroth, S., and Oren, R. (2009).</span>
+<span class="sd">                  Leaf stomatal responses to vapour pressure deficit under current and CO2-enriched atmosphere</span>
+<span class="sd">                  explained by the economics of gas exchange. Plant, Cell &amp; Environment, 32(8):968–979.</span>
+<span class="sd">                - c_s/c_c = 1 - sqrt(1.6 * lambda * D / c_c)</span>
+<span class="sd">                - lambda = 22e-9 kg-CO2 / m^3 / Pa for C3 plants (from Skaggs et al., 2018).</span>
+<span class="sd">                - Not available for C4 plants.</span>
 
-<span class="sd">        opt:</span>
-<span class="sd">            - Optimization model proposed by Scanlon et al (2019).</span>
-<span class="sd">            - Does not need extra parameters.</span>
-<span class="sd">            - Only available for C3 plants.</span>
+<span class="sd">            opt:</span>
+<span class="sd">                - Optimization model proposed by Scanlon et al (2019).</span>
+<span class="sd">                - Does not need extra parameters.</span>
+<span class="sd">                - Only available for C3 plants.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        self.wue : dict</span>
+<span class="sd">            Dictionary containing the water use efficiency from different methods:</span>
+<span class="sd">            - &#39;const_ppm&#39;: float</span>
+<span class="sd">                WUE from constant ppm [kg_co2/kg_h2o].</span>
+<span class="sd">            - &#39;const_ratio&#39;: float</span>
+<span class="sd">                WUE from constant ratio [kg_co2/kg_h2o].</span>
+<span class="sd">            - &#39;linear&#39;: float</span>
+<span class="sd">                WUE from linear model [kg_co2/kg_h2o].</span>
+<span class="sd">            - &#39;sqrt&#39;: float</span>
+<span class="sd">                WUE from sqrt model [kg_co2/kg_h2o].</span>
+<span class="sd">            - &#39;opt&#39;: float</span>
+<span class="sd">                WUE from optimization model [kg_co2/kg_h2o].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Create a copy of the dataframe with variables that will be needed</span>
@@ -1051,27 +1079,24 @@
 <span class="sd">        H : float, optional</span>
 <span class="sd">            Hyperbolic threshold, by default 0.0.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        dict</span>
-<span class="sd">            Dictionary with the following flux components:</span>
-<span class="sd">            - ET : float</span>
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Attributes: self.fluxesCEC</span>
+<span class="sd">            Contains all the flux components and status of the calculation.</span>
+
+<span class="sd">            - ET - float</span>
 <span class="sd">                Total evapotranspiration (W/m2).</span>
-<span class="sd">            - T : float</span>
+<span class="sd">            - T - float</span>
 <span class="sd">                Plant transpiration (W/m2).</span>
-<span class="sd">            - E : float</span>
+<span class="sd">            - Ecec - float</span>
 <span class="sd">                Soil/surface evaporation (W/m2).</span>
-<span class="sd">            - Fc : float</span>
+<span class="sd">            - Fc - float</span>
 <span class="sd">                Carbon dioxide flux (mg/m2/s).</span>
-<span class="sd">            - R : float</span>
+<span class="sd">            - Rcec - float</span>
 <span class="sd">                Soil/surface respiration (mg/m2/s).</span>
-<span class="sd">            - P : float</span>
+<span class="sd">            - Pcec - float</span>
 <span class="sd">                Plant net photosynthesis* (mg/m2/s).</span>
-<span class="sd">            - rRP : float</span>
-<span class="sd">                Ratio of respiration to photosynthesis.</span>
-<span class="sd">            - rET : float</span>
-<span class="sd">                Ratio of evaporation to transpiration.</span>
-<span class="sd">            - status : str</span>
+<span class="sd">            - statuscec - str</span>
 <span class="sd">                Status of the calculation.</span>
 
 <span class="sd">        Notes</span>
@@ -1221,23 +1246,24 @@
 <span class="sd">        H : float, optional</span>
 <span class="sd">            Hyperbolic threshold, by default 0.0.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        dict</span>
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Attributes: self.fluxesREA</span>
 <span class="sd">            Dictionary with the following flux components:</span>
-<span class="sd">            - ET : float</span>
+
+<span class="sd">            - ET - float</span>
 <span class="sd">                Total evapotranspiration (W/m2).</span>
-<span class="sd">            - T : float</span>
+<span class="sd">            - Tmrea - float</span>
 <span class="sd">                Plant transpiration (W/m2).</span>
-<span class="sd">            - E : float</span>
+<span class="sd">            - Emrea - float</span>
 <span class="sd">                Soil/surface evaporation (W/m2).</span>
-<span class="sd">            - Fc : float</span>
+<span class="sd">            - Fc - float</span>
 <span class="sd">                Net carbon dioxide flux (mg/m2/s).</span>
-<span class="sd">            - R : float</span>
+<span class="sd">            - Rmrea - float</span>
 <span class="sd">                Soil/surface respiration (mg/m2/s).</span>
-<span class="sd">            - P : float</span>
+<span class="sd">            - Pmrea - float</span>
 <span class="sd">                Plant net photosynthesis* (mg/m2/s).</span>
-<span class="sd">            - status : str</span>
+<span class="sd">            - statusmrea - str</span>
 <span class="sd">                Status of the calculation.</span>
 
 <span class="sd">        Notes</span>
@@ -1372,23 +1398,24 @@
 <span class="sd">        W : float, optional [kg_co2/kg_h2o]</span>
 <span class="sd">            Water use efficiency, by default 0.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        dict</span>
-<span class="sd">            Dictionary with the following flux components:</span>
-<span class="sd">            - ET : float</span>
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Attributes: self.fluxesFVS</span>
+<span class="sd">            Contains all the flux components and status of the calculation.</span>
+
+<span class="sd">            - ET - float</span>
 <span class="sd">                Total evapotranspiration (W/m2).</span>
-<span class="sd">            - T : float</span>
+<span class="sd">            - Tfvs - float</span>
 <span class="sd">                Plant transpiration (W/m2).</span>
-<span class="sd">            - E : float</span>
+<span class="sd">            - Efvs - float</span>
 <span class="sd">                Soil/surface evaporation (W/m2).</span>
-<span class="sd">            - Fc : float</span>
+<span class="sd">            - Fc - float</span>
 <span class="sd">                Net carbon dioxide flux (mg/m2/s).</span>
-<span class="sd">            - R : float</span>
+<span class="sd">            - Rfvs - float</span>
 <span class="sd">                Soil/surface respiration (mg/m2/s).</span>
-<span class="sd">            - P : float</span>
+<span class="sd">            - Pfvs - float</span>
 <span class="sd">                Plant net photosynthesis* (mg/m2/s).</span>
-<span class="sd">            - status : str</span>
+<span class="sd">            - status - str</span>
 <span class="sd">                Status of the calculation.</span>
 
 <span class="sd">        Notes</span>
@@ -1602,27 +1629,24 @@
 <span class="sd">        H : float, optional</span>
 <span class="sd">            Hyperbolic threshold, by default 0.0.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        dict</span>
-<span class="sd">            Dictionary with the following flux components:</span>
-<span class="sd">            - ET : float</span>
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Attributes: self.fluxesCEA</span>
+<span class="sd">            Contains all the flux components and status of the calculation.</span>
+
+<span class="sd">            - ET - float</span>
 <span class="sd">                Total evapotranspiration (W/m2).</span>
-<span class="sd">            - T : float</span>
+<span class="sd">            - Tcea - float</span>
 <span class="sd">                Plant transpiration (W/m2).</span>
-<span class="sd">            - E : float</span>
+<span class="sd">            - Ecea - float</span>
 <span class="sd">                Soil/surface evaporation (W/m2).</span>
-<span class="sd">            - Fc : float</span>
+<span class="sd">            - Fc - float</span>
 <span class="sd">                Carbon dioxide flux (mg/m2/s).</span>
-<span class="sd">            - R : float</span>
+<span class="sd">            - Rcea - float</span>
 <span class="sd">                Soil/surface respiration (mg/m2/s).</span>
-<span class="sd">            - P : float</span>
+<span class="sd">            - Pcea - float</span>
 <span class="sd">                Plant net photosynthesis* (mg/m2/s).</span>
-<span class="sd">            - rRP : float</span>
-<span class="sd">                Ratio of respiration to photosynthesis.</span>
-<span class="sd">            - rET : float</span>
-<span class="sd">                Ratio of evaporation to transpiration.</span>
-<span class="sd">            - status : str</span>
+<span class="sd">            - statuscea - str</span>
 <span class="sd">                Status of the calculation.</span>
 
 <span class="sd">        Notes</span>
@@ -1764,23 +1788,25 @@
 <span class="sd">        W : float, optional</span>
 <span class="sd">            Water use efficiency, by default 0.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        dict</span>
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Attributes: self.fluxesCECw</span>
+<span class="sd">            Contains all the flux components and status of the calculation.</span>
+
 <span class="sd">            Dictionary with the following flux components:</span>
-<span class="sd">            - ET : float</span>
+<span class="sd">            - ET - float</span>
 <span class="sd">                Total evapotranspiration (W/m2).</span>
-<span class="sd">            - T : float</span>
+<span class="sd">            - Tcecw - float</span>
 <span class="sd">                Plant transpiration (W/m2).</span>
-<span class="sd">            - E : float</span>
+<span class="sd">            - Ececw - float</span>
 <span class="sd">                Soil/surface evaporation (W/m2).</span>
-<span class="sd">            - Fc : float</span>
+<span class="sd">            - Fc - float</span>
 <span class="sd">                Net carbon dioxide flux (mg/m2/s).</span>
-<span class="sd">            - R : float</span>
+<span class="sd">            - Rcecw - float</span>
 <span class="sd">                Soil/surface respiration (mg/m2/s).</span>
-<span class="sd">            - P : float</span>
+<span class="sd">            - Pcecw - float</span>
 <span class="sd">                Plant net photosynthesis* (mg/m2/s).</span>
-<span class="sd">            - status : str</span>
+<span class="sd">            - statuscecw - str</span>
 <span class="sd">                Status of the calculation.</span>
 
 <span class="sd">        Notes</span>
@@ -1909,36 +1935,12 @@
 
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../../index.html">Partitioning</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Partitioning</a></li>
-</ul>
-
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="../../index.html">Documentation overview</a><ul>
-  <li><a href="../index.html">Module code</a><ul>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
 <search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -1949,29 +1951,13 @@
     </div>
 </search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
-
-
-
-
-
-
-
-
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &#169;2024, Einara Zahn.
-      
-      |
-      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
-      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
-      
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2024, Einara Zahn.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     </div>
-
-    
-
-    
   </body>
 </html>
