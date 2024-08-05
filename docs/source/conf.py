@@ -12,6 +12,7 @@
 #
 import os
 import sys
+import sphinx_theme_pd
 
 sys.path.insert(0, os.path.abspath("../../src"))
 
@@ -35,31 +36,51 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",  # For Google style and NumPy style docstrings
     "sphinx.ext.viewcode",  # Optional, for viewing source code
-    "sphinx_rtd_theme",  # If you are using the Read the Docs theme
+    # "sphinx_rtd_theme",  # If you are using the Read the Docs theme
 ]
 
 todo_include_todos = True
 
-html_theme = "sphinx_rtd_theme"
+# html_theme = 'sphinx_pdj_theme'
+# html_theme_path = [sphinx_pdj_theme.get_html_theme_path()]
 
-html_static_path = ["_static"]
-html_css_files = [
-    "css/custom.css",
-]
-html_theme_options = {
-    "collapse_navigation": False,
-    "sticky_navigation": True,
-    "navigation_depth": 4,
-    "includehidden": True,
-    "titles_only": False,
-}
+html_theme = "sphinx_theme_pd"
+html_theme_path = [sphinx_theme_pd.get_html_theme_path()]
+
+# import sphinx_pdj_theme
+# html_theme = 'sphinx_pdj_theme'
+# html_theme_path = [sphinx_pdj_theme.get_html_theme_path()]
+
+# html_static_path = ["_static"]
+# html_css_files = [
+#    "css/custom.css",
+# ]
+# html_theme_options = {
+#    "collapse_navigation": False,
+#    "sticky_navigation": True,
+#    "navigation_depth": 4,
+#    "includehidden": True,
+#    "titles_only": False,
+# }
 
 autodoc_default_options = {
     "members": True,
-    "special-members": "__init__",
+    "special-members": "__call__",
     "inherited-members": True,
     "show-inheritance": True,
+    "exclude-members": "__init__",
 }
+
+# autodoc_default_options = {
+#    'members': True,
+#    'undoc-members': True,
+#    'special-members': '__call__',
+#    'private-members': True,
+#    'inherited-members': True,
+#    'show-inheritance': True,
+#    'ignore-module-all': True,
+#    'exclude-members': '__init__'
+# }
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.6", None),
@@ -81,7 +102,7 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "alabaster"
+# html_theme = "alabaster"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

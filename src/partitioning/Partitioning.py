@@ -40,14 +40,13 @@ class Partitioning(object):
     df : pandas.DataFrame
         DataFrame with data (e.g., 30min intervals, but any length works), each variable in a column.
         If raw data is used, pre-processing is first implemented following these steps:
-            - Quality control (removing outliers, despiking, flags of instruments, etc)
-            - Rotation of coordinates (double rotation) for velocity components u, v, w measured by CSAT
-            - Density corrections for instantaneous fluctuations of CO2 (c_p) and H2O (q_p) measured by open-gas analyser
-              ("instantaneous" WPL correction) based on the paper:
-                Detto, M. and Katul, G. G., 2007. "Simplified expressions for adjusting higher-order turbulent statistics
-                obtained from open path gas analyzers". Boundary-Layer Meteorology, 10.1007/s10546-006-9105-1
-            - Turbulent fluctuations, here denoted as primed quantities ("_p"), are computed
-            - Air temperature (T) and virtual temperature (Tv) computed from the sonic temperature (Ts)
+           - Quality control (removing outliers, despiking, flags of instruments, etc)
+           - Rotation of coordinates (double rotation) for velocity components u, v, w measured by CSAT
+           - Density corrections for instantaneous fluctuations of CO2 (c_p) and H2O (q_p) measured by open-gas analyser
+             ("instantaneous" WPL correction) based on the paper: Detto, M. and Katul, G. G., 2007. "Simplified expressions for adjusting higher-order
+              turbulent statistics obtained from open path gas analyzers". Boundary-Layer Meteorology, 10.1007/s10546-006-9105-1
+           - Turbulent fluctuations, here denoted as primed quantities ("_p"), are computed
+           - Air temperature (T) and virtual temperature (Tv) computed from the sonic temperature (Ts)
 
         Raw data requires the following variables and units:
             - index : datetime
@@ -79,44 +78,42 @@ class Partitioning(object):
         Contains options to be used during pre-processing regarding fluctuation extraction and if density corrections are
         necessary. All options have default values, but can be modified if needed.
 
-        Keys:
-            - density_correction : bool
+        Keys
+        -----
+            density_correction - bool
                 True if density corrections are necessary (open gas analyzer); False (closed or enclosed gas analyzer).
-            - fluctuations : str
+            fluctuations - str
                 Describes the type of operation used to extract fluctuations:
                 'BA': block average
                 'LD': Linear detrending
                 'FL': Filter low frequencies. Requires filtercut to indicate the cutoff time in minutes.
-            - filtercut : int
+            filtercut - int
                 Cutoff time in minutes for the low-pass filter. Only used if method is 'FL'.
-            - maxGapsInterpolate : int
+            maxGapsInterpolate - int
                 Number of consecutive gaps that will be interpolated.
-            - RemainingData : int
-                Percentage (0-100) of the time series that should remain after pre-processing. If less than this quantity,
-                partitioning is not implemented.
-            - steadyness : bool
+            RemainingData - int
+                Percentage (0-100) of the time series that should remain after pre-processing. If less than this quantity, partitioning is not implemented.
+            steadyness - bool
                 If True, Foken's stationarity test is implemented to check if the data is stationary. If False, the test is not
                 implemented. The test is only informative and does not remove data, which is left to the user's discretion.
-            - saveprocessed : bool
+            saveprocessed - bool
                 If True, the processed data is saved to a CSV file.
-            - time_lag_correction : bool
+            time_lag_correction - bool
                 If True, a time lag correction is applied to the CO2 and H2O time series relative to the W time series.
-            - max_lag_seconds : int
+            max_lag_seconds - int
                 Maximum time lag in seconds to consider for correlation. Defaults to 5 seconds.
-            - type_lag : str
+            type_lag - str
                 Specifies the type of lag to consider. Options are 'positive', 'negative', or 'both'. Defaults to 'positive'.
                 'Positive' means that CO2 and H2O lag behind W as expected in closed-path systems when the tube delays the signal.
 
-    Available Partitioning Methods
-    ------------------------------
-    - Conditional Eddy Covariance (CEC)
-    - Modified Relaxed Eddy Accumulation (MREA)
-    - Flux Variance Similarity (FVS)
-    - Conditional Eddy Accumulation (CEA)
-    - Conditional Eddy Covariance + WUE (CECw)
 
-    Notes
-    -----
+    Notes: Available Partitioning Methods
+        - Conditional Eddy Covariance (CEC)
+        - Modified Relaxed Eddy Accumulation (MREA)
+        - Flux Variance Similarity (FVS)
+        - Conditional Eddy Accumulation (CEA)
+        - Conditional Eddy Covariance + WUE (CECw)
+
     CEC, CEA, and MREA only need time series of w_p, co2_p, h2o_p. The remaining quantities (e.g., P, T, Tv, etc.) are only needed if the
     water use efficiency (WUE) is computed for the FVS and CECw method. Alternatively, an external WUE can be used; in this case, FVS and CECw
     will only need time series of w_p, h2o_p, co2_p.
@@ -670,28 +667,46 @@ class Partitioning(object):
         """
         # Calculate turbulent statistics (scales, standard deviations, and correlations).
 
-        Attributes
+        Returns
         ----------
         self.turbstats : dict
-            Dictionary containing the following turbulent statistics:
-            - 'ustar': friction velocity [m/s]
-            - 'cstar': scale for CO2 [mg/m3]
-            - 'qstar': scale for H2O [g/m3]
-            - 'tstar': scale for temperature [K]
-            - 'zeta': Monin-Obukhov stability parameter
-            - 'std_t': standard deviation of temperature [K]
-            - 'std_q': standard deviation of H2O [g/m3]
-            - 'std_c': standard deviation of CO2 [mg/m3]
-            - 'std_w': standard deviation of w [m/s]
-            - 'std_u': standard deviation of u [m/s]
-            - 'std_v': standard deviation of v [m/s]
-            - 'rqc': correlation between H2O and CO2
-            - 'rqt': correlation between H2O and temperature
-            - 'rct': correlation between CO2 and temperature
-            - 'Fc': covariance between w and CO2 [mg/m2/s]
-            - 'LE': latent heat flux [W/m2]
-            - 'H': sensible heat flux [W/m2]
 
+            Keys:
+            -----
+                'ustar': float
+                    friction velocity [m/s]
+                'cstar': float
+                    scale for CO2 [mg/m3]
+                'qstar': float
+                    scale for H2O [g/m3]
+                'tstar': float
+                    scale for temperature [K]
+                'zeta': float
+                    Monin-Obukhov stability parameter
+                'std_t': float
+                    standard deviation of temperature [K]
+                'std_q': float
+                    standard deviation of H2O [g/m3]
+                'std_c': float
+                    standard deviation of CO2 [mg/m3]
+                'std_w': float
+                    standard deviation of w [m/s]
+                'std_u': float
+                    standard deviation of u [m/s]
+                'std_v': float
+                    floatstandard deviation of v [m/s]
+                'rqc': float
+                    correlation between H2O and CO2
+                'rqt': float
+                    correlation between H2O and temperature
+                'rct': float
+                    correlation between CO2 and temperature
+                'Fc': float
+                    covariance between w and CO2 [mg/m2/s]
+                'LE': float
+                    latent heat flux [W/m2]
+                'H': float
+                    sensible heat flux [W/m2]
         """
         aux = self.data[["u_p", "v_p", "w_p", "co2_p", "h2o_p", "Ts_p"]].copy()
         matrixCov = aux.cov()  # Covariance matrix
@@ -774,57 +789,71 @@ class Partitioning(object):
         ppath : str
             Type of photosynthesis ('C3' or 'C4').
 
-        Notes
-        -----
-        Computes the water use efficiency (eq A1 in Scanlon and Sahu, 2008):
-            wue = 0.65 * (c_c - c_s) / (q_c - q_s)
+        Models
 
-        c_c (kg/m3) and q_c (kg/m3) are near canopy concentrations of CO2 and H2O:
-            - Estimated from log profiles (eq A2a in Scanlon and Sahu, 2008).
-        c_s (kg/m3) and q_s (kg/m3) are stomata concentrations of CO2 and H2O:
-            - q_s is assumed to be at saturation.
-            - c_s is parameterized from different models (Skaggs et al., 2018; Scanlon et al., 2019).
+            Computes the water use efficiency (eq A1 in Scanlon and Sahu, 2008):
+                - wue = 0.65 * (c_c - c_s) / (q_c - q_s)
+                - c_c (kg/m3) and q_c (kg/m3) are near canopy concentrations of CO2 and H2O
+                    - Estimated from log profiles (eq A2a in Scanlon and Sahu, 2008).
+                - c_s (kg/m3) and q_s (kg/m3) are stomata concentrations of CO2 and H2O
+                    - q_s is assumed to be at saturation.
+                    - c_s is parameterized from different models (Skaggs et al., 2018; Scanlon et al., 2019).
 
-        The following models for c_s are implemented:
+            The following models for c_s are implemented
 
-        const_ppm:
-            - Concentrations in kg/m3 are computed from a constant value in ppm.
-            - Values from Campbell and Norman, 1998, p. 150.
-              Campbell, G. S. and Norman, J. M. (1998). An Introduction to Environmental Biophysics. Springer, New York, NY.
-            - c_s = 280 ppm (C3 plants).
-            - c_s = 130 ppm (C4 plants).
+            const_ppm:
+                - Concentrations in kg/m3 are computed from a constant value in ppm.
+                - Values from Campbell and Norman, 1998, p. 150.
+                  Campbell, G. S. and Norman, J. M. (1998). An Introduction to Environmental Biophysics. Springer, New York, NY.
+                - c_s = 280 ppm (C3 plants).
+                - c_s = 130 ppm (C4 plants).
 
-        const_ratio:
-            - The ratio of near canopy and stomata CO2 concentrations is assumed constant (c_s/c_c = constant).
-            - Constants from Sinclair, T. R., Tanner, C. B., and Bennett, J. M. (1984).
-              Water-use efficiency in crop production. BioScience, 34(1):36–40.
-            - c_s/c_c = 0.70 for C3 plants.
-            - c_s/c_c = 0.44 for C4 plants.
+            const_ratio:
+                - The ratio of near canopy and stomata CO2 concentrations is assumed constant (c_s/c_c = constant).
+                - Constants from Sinclair, T. R., Tanner, C. B., and Bennett, J. M. (1984).
+                  Water-use efficiency in crop production. BioScience, 34(1):36–40.
+                - c_s/c_c = 0.70 for C3 plants.
+                - c_s/c_c = 0.44 for C4 plants.
 
-        linear:
-            - The ratio of near canopy and stomata CO2 concentrations is a linear function of VPD.
-            - Based on the results of Morison, J. I. L. and Gifford, R. M. (1983).
-              Stomatal sensitivity to carbon dioxide and humidity. Plant Physiology, 71(4):789–796.
-              Estimated constants from Skaggs et al (2018).
-            - c_s/c_c = a - b * D
-            - a, b = 1, 1.6*10-4 Pa-1 for C3 plants.
-            - a, b = 1, 2.7*10-4 Pa-1 for C4 plants.
-            - D (Pa) is vapor pressure deficit based on leaf-temperature.
+            linear:
+                - The ratio of near canopy and stomata CO2 concentrations is a linear function of VPD.
+                - Based on the results of Morison, J. I. L. and Gifford, R. M. (1983).
+                  Stomatal sensitivity to carbon dioxide and humidity. Plant Physiology, 71(4):789–796.
+                  Estimated constants from Skaggs et al (2018).
+                - c_s/c_c = a - b * D
+                - a, b = 1, 1.6*10-4 Pa-1 for C3 plants.
+                - a, b = 1, 2.7*10-4 Pa-1 for C4 plants.
+                - D (Pa) is vapor pressure deficit based on leaf-temperature.
 
-        sqrt:
-            - The ratio of near canopy and stomata CO2 concentrations is proportional
-              to the 1/2 power of VPD.
-            - Model by Katul, G. G., Palmroth, S., and Oren, R. (2009).
-              Leaf stomatal responses to vapour pressure deficit under current and CO2-enriched atmosphere
-              explained by the economics of gas exchange. Plant, Cell & Environment, 32(8):968–979.
-            - c_s/c_c = 1 - sqrt(1.6 * lambda * D / c_c)
-            - lambda = 22e-9 kg-CO2 / m^3 / Pa for C3 plants (from Skaggs et al., 2018).
-            - Not available for C4 plants.
+            sqrt:
+                - The ratio of near canopy and stomata CO2 concentrations is proportional
+                  to the 1/2 power of VPD.
+                - Model by Katul, G. G., Palmroth, S., and Oren, R. (2009).
+                  Leaf stomatal responses to vapour pressure deficit under current and CO2-enriched atmosphere
+                  explained by the economics of gas exchange. Plant, Cell & Environment, 32(8):968–979.
+                - c_s/c_c = 1 - sqrt(1.6 * lambda * D / c_c)
+                - lambda = 22e-9 kg-CO2 / m^3 / Pa for C3 plants (from Skaggs et al., 2018).
+                - Not available for C4 plants.
 
-        opt:
-            - Optimization model proposed by Scanlon et al (2019).
-            - Does not need extra parameters.
-            - Only available for C3 plants.
+            opt:
+                - Optimization model proposed by Scanlon et al (2019).
+                - Does not need extra parameters.
+                - Only available for C3 plants.
+
+        Returns
+        ----------
+        self.wue : dict
+            Dictionary containing the water use efficiency from different methods:
+            - 'const_ppm': float
+                WUE from constant ppm [kg_co2/kg_h2o].
+            - 'const_ratio': float
+                WUE from constant ratio [kg_co2/kg_h2o].
+            - 'linear': float
+                WUE from linear model [kg_co2/kg_h2o].
+            - 'sqrt': float
+                WUE from sqrt model [kg_co2/kg_h2o].
+            - 'opt': float
+                WUE from optimization model [kg_co2/kg_h2o].
         """
 
         # Create a copy of the dataframe with variables that will be needed
@@ -1003,27 +1032,24 @@ class Partitioning(object):
         H : float, optional
             Hyperbolic threshold, by default 0.0.
 
-        Returns
-        -------
-        dict
-            Dictionary with the following flux components:
-            - ET : float
+        Attributes
+        ----------
+        Attributes: self.fluxesCEC
+            Contains all the flux components and status of the calculation.
+
+            - ET - float
                 Total evapotranspiration (W/m2).
-            - T : float
+            - T - float
                 Plant transpiration (W/m2).
-            - E : float
+            - Ecec - float
                 Soil/surface evaporation (W/m2).
-            - Fc : float
+            - Fc - float
                 Carbon dioxide flux (mg/m2/s).
-            - R : float
+            - Rcec - float
                 Soil/surface respiration (mg/m2/s).
-            - P : float
+            - Pcec - float
                 Plant net photosynthesis* (mg/m2/s).
-            - rRP : float
-                Ratio of respiration to photosynthesis.
-            - rET : float
-                Ratio of evaporation to transpiration.
-            - status : str
+            - statuscec - str
                 Status of the calculation.
 
         Notes
@@ -1170,23 +1196,24 @@ class Partitioning(object):
         H : float, optional
             Hyperbolic threshold, by default 0.0.
 
-        Returns
-        -------
-        dict
+        Attributes
+        ----------
+        Attributes: self.fluxesREA
             Dictionary with the following flux components:
-            - ET : float
+
+            - ET - float
                 Total evapotranspiration (W/m2).
-            - T : float
+            - Tmrea - float
                 Plant transpiration (W/m2).
-            - E : float
+            - Emrea - float
                 Soil/surface evaporation (W/m2).
-            - Fc : float
+            - Fc - float
                 Net carbon dioxide flux (mg/m2/s).
-            - R : float
+            - Rmrea - float
                 Soil/surface respiration (mg/m2/s).
-            - P : float
+            - Pmrea - float
                 Plant net photosynthesis* (mg/m2/s).
-            - status : str
+            - statusmrea - str
                 Status of the calculation.
 
         Notes
@@ -1318,23 +1345,24 @@ class Partitioning(object):
         W : float, optional [kg_co2/kg_h2o]
             Water use efficiency, by default 0.
 
-        Returns
-        -------
-        dict
-            Dictionary with the following flux components:
-            - ET : float
+        Attributes
+        ----------
+        Attributes: self.fluxesFVS
+            Contains all the flux components and status of the calculation.
+
+            - ET - float
                 Total evapotranspiration (W/m2).
-            - T : float
+            - Tfvs - float
                 Plant transpiration (W/m2).
-            - E : float
+            - Efvs - float
                 Soil/surface evaporation (W/m2).
-            - Fc : float
+            - Fc - float
                 Net carbon dioxide flux (mg/m2/s).
-            - R : float
+            - Rfvs - float
                 Soil/surface respiration (mg/m2/s).
-            - P : float
+            - Pfvs - float
                 Plant net photosynthesis* (mg/m2/s).
-            - status : str
+            - status - str
                 Status of the calculation.
 
         Notes
@@ -1545,27 +1573,24 @@ class Partitioning(object):
         H : float, optional
             Hyperbolic threshold, by default 0.0.
 
-        Returns
-        -------
-        dict
-            Dictionary with the following flux components:
-            - ET : float
+        Attributes
+        ----------
+        Attributes: self.fluxesCEA
+            Contains all the flux components and status of the calculation.
+
+            - ET - float
                 Total evapotranspiration (W/m2).
-            - T : float
+            - Tcea - float
                 Plant transpiration (W/m2).
-            - E : float
+            - Ecea - float
                 Soil/surface evaporation (W/m2).
-            - Fc : float
+            - Fc - float
                 Carbon dioxide flux (mg/m2/s).
-            - R : float
+            - Rcea - float
                 Soil/surface respiration (mg/m2/s).
-            - P : float
+            - Pcea - float
                 Plant net photosynthesis* (mg/m2/s).
-            - rRP : float
-                Ratio of respiration to photosynthesis.
-            - rET : float
-                Ratio of evaporation to transpiration.
-            - status : str
+            - statuscea - str
                 Status of the calculation.
 
         Notes
@@ -1704,23 +1729,25 @@ class Partitioning(object):
         W : float, optional
             Water use efficiency, by default 0.
 
-        Returns
-        -------
-        dict
+        Attributes
+        ----------
+        Attributes: self.fluxesCECw
+            Contains all the flux components and status of the calculation.
+
             Dictionary with the following flux components:
-            - ET : float
+            - ET - float
                 Total evapotranspiration (W/m2).
-            - T : float
+            - Tcecw - float
                 Plant transpiration (W/m2).
-            - E : float
+            - Ececw - float
                 Soil/surface evaporation (W/m2).
-            - Fc : float
+            - Fc - float
                 Net carbon dioxide flux (mg/m2/s).
-            - R : float
+            - Rcecw - float
                 Soil/surface respiration (mg/m2/s).
-            - P : float
+            - Pcecw - float
                 Plant net photosynthesis* (mg/m2/s).
-            - status : str
+            - statuscecw - str
                 Status of the calculation.
 
         Notes
