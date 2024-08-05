@@ -1,1 +1,3 @@
 testsphinx.sh
+venv/
+docs/build/
