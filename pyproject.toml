@@ -9,7 +9,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "partitioning"
-version = "1.0.1"
+dynamic = ["version"]
 description = "A partitioning package"
 requires-python = ">=3.9"
 authors = [
@@ -30,6 +30,9 @@ dependencies = [
        "pandas>=2.2.2,<3",
        "Pint>=0.24.3,<1",
        "scipy>=1.14.0,<2" ]
+
+[tool.hatch]
+version.path = "src/partitioning/__version.py"
 
 [project.urls]
 Repository = "https://github.com/einaraz/PartitioningMethods"
