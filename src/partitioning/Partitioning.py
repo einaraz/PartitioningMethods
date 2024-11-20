@@ -741,10 +741,10 @@ class Partitioning(object):
         if self.hi.magnitude < self.zi.magnitude:
             zeta = (
                 -0.4
-                * Constants.g
-                * (self.zi - d)
-                * Qv
-                / ((meanTkelvin) * ((ustar * self.units["u"]) ** 3))
+                * Constants.g.magnitude
+                * (self.zi.magnitude - d.magnitude)
+                * Qv.magnitude
+                / ((meanTkelvin.magnitude) * ((ustar) ** 3))
             )
         else:
             zeta = np.nan
@@ -754,7 +754,7 @@ class Partitioning(object):
             "cstar": cstar,
             "qstar": qstar,
             "tstar": tstar,
-            "zeta": zeta,
+            "zeta": zeta * ureg.dimensionless,
             "std_t": matrixSTD["Ts_p"] * self.units["Ts_p"],
             "std_q": matrixSTD["h2o_p"] * self.units["h2o"],
             "std_c": matrixSTD["co2_p"] * self.units["co2"],
