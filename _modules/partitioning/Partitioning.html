@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/pd.css?v=b6646a53" />
     <script src="../../_static/documentation_options.js?v=292eb321"></script>
-    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -782,10 +782,10 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hi</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">zi</span><span class="o">.</span><span class="n">magnitude</span><span class="p">:</span>
             <span class="n">zeta</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="o">-</span><span class="mf">0.4</span>
-                <span class="o">*</span> <span class="n">Constants</span><span class="o">.</span><span class="n">g</span>
-                <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zi</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span>
-                <span class="o">*</span> <span class="n">Qv</span>
-                <span class="o">/</span> <span class="p">((</span><span class="n">meanTkelvin</span><span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="n">ustar</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">3</span><span class="p">))</span>
+                <span class="o">*</span> <span class="n">Constants</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">magnitude</span>
+                <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zi</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">magnitude</span><span class="p">)</span>
+                <span class="o">*</span> <span class="n">Qv</span><span class="o">.</span><span class="n">magnitude</span>
+                <span class="o">/</span> <span class="p">((</span><span class="n">meanTkelvin</span><span class="o">.</span><span class="n">magnitude</span><span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="n">ustar</span><span class="p">)</span> <span class="o">**</span> <span class="mi">3</span><span class="p">))</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">zeta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
@@ -795,7 +795,7 @@
             <span class="s2">&quot;cstar&quot;</span><span class="p">:</span> <span class="n">cstar</span><span class="p">,</span>
             <span class="s2">&quot;qstar&quot;</span><span class="p">:</span> <span class="n">qstar</span><span class="p">,</span>
             <span class="s2">&quot;tstar&quot;</span><span class="p">:</span> <span class="n">tstar</span><span class="p">,</span>
-            <span class="s2">&quot;zeta&quot;</span><span class="p">:</span> <span class="n">zeta</span><span class="p">,</span>
+            <span class="s2">&quot;zeta&quot;</span><span class="p">:</span> <span class="n">zeta</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">dimensionless</span><span class="p">,</span>
             <span class="s2">&quot;std_t&quot;</span><span class="p">:</span> <span class="n">matrixSTD</span><span class="p">[</span><span class="s2">&quot;Ts_p&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s2">&quot;Ts_p&quot;</span><span class="p">],</span>
             <span class="s2">&quot;std_q&quot;</span><span class="p">:</span> <span class="n">matrixSTD</span><span class="p">[</span><span class="s2">&quot;h2o_p&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s2">&quot;h2o&quot;</span><span class="p">],</span>
             <span class="s2">&quot;std_c&quot;</span><span class="p">:</span> <span class="n">matrixSTD</span><span class="p">[</span><span class="s2">&quot;co2_p&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s2">&quot;co2&quot;</span><span class="p">],</span>
@@ -1957,7 +1957,7 @@
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2024, Einara Zahn.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     </div>
   </body>
 </html>
